@@ -1,0 +1,176 @@
+Project.hierarchy = { 
+    "categoryMapping": {  // Maps category codes to their UUIDs 
+        "B3": "<uuid B3>", 
+        "B5": "<uuid B5>", 
+    }, 
+    "categories": { 
+        "<uuid B3>": { 
+            "pages": { 
+                "GAD": "3a79f111-9538-4d04-89ee-d23704d1eeb8", 
+                "TBox": "a4ca4ebf-9e26-4a49-af39-c895f06787fa" 
+            }, 
+            "baseDrawing": { 
+                "fileId": "a9887d58-836f-4d4f-bc5f-fb245fffd5df" 
+            }, 
+            "components": { 
+                // This is the "nestedParentLevel0" type 
+                "auxiliaryBox": { 
+                    "selected": "G Thermistor",     
+                    "options": { 
+                        "none": { "fileId": "none" }, 
+                        // this is "nestedChildLevel1" type 
+                        "G SP Heater": { "fileId": "7cad07c8-1250-4a8f-b2cd-04cd0931d78d" }, 
+                        "G SP + Thermistor": { "fileId": "9573b2d8-5d00-4af5-91ec-0a5d244654d0" }, 
+                        "G Thermistor": { "fileId": "809ea113-2526-4a17-a7b2-3f2f921353cb" } 
+                    } 
+                }, 
+                "bearingType": { 
+                    "selected": "none", 
+                    "options": { 
+                        "none": { "fileId": "none" }, 
+                        "2P DE C3 Bearing": { "fileId": "37a70f85-661b-4963-b2e2-f4d443ce9e35" }, 
+                        "2P DE Standard Bearing": { "fileId": "b16def5e-ee32-46cb-badb-c03b1448dbae" 
+}, 
+                        "4,6,8P DE C3 Bearing": { "fileId": "3a9d69fe-9066-4014-bb14-2e5ab2b6668f" }, 
+                        "4,6,8P DE Standard Bearing": { "fileId": "af531397-e723-4982-951f
+f08b0fac446d" }, 
+                        "DE NU Bearing": { "fileId": "41e4b923-2683-4116-973b-7d43ae4bf2b9" }, 
+ 
+                        // This below option is "nestedParentLevel1" type 
+                        "NDE C3 Bearing": { 
+                            "selected": "NDE Insulated Bearing", 
+                            "options": { 
+                                // does not contain none option 
+                                "NDE Insulated Bearing": { "fileId": "5a37fbf8-c29a-4def-afd8
+9b481178e368" }, 
+                                // This below option is "nestedChildLevel2" 
+                                "NDE Standard Bearing": { "fileId": "0833596d-1c9d-46f5-afce
+c4a456ba0961" } 
+                            } 
+                        }, 
+ 
+                    } 
+                } 
+            } 
+        }, 
+        "<uuid B5>": { 
+            "pages": { 
+                "GAD": "52d195b4-546a-4018-97e0-112a6a8b7062" 
+            }, 
+            "baseDrawing": { "fileId": "" }, 
+            "components": { 
+                // this below options of components is "normal" type 
+                "Demo": { 
+                    "fileId": "52d1sd3432546a - 4018 - 97e0 - 112a6a8b7062" 
+                } 
+            } 
+        } 
+    } 
+};
+
+the design's structure is a single category of the project's hierarchy but it doesn't mean that the desing is refferenced in the project schema's hierarchy,the design's structure indeed copied from project's hierarchy but it shouldn't contain any  refference to the design schema in the hierarchy.
+
+
+Design.structure = { 
+            "pages": { 
+                "GAD": "52d195b4-546a-4018-97e0-112a6a8b7062" 
+            }, 
+            "baseDrawing": { "fileId": "" }, 
+            "components": { 
+                // this below options of components is "normal" type 
+                "Demo": { 
+                    "fileId": "52d1sd3432546a - 4018 - 97e0 - 112a6a8b7062" 
+                } 
+            } 
+        } 
+
+
+
+        
+
+
+src
+│── components
+│   │── layout
+│   │   ├── Navbar.jsx
+│   │── pages
+│   │   ├── Design.jsx
+│   │   ├── Designs.jsx
+│   │   ├── Home.jsx
+│   │   ├── SignIn.jsx
+│   │   ├── SignUp.jsx
+│   │── ui
+│   │   ├── Dialog.jsx
+│   │   ├── resizable.jsx
+│   │   ├── Slider.jsx
+│   │── constants
+│   │   ├── index.jsx
+│── constants
+│── features
+│   │── action-bar
+│   │   │── hooks(folder)
+│   │   │── ActionBar.jsx
+│   │   │── AddForm.jsx
+│   │   │── DisplayOptions.jsx
+│   │   │── ExportForm.jsx
+│   │   │── RenderOptions.jsx
+│   ├──cards
+│   │   ├── DesignCard.jsx
+│   │── edit-menu
+│   │   │── update
+│   │   │   ├── DeleteForm.jsx
+│   │   │   ├── EditMenu.jsx
+│   │   │   ├── RenameForm.jsx
+│   │   │   ├── UpdateForm.jsx
+│   │── search
+│   │   ├── SearchBar.jsx
+│   │── sidebar
+│   │   ├── DeletePageConfirmation.jsx
+│   │   ├── PageList.jsx
+│   │   ├── SideMenu.jsx
+│   │── view
+│   │   ├── View.jsx
+│── hooks
+│   ├── useSideMenu.js
+│── store
+│   │── slices
+│   │   ├── designSlice.js
+│   │   ├── fileSlice.js
+│   │   ├── recentDesignSlice.js
+│   │   ├── uiSlice.js
+│   │   ├── userSlice.js
+│   │   ├── useStore.js
+│── utility
+│   ├── api.js
+│   ├── checkFileExists.js
+│   ├── dragDrop.js
+│   ├── filePath.js
+│   ├── generatePDFFunction.js
+│   ├── sideMenuHelpers.js
+│   ├── utils.js
+│── components
+│   │── layout
+│   │   ├── Navbar.jsx
+│   │── pages
+│   │   ├── Design.jsx
+│   │   ├── Designs.jsx
+│   │   ├── Home.jsx
+│   │   ├── SignIn.jsx
+│   │   ├── SignUp.jsx
+│   │── ui
+│   │   ├── Dialog.jsx
+│   │   ├── resizable.jsx
+│   │   ├── Slider.jsx
+│   │── constants
+│   │   ├── index.jsx
+│── App.css
+│── App.jsx
+│── favicon.png
+│── index.css
+│── main.jsx
+│── .env
+│── .eslintrc.cjs
+│── .gitignore
+│── components.json
+│── index.html
+│── jsconfig.json

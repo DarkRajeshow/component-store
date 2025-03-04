@@ -1,0 +1,59 @@
+# Node modules
+/client/node_modules/
+/client2/node_modules/
+/server/node_modules/
+
+
+# Build output (client)
+client/build/
+/client/dist/
+/client/out/
+client2/build/
+/client2/dist/
+/client2/out/
+
+# Build output (server)
+server/dist/
+/server/build/
+/server/out/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local
+
+# Dependency directories
+/pnpm-lock.yaml
+/package-lock.json
+/yarn.lock
+
+# IDE and editor settings
+/.idea/
+/.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# TypeScript files (if you use TypeScript)
+*.tsbuildinfo
+
+# Test coverage reports
+/coverage/
+
+# Debug folder
+/.vscode-test/
+
+# Production build folder (optional, if you deploy builds)
+/public/build/
+
+# Ignore client build folder (if deployed separately)
+client/public/build/
