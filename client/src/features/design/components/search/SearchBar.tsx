@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 
-function SearchBar({ handleSearchChange }) {
+function SearchBar({ handleSearchChange }: { handleSearchChange: Function }) {
     return (
         <div className="pt-6">
             <input
@@ -13,8 +12,6 @@ function SearchBar({ handleSearchChange }) {
     );
 }
 
-SearchBar.propTypes = {
-    handleSearchChange: PropTypes.func.isRequired,
-};
+
 
 export default SearchBar;

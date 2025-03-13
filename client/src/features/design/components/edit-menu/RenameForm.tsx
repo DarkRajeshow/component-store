@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DialogTitle, DialogTrigger } from '@radix-ui/react-alert-dialog';
+import { DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import RenameInput from './update/RenameInput';
 import { renameAttributeAPI } from '../../lib/designAPI';
 import { toast } from 'sonner';

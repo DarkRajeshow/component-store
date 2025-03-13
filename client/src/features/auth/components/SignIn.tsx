@@ -1,15 +1,14 @@
-import React, { useState, FormEvent } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginAPI } from '../lib/authAPI';
-import { UserLoginRequest } from '../../../types/types';
 
-const SignIn: React.FC = () => {
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+const SignIn = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Validation
@@ -18,19 +17,18 @@ const SignIn: React.FC = () => {
             return;
         }
 
-        // Login API call
-        try {
-            const credentials: UserLoginRequest = { username, password };
-            const { data } = await loginAPI(credentials);
 
+        // Register API call
+        try {
+            const { data } = await loginAPI({ username, password })
             if (data.success) {
-                toast.success(data.message || 'Login successful');
-                navigate('/');
+                toast.success(data.status);
+                navigate('/')
             } else {
-                toast.error(data.message || 'Login failed');
+                toast.error(data.status);
             }
         } catch (error) {
-            toast.error('An error occurred during login');
+            toast.error('An error occurred during registration');
         }
     };
 
@@ -69,9 +67,9 @@ const SignIn: React.FC = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full text-sm bg-[#765EFC] text-white py-3 my-4 rounded-full transition duration-200 font-medium"
+                        className="w-full text-sm bg-[#765EFC] text-white py-3 my-4  rounded-full transition duration-200 font-medium"
                     >
-                        Sign In
+                        Sign In sdfsd
                     </button>
                 </form>
             </div>

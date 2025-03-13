@@ -1,43 +1,42 @@
-import PropTypes from 'prop-types'
+import React from "react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-const DeletePageConfirmation = ({ 
-    openPageDeleteWarning, 
-    handleDelete, 
-    setOpenPageDeleteWarning 
+const DeletePageConfirmation = ({
+    handleDelete,
+    openPageDeleteWarning,
+    setOpenPageDeleteWarning
 }) => {
-    if (!openPageDeleteWarning) return null;
-
     return (
-        <div className='rounded-lg bg-red-50 border-red-300/40 border overflow-hidden py-4 px-4 flex flex-col gap-3 mt-4'>
-            <h1 className='font-medium'>
-                If you delete the page `{openPageDeleteWarning}`, all associated files will also be deleted. 
-                Are you sure you want to continue?
-            </h1>
-            <div className='flex items-center justify-start gap-2'>
-                <button 
-                    onClick={handleDelete} 
-                    type='button' 
-                    className='bg-red-300 hover:bg-red-400 border hover:border-black transition-all font-normal py-1.5 px-4 rounded-full'
-                >
-                    Yes
-                </button>
-                <button 
-                    onClick={() => setOpenPageDeleteWarning('')} 
-                    type='button' 
-                    className='bg-white hover:bg-blue-50 border hover:border-black font-normal py-1.5 px-4 rounded-full'
-                >
-                    No
-                </button>
-            </div>
-        </div>
+        <AlertDialog open={openPageDeleteWarning} onOpenChange={setOpenPageDeleteWarning}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure you want to delete this page?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the page and
+                        its associated files.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-red-500 hover:bg-red-600"
+                    >
+                        Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 };
 
-DeletePageConfirmation.propTypes = {
-    openPageDeleteWarning: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
-    handleDelete: PropTypes.func.isRequired,
-    setOpenPageDeleteWarning: PropTypes.func.isRequired,
-};
-
-
-export default DeletePageConfirmation;
+export default React.memo(DeletePageConfirmation);

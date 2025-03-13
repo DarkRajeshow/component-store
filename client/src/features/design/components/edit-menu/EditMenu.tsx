@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { useEffect } from 'react';
 import useStore from '../../../../store/useStore';
-import { DialogTrigger } from '@radix-ui/react-alert-dialog';
+import { DialogTrigger } from '@/components/ui/dialog';
 
 
 const EditMenu = ({ attributeOption, setDialogType }) => {

@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { LucideEllipsisVertical } from 'lucide-react';
 import { popUpQuestions } from '../../../../constants';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogTrigger } from '../../../../components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import AddForm from './AddForm';
 import RenameForm from '../edit-menu/RenameForm';
 import DeleteForm from '../edit-menu/DeleteForm';
@@ -170,7 +170,7 @@ function ActionBar({ generatePDF }) {
     //     console.log("DesignAttributes");
     //     console.log(designAttributes);
     // }, [designAttributes]);
-    
+
     useEffect(() => {
         setLevelOneNest("");
         setLevelTwoNest("");
@@ -225,7 +225,7 @@ function ActionBar({ generatePDF }) {
         try {
             const { data } = await shiftToSelectedCategoryAPI(id, {
                 selectedCategory: tempSelectedCategory,
-                
+
             });
             if (data.success) {
                 toast.success(data.status);
@@ -269,18 +269,20 @@ function ActionBar({ generatePDF }) {
                             }}
                             hidden
                         />
-                        <span className={`h-5 w-5 flex items-center justify-center rounded-full ${openDropdown === attribute && "border border-dark"} ${typeof value.value === 'boolean' ? (value.value ? "bg-green-300/60" : "bg-design/30") : (value?.selectedOption !== 'none' ? "bg-green-300/60" : "bg-design/30")}`}>
-                            {(typeof value.value === 'boolean' && value) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-[12px] text-dark">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                            </svg>}
+                        <div className='flex items-center gap-2'>
+                            <span className={`h-5 w-5 flex items-center justify-center rounded-full ${openDropdown === attribute && "border border-dark"} ${typeof value.value === 'boolean' ? (value.value ? "bg-green-300/60" : "bg-design/30") : (value?.selectedOption !== 'none' ? "bg-green-300/60" : "bg-design/30")}`}>
+                                {(typeof value.value === 'boolean' && value) && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-[12px] text-dark">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>}
 
-                            {(typeof value.value !== 'boolean') && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`size-[12px] text-dark ${openDropdown === attribute ? "rotate-180" : "rotate-0"}`}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                            </svg>}
-                        </span>
-                        <span className="py-0 text-dark text-xs cursor-pointer capitalize font-[430]">
-                            {attribute}
-                        </span>
+                                {(typeof value.value !== 'boolean') && <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`size-[12px] text-dark ${openDropdown === attribute ? "rotate-180" : "rotate-0"}`}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>}
+                            </span>
+                            <span className="py-0 text-dark text-xs cursor-pointer capitalize font-[430]">
+                                {attribute}
+                            </span>
+                        </div>
                     </label>
 
                     <span onClick={() => handleToggleContextMenu(attribute)} className='hover:bg-dark/5 p-1 rounded-full'>

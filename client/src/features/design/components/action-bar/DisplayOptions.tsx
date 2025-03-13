@@ -1,15 +1,24 @@
-import PropTypes from 'prop-types';
+import { IAttribute, IAttributeOption } from '../../../../types/types';
 import useStore from '../../../../store/useStore';
 
-const DisplayOptions = ({ level, isNestedLevel2 = false, levelOneNest }) => {
+interface DisplayOptionsProps {
+    level: number;
+    isNestedLevel2?: boolean;
+    levelOneNest: string;
+}
 
-    const { designAttributes } = useStore();
+interface DesignStore {
+    designAttributes: Record<string, IAttribute>;
+}
+
+const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 = false, levelOneNest }) => {
+    const { designAttributes } = useStore() as DesignStore;
 
     if (!designAttributes) {
-        return;
+        return null;
     }
 
-    const hasSelectedOption = (attribute) => {
+    const hasSelectedOption = (attribute: IAttribute): boolean => {
         if (!attribute.options) return false;
 
         // Check if the current attribute has a selected option that meets the condition
@@ -19,13 +28,13 @@ const DisplayOptions = ({ level, isNestedLevel2 = false, levelOneNest }) => {
 
         // Check all nested options
         for (const key in attribute.options) {
-            const option = attribute.options[key];
+            const option = attribute.options[key] as IAttributeOption;
             if (typeof option === 'object' && option.selectedOption) {
                 if (option.selectedOption) {
                     return true;
                 }
             } else if (Array.isArray(attribute.options)) {
-                for (const opt of attribute.options) {
+                for (const opt of attribute.options as IAttributeOption[]) {
                     if (opt.selectedOption) {
                         return true;
                     }
@@ -35,7 +44,6 @@ const DisplayOptions = ({ level, isNestedLevel2 = false, levelOneNest }) => {
 
         return false;
     };
-
 
     if (level === 0) {
         // Render level 0 options
@@ -68,7 +76,8 @@ const DisplayOptions = ({ level, isNestedLevel2 = false, levelOneNest }) => {
         const parent = designAttributes[levelOneNest];
         if (parent?.options) {
             return Object.entries(parent.options).map(([attribute, value]) => {
-                if (value?.selectedOption) {
+                const optionValue = value as IAttributeOption;
+                if (optionValue?.selectedOption) {
                     return (
                         <option key={attribute} value={attribute}>
                             {attribute}
@@ -80,12 +89,6 @@ const DisplayOptions = ({ level, isNestedLevel2 = false, levelOneNest }) => {
         }
     }
     return null;
-};
-
-DisplayOptions.propTypes = {
-    level: PropTypes.number.isRequired,
-    isNestedLevel2: PropTypes.bool,
-    levelOneNest: PropTypes.string,
 };
 
 export default DisplayOptions;

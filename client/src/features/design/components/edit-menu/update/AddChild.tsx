@@ -1,54 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { handleClick, handleDragOver } from "../../../../../utils/dragDrop";
-import PropTypes from 'prop-types';
+import { handleClick } from "../../../../../utils/dragDrop";
 import useStore from "../../../../../store/useStore";
-import { useEffect } from "react";
+import { IAttribute } from "../../../../../types/types";
 
+interface AddChildProps {
+    nestedIn?: string;
+    setOperation: (operation: string) => void;
+    updatedValue: {
+        options?: {
+            [key: string]: IAttribute;
+        };
+    };
+}
 
-function AddChild({ nestedIn = "", setOperation, updatedValue }) {
+interface FileData {
+    [key: string]: {
+        [key: string]: File;
+    };
+}
 
+function AddChild({ nestedIn = "", setOperation, updatedValue }: AddChildProps) {
     const { menuOf, newFiles, setNewFiles, setUpdatedAttributes, updatedAttributes, uniqueFileName, setUniqueFileName, pages } = useStore();
     const [optionName, setOptionName] = useState("");
     const [isParent, setIsParent] = useState(false);
-    const [isAttributeAlreadyExist, setIsAttributeAlreadyExist] = useState(false)
+    const [isAttributeAlreadyExist, setIsAttributeAlreadyExist] = useState(false);
     const [selectedPages, setSelectedPages] = useState(['gad']);
 
-
-    const handleFileChange = (e, setFiles, title, page) => {
-        if (e.target.files[0].type === 'image/svg+xml' || e.target.files[0].type === 'application/pdf') {
-            setFiles({
-                ...newFiles,
-                [title]: {
-                    ...newFiles?.[title],
-                    [pages[page]]: e.target.files[0]
-                },
-            });
-        }
-        else {
-            toast.error('Please choose a svg file.');
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFiles: (files: FileData) => void, title: string, page: string) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.type === 'image/svg+xml' || file.type === 'application/pdf') {
+                setFiles({
+                    ...newFiles,
+                    [title]: {
+                        ...newFiles?.[title],
+                        [pages[page]]: file
+                    },
+                });
+            } else {
+                toast.error('Please choose a svg file.');
+            }
         }
     };
 
-    const handleDrop = (e, setFiles, title, page) => {
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, setFiles: (files: FileData) => void, title: string, page: string) => {
         e.preventDefault();
-        if (e.dataTransfer.files[0].type === 'image/svg+xml' || e.dataTransfer.files[0].type === 'application/pdf') {
-            setFiles({
-                ...newFiles,
-                [title]: {
-                    ...newFiles?.[title],
-                    [pages[page]]: e.target.files[0]
-                },
-            });
-        }
-        else {
-            toast.error('Please choose a svg file.');
+        if (e.dataTransfer.files[0]) {
+            const file = e.dataTransfer.files[0];
+            if (file.type === 'image/svg+xml' || file.type === 'application/pdf') {
+                setFiles({
+                    ...newFiles,
+                    [title]: {
+                        ...newFiles?.[title],
+                        [pages[page]]: file
+                    },
+                });
+            } else {
+                toast.error('Please choose a svg file.');
+            }
         }
     };
 
     const selectedFile = newFiles[uniqueFileName]
 
-    const updateValue = (prev) => {
+    const updateValue = (prev: any) => {
         const tempAttributes = { ...prev }
 
         if (menuOf.length === 3) {
@@ -149,7 +165,7 @@ function AddChild({ nestedIn = "", setOperation, updatedValue }) {
 
         setUpdatedAttributes(TempUpdatedAttributes)
         setUniqueFileName()
-        setOperation("");
+        setOperation("")
     }
 
     useEffect(() => {
@@ -159,6 +175,9 @@ function AddChild({ nestedIn = "", setOperation, updatedValue }) {
         console.log(updatedAttributes);
     }, [updatedAttributes])
 
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
 
     return (
         <div id='add' className='w-full'>
@@ -372,7 +391,7 @@ function AddChild({ nestedIn = "", setOperation, updatedValue }) {
                                                 {(
                                                     <div className=" flex gap-2 flex-col">
                                                         <p className="font-medium text-gray-600">File Preview</p>
-                                                        <div className='aspect-square p-5 bg-design/5 border-2 border-dark/5 border-gray-400 w-full overflow-hidden items-center justify-center flex flex-col'>
+                                                        <div className='aspect-square p-5 bg-design/5 border-2 border-gray-400 w-full overflow-hidden items-center justify-center flex flex-col'>
 
                                                             {
                                                                 newFiles?.[uniqueFileName]?.[pages[page]] ? (newFiles?.[uniqueFileName]?.[pages[page]]?.type === "application/pdf" ? (
@@ -412,10 +431,5 @@ function AddChild({ nestedIn = "", setOperation, updatedValue }) {
         </div>
     )
 }
-AddChild.propTypes = {
-    nestedIn: PropTypes.string,
-    updatedValue: PropTypes.object.isRequired,
-    setOperation: PropTypes.func.isRequired,
-};
 
 export default AddChild;

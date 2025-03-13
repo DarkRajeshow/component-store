@@ -9,28 +9,50 @@ import AddChild from './update/AddChild';
 import useStore from '../../../../store/useStore';
 import { DialogDescription, DialogTitle, DialogTrigger } from '../../../../components/ui/dialog';
 import { checkFileExists } from '../../../../utils/checkFileExists';
+import { IStructure, IAttribute, IAttributeOption } from '../../../../types/types';
 
+interface UpdateFormProps {}
 
-//newFiles
-//preview 
-//backend
+interface FileCountInfo {
+    fileUploads: number;
+    selectedPagesCount: number;
+}
 
-function UpdateForm() {
+interface FileExistenceStatus {
+    [key: string]: boolean;
+}
 
+interface NewFiles {
+    [key: string]: {
+        [key: string]: File;
+    };
+}
+
+interface FileCounts {
+    [key: string]: FileCountInfo;
+}
+
+interface AttributeValue {
+    options?: {
+        [key: string]: IAttribute | IAttributeOption;
+    };
+    [key: string]: any;
+}
+
+function UpdateForm({}: UpdateFormProps) {
     const { design, menuOf, designAttributes, setDesignAttributes, incrementFileVersion, newFiles, setNewFiles, updatedAttributes, setUpdatedAttributes, generateStructure, setUndoStack, setRedoStack, pages, loading, deleteFilesOfPages, setDeleteFilesOfPages, filesToDelete, setFilesToDelete } = useStore();
 
-    const [updateLoading, setUpdateLoading] = useState(false);
-    const [operation, setOperation] = useState("update");
-    const [newAttributeName, setNewAttributeName] = useState(menuOf[menuOf.length - 1]);
-    const [updatedValue, setUpdatedValue] = useState({});
-    const [selectedAttributeValue, setSelectedAttributeValue] = useState({})
-    const [fileExistenceStatus, setFileExistenceStatus] = useState({});
-    const [selectedPages, setSelectedPages] = useState(['gad']);
-    const [fileCounts, setFileCounts] = useState({})
+    const [updateLoading, setUpdateLoading] = useState<boolean>(false);
+    const [operation, setOperation] = useState<"update" | "add" | "delete" | "">("update");
+    const [newAttributeName, setNewAttributeName] = useState<string>(menuOf[menuOf.length - 1]);
+    const [updatedValue, setUpdatedValue] = useState<AttributeValue>({});
+    const [selectedAttributeValue, setSelectedAttributeValue] = useState<AttributeValue>({});
+    const [fileExistenceStatus, setFileExistenceStatus] = useState<FileExistenceStatus>({});
+    const [selectedPages, setSelectedPages] = useState<string[]>(['gad']);
+    const [fileCounts, setFileCounts] = useState<FileCounts>({});
 
-
-    const handleFileChange = (e, setFiles, page) => {
-        if (e.target.files[0].type === 'image/svg+xml' || e.target.files[0].type === 'application/pdf') {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFiles: (files: NewFiles) => void, page: string) => {
+        if (e.target.files && e.target.files[0].type === 'image/svg+xml' || e.target.files && e.target.files[0].type === 'application/pdf') {
             setFiles({
                 ...newFiles,
                 [selectedAttributeValue?.path]: {
@@ -44,14 +66,14 @@ function UpdateForm() {
         }
     };
 
-    const handleDrop = (e, setFiles, page) => {
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, setFiles: (files: NewFiles) => void, page: string) => {
         e.preventDefault();
         if (e.dataTransfer.files[0].type === 'image/svg+xml' || e.dataTransfer.files[0].type === 'application/pdf') {
             setFiles({
                 ...newFiles,
                 [selectedAttributeValue?.path]: {
                     ...newFiles?.[selectedAttributeValue?.path],
-                    [pages[page]]: e.target.files[0]
+                    [pages[page]]: e.dataTransfer.files[0]
                 },
             });
         }
@@ -67,7 +89,7 @@ function UpdateForm() {
         setUpdatedAttributes(deepCopyValue)
     }, [designAttributes, setUpdatedAttributes])
 
-    const updateValue = async (renamedAttributes) => {
+    const updateValue = async (renamedAttributes: any) => {
         const tempAttributes = { ...renamedAttributes }
 
         if (menuOf.length === 3) {
@@ -101,10 +123,10 @@ function UpdateForm() {
         return tempAttributes;
     };
 
-    async function extractPaths() {
-        let paths = [];
+    async function extractPaths(): Promise<string[]> {
+        let paths: string[] = [];
 
-        function traverse(current) {
+        function traverse(current: any): void {
             if (typeof current === 'object' && current !== null) {
                 if (current.path && current.path !== "none") {
                     paths.push(current.path);
@@ -121,7 +143,7 @@ function UpdateForm() {
         return paths;
     }
 
-    const handleUpdate = async (e) => {
+    const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setUpdateLoading(true);
 
@@ -162,7 +184,7 @@ function UpdateForm() {
         try {
             setUndoStack([]);
             setRedoStack([])
-            const renameAttribute = async (attributes, keys, newKey) => {
+            const renameAttribute = async (attributes: any, keys: string[], newKey: string) => {
                 if (keys[keys.length - 1] === newKey) {
                     return attributes; // Return early if newKey is the same as the last key
                 }
@@ -212,7 +234,7 @@ function UpdateForm() {
 
             const formData = new FormData();
 
-            const structure = generateStructure({
+            const structure: IStructure = generateStructure({
                 updatedAttributes: updatedDesignAttributes
             })
 
@@ -230,12 +252,15 @@ function UpdateForm() {
                 }
             }
 
-            const { data } = await updateDesignAttributesAPI(id, formData);
+            const { data } = await updateDesignAttributesAPI(id!, formData);
 
             if (data.success) {
                 setDesignAttributes(updatedDesignAttributes)
                 toast.success(data.status);
-                document.querySelector("#close").click();
+                const closeButton = document.querySelector("#close");
+                if (closeButton instanceof HTMLElement) {
+                    closeButton.click();
+                }
                 setNewFiles({});
                 incrementFileVersion()
             }
@@ -268,7 +293,7 @@ function UpdateForm() {
 
 
 
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
 
     const baseFilePath = `${filePath}${design.folder}`;
 
@@ -277,7 +302,7 @@ function UpdateForm() {
     const handleDelete = async () => {
         const updateValueAfterDelete = await deleteValue();
 
-        let structure = generateStructure({
+        let structure: IStructure = generateStructure({
             updatedAttributes: updateValueAfterDelete
         })
 
@@ -286,12 +311,15 @@ function UpdateForm() {
             filesToDelete: await extractPaths()
         }
 
-        const { data } = await deleteDesignAttributesAPI(id, body);
+        const { data } = await deleteDesignAttributesAPI(id!, body);
 
         if (data.success) {
             setDesignAttributes(updateValueAfterDelete);
             toast.success(data.status);
-            document.querySelector("#close").click();
+            const closeButton = document.querySelector("#close");
+            if (closeButton instanceof HTMLElement) {
+                closeButton.click();
+            }
             incrementFileVersion((version) => version + 1)
         }
         else {
@@ -307,7 +335,7 @@ function UpdateForm() {
                 return;
             }
 
-            const alreadySelectedPages = [];
+            const alreadySelectedPages: string[] = [];
 
             const results = await Promise.all(
                 Object.keys(pages).map(async (page) => {
@@ -469,7 +497,7 @@ function UpdateForm() {
                                                 {(
                                                     <div className=" flex gap-2 flex-col">
                                                         <p className="font-medium text-gray-600">File Preview</p>
-                                                        <div className='aspect-square p-5 bg-design/5 border-2 border-dark/5 border-gray-400 w-full overflow-hidden items-center justify-center flex flex-col bg-white'>
+                                                        <div className='aspect-square p-5 bg-design/5 border-2 border-gray-400 w-full overflow-hidden items-center justify-center flex flex-col'>
 
                                                             {
                                                                 selectedFile ? (selectedFile?.type === "application/pdf" ? (
@@ -519,7 +547,7 @@ function UpdateForm() {
             </div>
             <button id='closeButton' onClick={()=>{
                 resetStates()
-                document.getElementById("close").click()
+                document.getElementById("close")?.click()
             }} type='button' className='absolute top-3 right-3 shadow-none'>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -548,7 +576,7 @@ function UpdateForm() {
                         setNewFiles({})
                         setUpdatedValue(selectedAttributeValue);
                         setNewAttributeName(menuOf[menuOf.length - 1]);
-                        document.getElementById('close').click()
+                        document.getElementById('close')?.click()
                     }} disabled={updateLoading} className={`flex items-center justify-center gap-3 hover:bg-zinc-400/30 py-3 px-3 rounded-md  text-dark font-medium relative bg-design`}>Cancel</button>
                     <button disabled={updateLoading} type='submit' className={`flex items-center justify-center gap-3 py-3 px-16 rounded-md text-white font-medium relative ${updateLoading ? "bg-[#6B26DB]/80" : "bg-[#6B26DB]"}`}>Save Changes
                         {

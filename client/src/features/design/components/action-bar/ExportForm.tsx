@@ -1,14 +1,16 @@
-import PropTypes from 'prop-types';
 import { useState } from 'react';
 import useStore from '../../../../store/useStore';
 import {
     DialogTrigger, DialogTitle, DialogDescription
 } from '../../../../components/ui/dialog';
 
+interface ExportFormProps {
+    generatePDF: (fileName: string) => void;
+}
 
-function ExportForm({ generatePDF }) {
+function ExportForm({ generatePDF }: ExportFormProps) {
 
-    const [fileName, setFileName] = useState("");
+    const [fileName, setFileName] = useState<string>("");
     const { setSelectionBox } = useStore()
 
     return (
@@ -16,7 +18,8 @@ function ExportForm({ generatePDF }) {
             e.preventDefault();
             setSelectionBox(null)
             generatePDF(fileName);
-            document.querySelector("#exportBtn").click();
+            const exportBtn = document.querySelector("#exportBtn") as HTMLElement;
+            exportBtn?.click();
             setFileName("");
         }}
             className='flex flex-col gap-2'>
@@ -46,9 +49,5 @@ function ExportForm({ generatePDF }) {
         </form>
     )
 }
-
-ExportForm.propTypes = {
-    generatePDF: PropTypes.func.isRequired,
-};
 
 export default ExportForm

@@ -1,7 +1,12 @@
-import { DialogDescription } from '@radix-ui/react-alert-dialog';
-import PropTypes from 'prop-types';
+import { DialogDescription } from '@/components/ui/dialog';
 
-const RenameInput = ({ newAttributeName, setNewAttributeName, className }) => (
+interface RenameInputProps {
+    newAttributeName: string;
+    setNewAttributeName: (value: string) => void;
+    className?: string;
+}
+
+const RenameInput = ({ newAttributeName, setNewAttributeName, className }: RenameInputProps) => (
     <DialogDescription className={`group cursor-text bg-theme/40 py-2 focus-within:bg-theme/60 rounded-md flex items-center justify-center gap-2 px-2 ${className}`}>
         <label htmlFor='newAttributeName' className=' p-2 bg-dark/5 rounded-md'>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-dark/60 group-hover:text-dark h-full">
@@ -19,11 +24,5 @@ const RenameInput = ({ newAttributeName, setNewAttributeName, className }) => (
         />
     </DialogDescription>
 );
-
-RenameInput.propTypes = {
-    newAttributeName: PropTypes.string.isRequired,
-    className: PropTypes.string,
-    setNewAttributeName: PropTypes.func.isRequired,
-};
 
 export default RenameInput;

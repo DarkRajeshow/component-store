@@ -17,16 +17,27 @@ export interface IDesign {
     selectedCategory: string;
     selectedPage: string;
     designType: 'motor' | 'smiley';
-    designInfo: Record<string, string>; // Schema.Types.Mixed
+    designInfo: IDesignInfo;
     structure: IStructure;
     createdAt: Date;
     updatedAt: Date;
 }
 
+// Design Info Types
+export interface IDesignInfo {
+    typeOfMotor?: string;
+    frameSize?: string;
+    shapeOfSmile?: string;
+    [key: string]: string | undefined;
+}
+
 // Structure Types
 export interface IStructure {
-    mountingTypes: {
+    mountingTypes?: {
         [key: string]: IMountingType;
+    };
+    sizes?: {
+        [key: string]: ISmileyType;
     };
 }
 
@@ -42,15 +53,35 @@ export interface IMountingType {
     };
 }
 
+export interface ISmileyType {
+    pages: {
+        [key: string]: string;
+    };
+    baseDrawing: {
+        path: string;
+    };
+    attributes?: {
+        [key: string]: IAttribute;
+    };
+}
+
 export interface IAttribute {
     selectedOption: string;
+    value?: string;
+    path?: string;
     options: {
         [key: string]: IAttributeOption;
     };
 }
 
 export interface IAttributeOption {
-    path: string;
+    path?: string;
+    selectedOption?: string;
+    options?: {
+        [key: string]: {
+            path: string;
+        };
+    };
 }
 
 // Request/Response Types for API calls
@@ -58,7 +89,7 @@ export interface CreateDesignRequest {
     selectedCategory: string;
     selectedPage: string;
     designType: 'motor' | 'smiley';
-    designInfo: Record<string, string>;
+    designInfo: IDesignInfo;
     structure: IStructure;
     folder: string;
 }
@@ -66,7 +97,7 @@ export interface CreateDesignRequest {
 export interface UpdateDesignRequest {
     selectedCategory?: string;
     selectedPage?: string;
-    designInfo?: Record<string, string>;
+    designInfo?: IDesignInfo;
     structure?: IStructure;
 }
 

@@ -1,44 +1,57 @@
-import PropTypes from 'prop-types'
-
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { TrashIcon, CheckCircle, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const PageList = ({
-    tempPages,
     choosenPage,
     fileExistenceStatus,
+    openDeleteConfirmation,
     setChoosenPage,
-    openDeleteConfirmation
+    tempPages
 }) => {
     return (
-        <div>
-            <p className='font-medium mb-3 capitalize'>Pages</p>
-            <div className="grid grid-cols-3 gap-2">
-                {Object.keys(tempPages).map((pageName) => (
-                    <div
-                        key={pageName}
-                        className={`text-center px-4 uppercase transition-none font-medium cursor-pointer relative border 
-                            ${fileExistenceStatus[pageName] ? "bg-exists/30" : "bg-notExists/20"} 
-                            ${choosenPage === pageName ? 'border-black' : 'border-transparent'}`}
-                    >
-                        <p
-                            className="mx-4 py-3"
-                            onClick={() => setChoosenPage(pageName)}
-                        >
-                            {pageName}
-                        </p>
+        <div className="space-y-2 my-3">
+            <h4 className="font-medium">Pages</h4>
 
-                        {pageName !== 'gad' && (
-                            <svg
-                                onClick={() => openDeleteConfirmation(pageName)}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-5 rounded-full cursor-pointer transition-all absolute right-2 top-2 text-red-700"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
-                        )}
+            <div className="grid grid-cols-1 gap-2">
+                {Object.keys(tempPages).map((page, i) => (
+                    <div
+                        key={i}
+                        className={`flex justify-between items-center p-3 rounded-md border ${choosenPage === page ? "bg-blue-50 border-blue-200" : "bg-gray-50"
+                            }`}
+                    >
+                        <div
+                            className="flex-1 cursor-pointer"
+                            onClick={() => setChoosenPage(page)}
+                        >
+                            <span className="font-medium">{page}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {fileExistenceStatus[page] ? (
+                                <Badge variant="success" className="bg-green-100 text-green-800 flex gap-1 items-center">
+                                    <CheckCircle className="h-3 w-3" />
+                                    <span>File Added</span>
+                                </Badge>
+                            ) : (
+                                <Badge variant="destructive" className="bg-red-100 text-red-800 flex gap-1 items-center">
+                                    <XCircle className="h-3 w-3" />
+                                    <span>No File</span>
+                                </Badge>
+                            )}
+
+                            {Object.keys(tempPages).length > 1 && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openDeleteConfirmation(page)}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                >
+                                    <TrashIcon className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
@@ -46,13 +59,4 @@ const PageList = ({
     );
 };
 
-// const memorizedPageList = React.memo(PageList)
-PageList.propTypes = {
-    tempPages: PropTypes.objectOf(PropTypes.any).isRequired,
-    choosenPage: PropTypes.string.isRequired,
-    fileExistenceStatus: PropTypes.objectOf(PropTypes.bool).isRequired,
-    setChoosenPage: PropTypes.func.isRequired,
-    openDeleteConfirmation: PropTypes.func.isRequired,
-};
-
-export default PageList;
+export default React.memo(PageList);

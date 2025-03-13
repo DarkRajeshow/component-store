@@ -1,5 +1,4 @@
-import { DialogDescription, DialogTitle, DialogTrigger } from '@radix-ui/react-alert-dialog';
-import PropTypes from 'prop-types';
+import { DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { addNewAttributeAPI, addNewParentAttributeAPI } from '../../lib/designAPI';
 import { useParams } from 'react-router-dom';
@@ -7,7 +6,18 @@ import { handleClick, handleDragOver } from '../../../../utils/dragDrop';
 import useStore from '../../../../store/useStore';
 import { useState } from 'react';
 import DisplayOptions from './DisplayOptions';
-import { IStructure } from '../../../../types/types';
+import { IDesign, IStructure } from '../../../../types/types';
+
+interface StoreState {
+    loading: boolean;
+    design: IDesign;
+    fetchProject: (id: string) => void;
+    uniqueFileName: string;
+    generateStructure: (params: { updatedAttributes: Record<string, any> }) => IStructure;
+    setUndoStack: (stack: any[]) => void;
+    setRedoStack: (stack: any[]) => void;
+    pages: Record<string, string>;
+}
 
 interface AddFormProps {
     attributeType: string;
@@ -24,11 +34,15 @@ interface AddFormProps {
     levelTwoNest: string;
     setLevelTwoNest: (nest: string) => void;
     tempDesignAttributes: Record<string, any>;
-    uniqueFileName?: string;
 }
 
 interface CustomizationFiles {
     [key: string]: File;
+}
+
+interface ApiResponse {
+    success: boolean;
+    status: string;
 }
 
 const AddForm: React.FC<AddFormProps> = ({
@@ -44,8 +58,8 @@ const AddForm: React.FC<AddFormProps> = ({
     setLevelTwoNest,
     tempDesignAttributes
 }) => {
-
-    const { loading, design, fetchProject, uniqueFileName, generateStructure, setUndoStack, setRedoStack, pages } = useStore();
+    const store = useStore();
+    const { loading, design, fetchProject, uniqueFileName, generateStructure, setUndoStack, setRedoStack, pages } = store as unknown as StoreState;
 
     const { id } = useParams<{ id: string }>();
 
@@ -84,7 +98,7 @@ const AddForm: React.FC<AddFormProps> = ({
         if (!loading && design) {
             let structure = generateStructure({
                 updatedAttributes: tempDesignAttributes
-            }) as IStructure;
+            });
 
             //passing folder, structure, and files in formdata
             formData.append('folder', design.folder);
@@ -109,7 +123,7 @@ const AddForm: React.FC<AddFormProps> = ({
                 toast.error(data.status);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
             toast.error('Failed to add a customization attribute.');
         }
 
@@ -125,7 +139,7 @@ const AddForm: React.FC<AddFormProps> = ({
     const addNewParentAttribute = async (): Promise<void> => {
         let structure = generateStructure({
             updatedAttributes: tempDesignAttributes
-        }) as IStructure;
+        });
 
         setAddAttributeLoading(true);
 
@@ -142,7 +156,7 @@ const AddForm: React.FC<AddFormProps> = ({
                 toast.error(data.status);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
             toast.error('Failed to add parent attribute.');
         }
         setAddAttributeLoading(false);
@@ -178,7 +192,7 @@ const AddForm: React.FC<AddFormProps> = ({
             </DialogTrigger>
             <DialogDescription hidden />
 
-            <div className='group flex flex-col gap-4 '>
+            <div className='group flex flex-col gap-4'>
                 <div className='flex items-center justify-between gap-2 bg-white/40 py-2.5 focus-within:bg-white/80 rounded-md px-2'>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 ml-2 text-dark/60 group-hover:text-dark h-full">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
@@ -222,7 +236,7 @@ const AddForm: React.FC<AddFormProps> = ({
                             className="py-3 px-2 bg-white/80 rounded-md border w-full text-sm outline-none"
                         >
                             <option value="" disabled>Select Parent Attribute</option>
-                            <DisplayOptions level={0} />
+                            <DisplayOptions level={0} levelOneNest="" />
                         </select>
                     </div>
                 )}
@@ -237,7 +251,7 @@ const AddForm: React.FC<AddFormProps> = ({
                             className="py-3 px-2 bg-white/80 rounded-md border w-full text-sm outline-none"
                         >
                             <option value="" disabled>Select Parent Attribute</option>
-                            <DisplayOptions level={0} isNestedLevel2={true} />
+                            <DisplayOptions level={0} isNestedLevel2={true} levelOneNest="" />
                         </select>
                         {levelOneNest && (
                             <div>
@@ -265,14 +279,16 @@ const AddForm: React.FC<AddFormProps> = ({
                             className="py-3 px-2 bg-white/80 rounded-md border w-full text-sm outline-none"
                         >
                             <option value="" disabled>Select Parent Attribute</option>
-                            <DisplayOptions level={0} />
+                            <DisplayOptions level={0} levelOneNest="" />
                         </select>
                     </div>
                 )}
 
-                {(attributeType === "nestedParentLevel0" || attributeType === "nestedParentLevel1") ? <div>
-                    <span>* No need for any file uploads, add the options inside this attribute.</span>
-                </div> :
+                {(attributeType === "nestedParentLevel0" || attributeType === "nestedParentLevel1") ? (
+                    <div>
+                        <span>* No need for any file uploads, add the options inside this attribute.</span>
+                    </div>
+                ) : (
                     <>
                         <div>
                             <label className='text-black text-sm font-medium'>Select impacted pages.</label>
@@ -301,19 +317,28 @@ const AddForm: React.FC<AddFormProps> = ({
                         <div className='flex flex-col gap-4'>
                             {selectedPages.map((page) => (
                                 <div key={page} className='py-6 bg-yellow-50 px-6 border border-zinc-300'>
+                                    <h2 className='font-medium text-black capitalize pb-2'>File for <span className='uppercase'>{page}</span> Page</h2>
 
-                                    <h2 className='font-medium text-black capitalize pb-2'>File for <span className='uppercase'>`{page}`</span> Page</h2>
-
-                                    {newCustomizationFiles?.[pages[page]] && <div className='px-4 py-2 rounded-lg bg-blue-200 flex items-center justify-between'>
-                                        <p>Selected file : <span className='font-medium text-red-800'>{newCustomizationFiles?.[pages[page]].name}</span> </p>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 hover:text-red-700 cursor-pointer" onClick={() => {
-                                            const updatedFiles = { ...newCustomizationFiles };
-                                            delete updatedFiles[pages[page]];
-                                            setNewCustomizationFiles(updatedFiles);
-                                        }}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                        </svg>
-                                    </div>}
+                                    {newCustomizationFiles?.[pages[page]] && (
+                                        <div className='px-4 py-2 rounded-lg bg-blue-200 flex items-center justify-between'>
+                                            <p>Selected file : <span className='font-medium text-red-800'>{newCustomizationFiles[pages[page]].name}</span></p>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="size-5 hover:text-red-700 cursor-pointer"
+                                                onClick={() => {
+                                                    const updatedFiles = { ...newCustomizationFiles };
+                                                    delete updatedFiles[pages[page]];
+                                                    setNewCustomizationFiles(updatedFiles);
+                                                }}
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                            </svg>
+                                        </div>
+                                    )}
 
                                     <div className='grid grid-cols-2 gap-4 pt-1'>
                                         <div className='flex flex-col gap-2'>
@@ -321,7 +346,6 @@ const AddForm: React.FC<AddFormProps> = ({
                                             <input
                                                 id={page}
                                                 type="file"
-                                                multiple
                                                 accept='.svg,.pdf'
                                                 onChange={(e) => handleFileChange(e, setNewCustomizationFiles, page)}
                                                 className="hidden"
@@ -329,71 +353,62 @@ const AddForm: React.FC<AddFormProps> = ({
 
                                             <div
                                                 onClick={() => handleClick(page)}
-                                                onDrop={(e) => { handleDrop(e, setNewCustomizationFiles, page); }}
-                                                onDragOver={handleDragOver}
+                                                onDrop={(e) => handleDrop(e, setNewCustomizationFiles, page)}
+                                                onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                }}
                                                 className="w-full aspect-square p-4 border-2 border-dashed border-gray-400 cursor-pointer flex items-center justify-center min-h-72"
                                             >
-                                                <span className='text-sm w-60 mx-auto text-center'>Drag and drop the customization option in SVG format.</span>
+                                                <span className='text-sm w-60 mx-auto text-center'>
+                                                    Drag and drop the customization option in SVG format.
+                                                </span>
                                             </div>
                                         </div>
 
-                                        {(
-                                            <div className=" flex gap-2 flex-col">
-                                                <p className="font-medium text-gray-600">File Preview</p>
-                                                <div className='aspect-square p-5 bg-design/5 border-2 border-dark/5 border-gray-400 w-full overflow-hidden items-center justify-center flex flex-col'>
-
-                                                    {
-                                                        newCustomizationFiles?.[pages[page]] ? (newCustomizationFiles?.[pages[page]]?.type === "application/pdf" ? (
-                                                            <embed src={URL.createObjectURL(newCustomizationFiles[pages[page]])} type="application/pdf" width="100%" height="500px" />
-                                                        ) : (
-                                                            <img
-                                                                src={URL.createObjectURL(newCustomizationFiles[pages[page]])}
-                                                                alt={"base drawing"}
-                                                                className="w-full rounded-xl"
-                                                            />
-                                                        )) : (
-                                                            <p>Upload pdf or svg file to preview</p>
-                                                        )
-                                                    }
-                                                </div>
+                                        <div className="flex gap-2 flex-col">
+                                            <p className="font-medium text-gray-600">File Preview</p>
+                                            <div className='aspect-square p-5 bg-design/5 border-2 border-dark/5 border-gray-400 w-full overflow-hidden items-center justify-center flex flex-col'>
+                                                {newCustomizationFiles?.[pages[page]] ? (
+                                                    newCustomizationFiles[pages[page]].type === "application/pdf" ? (
+                                                        <embed
+                                                            src={URL.createObjectURL(newCustomizationFiles[pages[page]])}
+                                                            type="application/pdf"
+                                                            width="100%"
+                                                            height="500px"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            src={URL.createObjectURL(newCustomizationFiles[pages[page]])}
+                                                            alt="base drawing"
+                                                            className="w-full rounded-xl"
+                                                        />
+                                                    )
+                                                ) : (
+                                                    <p>Upload pdf or svg file to preview</p>
+                                                )}
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </>
-                }
-
-                {/* select pages you want to have file for */}
-
+                )}
             </div>
+
             <button
                 disabled={(attributeType !== "nestedParentLevel0" && attributeType !== "nestedParentLevel1") && selectedPages.length === 0}
                 type='submit'
                 className='bg-green-200 hover:bg-green-300 py-2 px-3 rounded-full text-dark font-medium mt-4 relative flex items-center justify-center'
             >
                 <div>{addAttributeLoading ? "Creating..." : "Create"}</div>
-                {addAttributeLoading && <div className='absolute right-4 h-4 w-4 rounded-full border-r-transparent border-2 border-black animate-spin' />}
+                {addAttributeLoading && (
+                    <div className='absolute right-4 h-4 w-4 rounded-full border-r-transparent border-2 border-black animate-spin' />
+                )}
             </button>
         </form>
     );
-};
-
-// Keeping PropTypes for backward compatibility
-AddForm.propTypes = {
-    attributeType: PropTypes.string.isRequired,
-    setOldAttributeFileName: PropTypes.func.isRequired,
-    attributeFileName: PropTypes.string.isRequired,
-    setAttributeFileName: PropTypes.func.isRequired,
-    newAttributeTypes: PropTypes.array.isRequired,
-    setAttributeType: PropTypes.func.isRequired,
-    levelOneNest: PropTypes.string.isRequired,
-    setLevelOneNest: PropTypes.func.isRequired,
-    levelTwoNest: PropTypes.string.isRequired,
-    setLevelTwoNest: PropTypes.func.isRequired,
-    tempDesignAttributes: PropTypes.object,
-    uniqueFileName: PropTypes.string
 };
 
 export default AddForm;

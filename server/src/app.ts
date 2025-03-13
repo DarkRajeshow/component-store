@@ -19,11 +19,17 @@ const server_dirname = path.resolve();
 console.log(server_dirname);
 
 // Middleware
-// app.use(cors(corsOptions));
-console.log(process.env.CLIENT_URL);
+const whitelist = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
+console.log('Allowed origins:', whitelist);
 
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: function (origin, callback) {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(cookieParser());

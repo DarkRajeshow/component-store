@@ -1,6 +1,6 @@
 // Import types
 import { StateCreator } from 'zustand';
-import { StoreState } from '../types';
+import { StoreState } from '../../types/store';
 
 // Define types for the design slice
 interface DesignState {

@@ -1,53 +1,35 @@
 import { useEffect, useRef, useState } from "react";
-import PropTypes from 'prop-types'
 import { LucideEllipsisVertical } from "lucide-react";
 import ContextMenuOptions from "../edit-menu/EditMenu";
 import useStore from "../../../../store/useStore";
+import { IAttributeOption } from "../../../../types/types";
 
+interface RenderOptionsProps {
+    pushToUndoStack: () => void;
+    attribute: string;
+    options: Record<string, IAttributeOption>;
+    handleToggleContextMenu: (attribute: string, option: string, subOption?: string) => void;
+    setDialogType: (type: string) => void;
+    menuVisible: string | boolean;
+}
 
-const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContextMenu, setDialogType, menuVisible }) => {
+const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContextMenu, setDialogType, menuVisible }: RenderOptionsProps) => {
     const { designAttributes, updateSelectedSubOption, updateSelectedOption } = useStore();
-    const [openSubSubOptions, setOpenSubSubOptions] = useState([]);
+    const [openSubSubOptions, setOpenSubSubOptions] = useState<string[]>([]);
     const [scrollPosition, setScrollPosition] = useState(0);
-    const divRef = useRef(null);
+    const divRef = useRef<HTMLDivElement>(null);
 
-    const handleOptionChange = (option) => {
+    const handleOptionChange = (option: string) => {
         pushToUndoStack(); // Push the current state before the change
-
-        //store function
-        updateSelectedOption(attribute, option)
-        // setDesignAttributes((prevModel) => ({
-        //     ...prevModel,
-        //     [attribute]: {
-        //         ...prevModel[attribute],
-        //         selectedOption: option,
-        //     },
-        // }));
-
+        updateSelectedOption(attribute, option);
     };
 
-    const handleSubOptionChange = (option, subOption) => {
+    const handleSubOptionChange = (option: string, subOption: string) => {
         pushToUndoStack(); // Push the current state before the change
-        
-        //store function
-        updateSelectedSubOption(attribute, option, subOption)
-        // setDesignAttributes((prevModel) => ({
-        //     ...prevModel,
-        //     [attribute]: {
-        //         options: {
-        //             ...prevModel[attribute].options,
-        //             [option]: {
-        //                 ...prevModel[attribute].options[option],
-        //                 selectedOption: subOption,
-        //             },
-        //         },
-        //         selectedOption: option, // Ensure the parent option is also selected
-        //     },
-        // }));
+        updateSelectedSubOption(attribute, option, subOption);
     };
 
-
-    const handleToggleSubOptions = (subOption, subValue) => {
+    const handleToggleSubOptions = (subOption: string, subValue: IAttributeOption) => {
         if (subValue?.options) {
             if (openSubSubOptions.includes(subOption)) {
                 setOpenSubSubOptions(openSubSubOptions.filter(option => option !== subOption));
@@ -56,7 +38,6 @@ const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContex
             }
         }
     };
-
 
     useEffect(() => {
         const handleScroll = () => {
@@ -70,7 +51,6 @@ const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContex
             divElement.addEventListener('scroll', handleScroll);
         }
 
-        // Cleanup event listener on component unmount
         return () => {
             if (divElement) {
                 divElement.removeEventListener('scroll', handleScroll);
@@ -164,21 +144,6 @@ const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContex
             </div >
         ))}
     </div>;
-};
-
-RenderOptions.propTypes = {
-    pushToUndoStack: PropTypes.func.isRequired,
-    attribute: PropTypes.string.isRequired,
-    menuVisible: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
-    ]).isRequired,
-    handleToggleContextMenu: PropTypes.func.isRequired,
-    setDialogType: PropTypes.func.isRequired,
-    options: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.object
-    ]).isRequired,
 };
 
 export default RenderOptions;
