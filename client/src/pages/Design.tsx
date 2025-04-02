@@ -3,7 +3,11 @@ import { useParams } from 'react-router-dom';
 import { svg2pdf } from 'svg2pdf.js';
 import jsPDF from 'jspdf';
 import useStore from '../store/useStore';
-import { ActionBar, SideMenu, View } from '../features/design';
+
+
+import SideMenu from '@/features/side-menu';
+import ActionBar from '@/features/editor';
+import View from '@/features/canvas';
 
 interface Offset {
     x: number;
