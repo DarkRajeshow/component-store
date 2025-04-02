@@ -2,11 +2,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from 'uuid';
-import { SideMenuService } from "../services/sidebar/SideMenuService";
-import { FileUploadService } from "../services/sidebar/FileUploadService";
-import { FileExistenceChecker } from "../services/sidebar/FileExistenceChecker";
+import { SideMenuService } from "../../services/sidebar/SideMenuService";
+import { FileUploadService } from "../../services/sidebar/FileUploadService";
+import { FileExistenceChecker } from "../../services/sidebar/FileExistenceChecker";
 import filePath from "@/utils/filePath";
-import { FileExistenceStatus, NewBaseDrawingFiles, Pages, SideMenuProps } from "../types";
+import { FileExistenceStatus, NewBaseDrawingFiles, Pages, SideMenuProps } from "../../types/sideMenuTypes";
 
 export function useSideMenu(props: SideMenuProps) {
     const {
@@ -34,6 +34,7 @@ export function useSideMenu(props: SideMenuProps) {
     const [newPageName, setNewPageName] = useState('');
     const [choosenPage, setChoosenPage] = useState('gad');
     const [fileExistenceStatus, setFileExistenceStatus] = useState<FileExistenceStatus>({});
+    const [currentBaseDrawingFileExistanceStatus, setCurrentBaseDrawingFileExistanceStatus] = useState<FileExistenceStatus>({});
     const [openPageDeleteWarning, setOpenPageDeleteWarning] = useState('');
     const [isCheckingFiles, setIsCheckingFiles] = useState(false);
 
@@ -41,8 +42,8 @@ export function useSideMenu(props: SideMenuProps) {
     const baseFilePath = useMemo(() => `${filePath}${design.folder}`, [design.folder]);
 
     const allowedToClose = useMemo(() =>
-        FileExistenceChecker.allowedToClose(tempBaseDrawing, tempPages, fileExistenceStatus),
-        [tempBaseDrawing, tempPages, fileExistenceStatus]
+        FileExistenceChecker.allowedToClose(currentBaseDrawingFileExistanceStatus, baseDrawing, pages),
+        [currentBaseDrawingFileExistanceStatus, pages, baseDrawing]
     );
 
     // Reset states when design changes
@@ -75,6 +76,7 @@ export function useSideMenu(props: SideMenuProps) {
     }, [tempSelectedCategory]);
 
     // Check file existence
+
     useEffect(() => {
         if (Object.keys(tempPages).length === 0) {
             return;
@@ -83,16 +85,60 @@ export function useSideMenu(props: SideMenuProps) {
         const checkFilesExistence = async () => {
             setIsCheckingFiles(true);
             try {
-                const statusObject = await FileExistenceChecker.checkAllFiles(
+                const tempBaseDrawingFileExistanceStatus = await FileExistenceChecker.checkAllFiles(
                     tempPages,
                     baseFilePath,
                     tempBaseDrawing
                 );
 
-                setFileExistenceStatus(statusObject);
+                setFileExistenceStatus(tempBaseDrawingFileExistanceStatus);
+
+                // const tempCurrentBaseDrawingFileExistanceStatus = await FileExistenceChecker.checkAllFiles(
+                //     pages,
+                //     baseFilePath,
+                //     baseDrawing
+                // );
+
+                // setCurrentBaseDrawingFileExistanceStatus(tempCurrentBaseDrawingFileExistanceStatus)
+
+                // // Only open popup if files are missing
+                // const missingFiles = FileExistenceChecker.shouldShowPopup(statusObject);
+                // if (missingFiles) {
+                //     setIsPopUpOpen(true);
+                // }
+            } catch (error) {
+                console.error('Error checking file existence:', error);
+            } finally {
+                setIsCheckingFiles(false);
+            }
+        };
+
+        // Small delay to ensure all state updates have propagated
+        const timeoutId = setTimeout(() => {
+            checkFilesExistence();
+        }, 100);
+
+        return () => clearTimeout(timeoutId);
+    }, [tempBaseDrawing, tempPages, baseFilePath]);
+
+    useEffect(() => {
+        if (Object.keys(tempPages).length === 0) {
+            return;
+        }
+
+        const checkFilesExistence = async () => {
+            setIsCheckingFiles(true);
+            try {
+                const currentBaseDrawingFileExistanceStatusObject = await FileExistenceChecker.checkAllFiles(
+                    pages,
+                    baseFilePath,
+                    baseDrawing
+                );
+
+                setCurrentBaseDrawingFileExistanceStatus(currentBaseDrawingFileExistanceStatusObject)
 
                 // Only open popup if files are missing
-                const missingFiles = FileExistenceChecker.shouldShowPopup(statusObject);
+                const missingFiles = FileExistenceChecker.shouldShowPopup(currentBaseDrawingFileExistanceStatusObject);
                 if (missingFiles) {
                     setIsPopUpOpen(true);
                 }
@@ -109,7 +155,7 @@ export function useSideMenu(props: SideMenuProps) {
         }, 100);
 
         return () => clearTimeout(timeoutId);
-    }, [tempBaseDrawing, tempPages, baseFilePath]);
+    }, [baseDrawing, pages, baseFilePath]);
 
     // Handlers
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -293,6 +339,12 @@ export function useSideMenu(props: SideMenuProps) {
         fetchProject
     ]);
 
+    const resetSideBarState = useCallback(() => {
+        setTempSelectedCategory(selectedCategory);
+        setTempBaseDrawing(baseDrawing);
+        setTempPages(pages || {});
+        setChoosenPage('gad');
+    }, [selectedCategory, baseDrawing, pages]);    
     // Handle uploading and updating base drawing with new files
     const handleUploadAndUpdateBaseDrawing = useCallback(async () => {
         try {
@@ -397,6 +449,7 @@ export function useSideMenu(props: SideMenuProps) {
         addNewPage,
         handleCategoryChange,
         updateBaseDrawing,
-        fileVersion
+        fileVersion,
+        resetSideBarState
     };
 }

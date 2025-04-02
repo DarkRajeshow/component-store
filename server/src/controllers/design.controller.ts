@@ -366,6 +366,9 @@ export const updateUnParsedAttributes = async (req: Request, res: Response) => {
             return res.json({ success: false, status: 'Login to add new Design.' });
         }
 
+        console.log(req.body, req.params.id);
+
+
         const userId = await designService.verifyUser(req.cookies.jwt);
         const designId = req.params.id;
         const { structure, deleteFilesOfPages, filesToDelete } = req.body;
@@ -418,7 +421,7 @@ export const getRecentDesigns = async (_req: Request, res: Response) => {
         return res.json({
             success: true,
             status: "Designs retrieved successfully.",
-            recentDesigns : recentDesigns || []
+            recentDesigns: recentDesigns || []
         });
     } catch (error) {
         console.error(error);

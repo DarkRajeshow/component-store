@@ -1,5 +1,14 @@
 import { IAttribute, IAttributeOption } from '../../../../types/types';
 import useStore from '../../../../store/useStore';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
 
 interface DisplayOptionsProps {
     level: number;
@@ -48,44 +57,63 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
     if (level === 0) {
         // Render level 0 options
         if (isNestedLevel2) {
-            return Object.entries(designAttributes).map(([attribute, value]) => {
-                if (hasSelectedOption(value)) {
-                    return (
-                        <option key={attribute} value={attribute}>
-                            {attribute}
-                        </option>
-                    );
-                }
-                return null;
-            });
+            return (
+                <SelectContent>
+                    <SelectGroup>
+                        {Object.entries(designAttributes).map(([attribute, value]) => {
+                            if (hasSelectedOption(value)) {
+                                return (
+                                    <SelectItem key={attribute} value={attribute}>
+                                        {attribute}
+                                    </SelectItem>
+                                );
+                            }
+                            return null;
+                        })}
+                    </SelectGroup>
+                </SelectContent>
+            );
         }
 
-        return Object.entries(designAttributes).map(([attribute, value]) => {
-            if (value.selectedOption) {
-                return (
-                    <option key={attribute} value={attribute}>
-                        {attribute}
-                    </option>
-                );
-            }
-            return null;
-        });
+        return (
+            <SelectContent>
+                <SelectGroup>
+                    {Object.entries(designAttributes).map(([attribute, value]) => {
+                        if (value.selectedOption) {
+                            return (
+                                <SelectItem key={attribute} value={attribute}>
+                                    {attribute}
+                                </SelectItem>
+                            );
+                        }
+                        return null;
+                    })}
+                </SelectGroup>
+            </SelectContent>
+        );
 
     } else if (level === 1 && levelOneNest) {
         // Render level 1 options
         const parent = designAttributes[levelOneNest];
         if (parent?.options) {
-            return Object.entries(parent.options).map(([attribute, value]) => {
-                const optionValue = value as IAttributeOption;
-                if (optionValue?.selectedOption) {
-                    return (
-                        <option key={attribute} value={attribute}>
-                            {attribute}
-                        </option>
-                    );
-                }
-                return null;
-            });
+            return (
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectLabel>{levelOneNest} Options</SelectLabel>
+                        {Object.entries(parent.options).map(([attribute, value]) => {
+                            const optionValue = value as IAttributeOption;
+                            if (optionValue?.selectedOption) {
+                                return (
+                                    <SelectItem key={attribute} value={attribute}>
+                                        {attribute}
+                                    </SelectItem>
+                                );
+                            }
+                            return null;
+                        })}
+                    </SelectGroup>
+                </SelectContent>
+            );
         }
     }
     return null;

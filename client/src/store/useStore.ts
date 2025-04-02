@@ -95,7 +95,7 @@ const useStore = create<StoreState>()(
         },
 
         // Toggle attribute value (simplified from toggle function)
-        toggleAttributeValue: (key) => set((state) => ({
+        toggleAttributeValue: (key: string) => set((state) => ({
           designAttributes: {
             ...state.designAttributes,
             [key]: {
@@ -183,10 +183,10 @@ const useStore = create<StoreState>()(
         partialize: (state) => ({
           // From User Slice
           user: state.user,
-          
+
           // From Design slice
           rotation: state.rotation,
-          
+
           // From history slice
           undoStack: state.undoStack,
           redoStack: state.redoStack,

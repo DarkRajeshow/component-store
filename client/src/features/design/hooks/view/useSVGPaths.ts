@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { IAttribute, IDesign } from '../../../types/types';
-import { checkFileExists } from '../../../utils/checkFileExists';
-import filePath from '../../../utils/filePath';
-import { ExistingFiles } from '../components/view/types';
+import { IAttribute } from '../../../../types/design';
+import { checkFileExists } from '../../../../utils/checkFileExists';
+import filePath from '../../../../utils/filePath';
 
 interface BaseDrawing {
   path: string;
 }
 
+interface Design {
+  folder: string;
+  [key: string]: any;
+}
+
+interface ExistingFiles {
+  [path: string]: boolean;
+}
+
 interface UseSVGPathsProps {
-  design: IDesign;
+  design: Design;
   designAttributes: Record<string, IAttribute>;
   fileVersion: string | number;
   pages: Record<string, string>;
@@ -80,7 +88,7 @@ export const useSVGPaths = ({
     if (filePaths.length > 0) {
       fetchFileExistence();
     }
-  }, [filePaths, existingFiles]);
+  }, [filePaths]);
 
   // Check if base drawing exists
   useEffect(() => {

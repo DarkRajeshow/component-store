@@ -69,7 +69,7 @@ const SignIn = () => {
                         type="submit"
                         className="w-full text-sm bg-[#765EFC] text-white py-3 my-4  rounded-full transition duration-200 font-medium"
                     >
-                        Sign In sdfsd
+                        Sign In
                     </button>
                 </form>
             </div>

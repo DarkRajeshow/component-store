@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { NewBaseDrawingFiles, Pages } from "../../types";
+import { NewBaseDrawingFiles, Pages } from "../../types/sideMenuTypes";
 
 // FileUploadService.ts - Service for handling file operations
 export const FileUploadService = {

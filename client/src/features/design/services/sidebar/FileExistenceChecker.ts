@@ -1,4 +1,4 @@
-import { BaseDrawing, FileExistenceStatus, NewBaseDrawingFiles, Pages } from "../../types";
+import { BaseDrawing, FileExistenceStatus, NewBaseDrawingFiles, Pages } from "../../types/sideMenuTypes";
 import { SideMenuService } from "./SideMenuService";
 
 // FileExistenceChecker.ts - A dedicated service for checking file existence
@@ -53,13 +53,18 @@ export const FileExistenceChecker = {
     },
 
     allowedToClose(
-        tempBaseDrawing: BaseDrawing,
-        tempPages: Pages,
-        fileExistenceStatus: FileExistenceStatus
+        currentBaseDrawingFileExistanceStatus: FileExistenceStatus,
+        baseDrawing: BaseDrawing,
+        pages: Pages
     ): boolean {
+
+        console.log(pages);
+        
         return (
-            tempBaseDrawing?.path !== " " &&
-            !Object.keys(tempPages).some((page) => !fileExistenceStatus?.[page])
+            // tempBaseDrawing?.path !== " " &&
+            baseDrawing?.path !== " " &&
+            !Object.keys(pages).some((page) => !currentBaseDrawingFileExistanceStatus?.[page])
+            // !Object.keys(tempPages).some((page) => !fileExistenceStatus?.[page]) &&
         );
     },
 };

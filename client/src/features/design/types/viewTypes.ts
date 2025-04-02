@@ -1,5 +1,5 @@
 import { RefObject } from 'react';
-import { IDesign, IAttribute, IAttributeOption } from '../../../../types/types';
+import { IDesign, IAttribute, IAttributeOption } from '../../../types/types';
 
 // Selection related types
 export interface SelectionBox {

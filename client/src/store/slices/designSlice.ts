@@ -1,10 +1,11 @@
 // Import types
 import { StateCreator } from 'zustand';
 import { StoreState } from '../../types/store';
+import { IDesign } from '@/types/types';
 
 // Define types for the design slice
 interface DesignState {
-    design: any[];
+    design: IDesign | null;
     designAttributes: Record<string, any>;
     selectedCategory: string;
     baseDrawing: string;
@@ -15,7 +16,7 @@ interface DesignState {
 }
 
 interface DesignActions {
-    setDesign: (design: any[]) => void;
+    setDesign: (design: IDesign) => void;
     setDesignAttributes: (attributes: Record<string, any>) => void;
     setSelectedCategory: (category: string) => void;
     setBaseDrawing: (drawing: string) => void;
@@ -29,7 +30,7 @@ export type DesignSlice = DesignState & DesignActions;
 
 // Slice for design states and functions
 const createDesignSlice: StateCreator<StoreState, [], [], DesignSlice> = (set) => ({
-    design: [],
+    design: {} as IDesign,
     designAttributes: {},
     selectedCategory: '',
     baseDrawing: '',

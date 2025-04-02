@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Offset, SelectionState } from '../components/view/types';
+import { Offset, SelectionState } from '../../types/viewTypes';
 
 interface UseDraggingProps {
   zoom: number;

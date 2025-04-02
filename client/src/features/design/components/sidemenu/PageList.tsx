@@ -18,24 +18,24 @@ const PageList = ({
                 {Object.keys(tempPages).map((page, i) => (
                     <div
                         key={i}
-                        className={`flex justify-between items-center p-3 rounded-md border ${choosenPage === page ? "bg-blue-50 border-blue-200" : "bg-gray-50"
+                        className={`flex cursor-pointer justify-between items-center p-3 rounded-md border ${choosenPage === page ? "bg-blue-50 border-blue-200" : "bg-gray-50"
                             }`}
+                        onClick={() => setChoosenPage(page)}
                     >
                         <div
-                            className="flex-1 cursor-pointer"
-                            onClick={() => setChoosenPage(page)}
+                            className="flex-1 cursor-pointer uppercase"
                         >
                             <span className="font-medium">{page}</span>
                         </div>
 
                         <div className="flex items-center gap-2">
                             {fileExistenceStatus[page] ? (
-                                <Badge variant="success" className="bg-green-100 text-green-800 flex gap-1 items-center">
+                                <Badge className="bg-green-100 text-green-800 flex gap-1 items-center">
                                     <CheckCircle className="h-3 w-3" />
                                     <span>File Added</span>
                                 </Badge>
                             ) : (
-                                <Badge variant="destructive" className="bg-red-100 text-red-800 flex gap-1 items-center">
+                                <Badge className="bg-red-100 text-red-800 flex gap-1 items-center">
                                     <XCircle className="h-3 w-3" />
                                     <span>No File</span>
                                 </Badge>

@@ -12,7 +12,7 @@ import { X } from "lucide-react";
 
 import useStore from "../../../../store/useStore";
 import { sideMenuTypes } from "../../../../constants";
-import { useSideMenu } from "../../hooks/useSideMenu";
+import { useSideMenu } from "../../hooks/sidemenu/useSideMenu";
 import SideMenuTriggers from "./SideMenuTriggers";
 import CategorySelection from "./CategorySelection";
 import PageManagement from "./PageManagement";
@@ -53,7 +53,7 @@ function SideMenu() {
     fileExistenceStatus,
     openPageDeleteWarning,
     setOpenPageDeleteWarning,
-    isCheckingFiles,
+    resetSideBarState,
     baseFilePath,
     allowedToClose,
     handleFileChange,
@@ -86,8 +86,9 @@ function SideMenu() {
   // Memoize handlers
   const memoizedToggleDialog = useCallback(() => {
     toggleDialog();
+    resetSideBarState();
     setIsPopUpOpen(!isPopUpOpen);
-  }, [toggleDialog, setIsPopUpOpen, isPopUpOpen]);
+  }, [toggleDialog, setIsPopUpOpen, isPopUpOpen, resetSideBarState]);
 
   if (!design) {
     return null;

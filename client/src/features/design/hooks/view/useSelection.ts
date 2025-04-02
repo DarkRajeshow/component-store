@@ -1,5 +1,5 @@
 import { useState, useCallback, RefObject } from 'react';
-import { SelectionState, SelectionBox, AbsoluteSelection } from '../components/view/types';
+import { SelectionState, SelectionBox, AbsoluteSelection } from '../../types/viewTypes';
 
 interface UseSelectionProps {
   reference: RefObject<SVGSVGElement>;

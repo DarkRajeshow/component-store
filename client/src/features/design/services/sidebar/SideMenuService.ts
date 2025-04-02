@@ -1,6 +1,6 @@
 import { checkFileExists } from "@/utils/checkFileExists";
 import { shiftToSelectedCategoryAPI, updateBaseDrawingAPI } from "../../lib/designAPI";
-import { BaseDrawing, Pages } from "../../types";
+import { BaseDrawing, Pages } from "../../types/sideMenuTypes";
 import { IDesign } from "@/types/types";
 import { v4 as uuidv4 } from 'uuid';
 

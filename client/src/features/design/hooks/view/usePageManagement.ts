@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
-import { addNewPageAPI } from '../lib/designAPI';
-import { ViewPopUpType } from '../components/view/types';
+import { addNewPageAPI } from '../../lib/designAPI';
+import { ViewPopUpType } from '../../types/viewTypes';
 
 interface UsePageManagementProps {
   pages: Record<string, string>;

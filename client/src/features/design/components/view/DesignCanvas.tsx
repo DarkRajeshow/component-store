@@ -1,5 +1,6 @@
 import React, { RefObject } from 'react';
-import { Offset } from './types';
+import { Offset } from '../../types/viewTypes';
+import { Skeleton } from '../../../../components/ui/skeleton';
 
 interface DesignCanvasProps {
   reference: RefObject<SVGSVGElement>;
@@ -28,7 +29,9 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className='h-6 w-6 my-auto border-dark border-2 border-b-transparent animate-spin rounded-full flex items-center justify-center' />
+      <div className="flex items-center justify-center h-full w-full">
+        <Skeleton className="h-[80%] w-[80%] rounded-md" />
+      </div>
     );
   }
 

@@ -12,7 +12,7 @@ export const handleDrop = (e: DragEvent, setFile: (file: File) => void): void =>
     }
 };
 
-export const handleDragOver = (e: DragEvent): void => {
+export const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
 };
 

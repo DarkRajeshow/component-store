@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=P laywrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Parkinsans:wght@300..800&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap');
 @config "../tailwind.config.ts";
 @import "tailwindcss";
 
@@ -8,19 +8,13 @@
 /* @custom-variant dark (&:is(.dark *)); */
 
 body {
-  @apply overflow-x-hidden w-screen min-h-screen font-normal bg-theme m-0 p-0 transition-all
-  
+  @apply overflow-x-hidden w-screen min-h-screen font-medium bg-theme m-0 transition-all
 }
 
 * {
   font-family: "Montserrat", sans-serif;
-  /* @apply m-0 p-0 box-border */
 }
 
-
-a, label>span, div {
-  @apply transition-all
-}
 
 .svg-transform {
   transform-origin: center;
@@ -51,13 +45,14 @@ label {
   @apply block py-1 sm:py-2 text-sm sm:text-base
 }
 
-/* button {
-  @apply shadow-[1px_1px_0_0] shadow-white hover:shadow-nonec
-} */
+button {
+  @apply cursor-pointer
+}
 
 .updateButton {
-  @apply text-sm sm:text-base md:text-lg text-zinc-900 font-normal py-2 px-4 rounded-md bg-[#bcb8ff] hover:font-semibold
+  @apply text-sm sm:text-base cursor-pointer md:text-lg text-zinc-900 font-normal py-2 px-4 rounded-md bg-[#bcb8ff] hover:font-semibold
 }
+
 
 table {
   @apply rounded-md overflow-hidden border-zinc-300 border
@@ -265,6 +260,31 @@ button:focus-visible {
   }
 
   body {
-      @apply bg-white text-foreground;
+    @apply bg-white text-foreground;
   }
+}
+
+
+/* Webkit (Chrome, Safari, newer versions of Opera) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: white;
+}
+
+::-webkit-scrollbar-thumb {
+  background: gray;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: gray white;
 }
