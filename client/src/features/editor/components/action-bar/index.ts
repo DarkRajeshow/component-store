@@ -1,6 +1,6 @@
 export { default as AttributeOption } from './AttributeOption';
 export { default as AttributesList } from './AttributesList';
-export { default as DesignCard } from './DesignCard';
+export { default as DesignCard } from '../../../dashboard/components/DesignCard';
 export { default as DesignInfoPanel } from './DesignInfoPanel';
 export { default as DisplayOptions } from './DisplayOptions';
 export { default as EditMenu } from './EditMenu';

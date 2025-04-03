@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageSelector from "./PageSelector";
 import { IAttribute } from "../../../../../types/types";
-import { useAddChild } from "@/features/design/hooks/edit-menu/useAddChild";
 import OptionTypeSelector from "./OptionTypeSelector";
 import FileUploader from "./FileUploader";
+import { useAddChild } from "@/features/editor/hooks/edit-menu/useAddChild";
 
 interface AddChildProps {
     nestedIn?: string;

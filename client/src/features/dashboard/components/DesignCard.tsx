@@ -1,9 +1,9 @@
-import filePath from "../../../../utils/filePath";
+import filePath from "../../../utils/filePath";
 import { Link } from "react-router-dom";
-import useStore from "../../../../store/useStore";
+import useStore from "../../../store/useStore";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { checkFileExists } from "../../../../utils/checkFileExists";
-import { IDesign, IMountingType, ISmileyType } from "../../../../types/types";
+import { checkFileExists } from "../../../utils/checkFileExists";
+import { IDesign, IMountingType, ISmileyType } from "../../../types/types";
 
 interface DesignCardProps {
     design: IDesign;

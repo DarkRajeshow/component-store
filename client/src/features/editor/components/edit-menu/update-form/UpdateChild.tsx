@@ -5,12 +5,13 @@ import { IAttribute, IAttributeOption } from '../../../../../types/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
-import { useUpdateChild } from '@/features/design/hooks/edit-menu/useUpdateChild';
+
 import FileUploader from './FileUploader';
 import PageSelector from './PageSelector';
 import RenameSection from './RenameSection';
 import NestedChildrenSection from './NestedChildrenSection';
 import DeleteConfirmation from './DeleteConfirmation';
+import { useUpdateChild } from '@/features/editor/hooks/edit-menu/useUpdateChild';
 
 interface UpdateChildProps {
     parentOption?: string;
