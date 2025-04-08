@@ -1,96 +1,168 @@
-// design.service.ts
-import { Request } from 'express';
-import path from 'path';
-import fs from 'fs';
-// import fsExtra from 'fs-extra';
-import mongoose, { ObjectId } from 'mongoose';
-import Design, { IDesign } from '../models/Design';
+// src/services/Design.service.ts
+import mongoose, { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import Design from '../models/Design';
+import { IDesign, IStructure } from '../types/design.types';
+import { FileService } from './file.service';
+import { AppError } from '../utils/AppError';
+import parseIfUnparsed from '../utils/parseIfUnparsed';
+import userService from './user.service';
+import projectService from './project.service';
+import { v4 as uuidv4 } from 'uuid';
 
 interface TokenPayload {
     userId: string;
 }
 
+interface SaveResponse {
+    success: boolean;
+    status: string;
+    design?: IDesign;
+}
+
 export class DesignService {
-    private readonly __dirname = path.resolve();
+    public fileService: FileService;
+
+    constructor() {
+        this.fileService = new FileService();
+    }
 
     async verifyUser(jwtToken: string): Promise<string> {
         const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET as string) as TokenPayload;
         return decodedToken.userId;
     }
 
-    async createDesign(userId: string, designData: Partial<IDesign>): Promise<IDesign> {
-        const user = await User.findById(userId);
-        if (!user) {
-            throw new Error('User not found.');
+    async findDesignAndVerifyUser(designId: string, userId: string): Promise<IDesign | null> {
+        const design = await Design.findById(designId);
+        if (!design) return null;
+        if (design.user.toString() !== userId) {
+            throw new AppError('Unauthorized access', 403);
         }
-
-        const design = new Design({
-            user: userId,
-            ...designData
-        });
-        await design.save();
-
-        user.designs.push(design._id as ObjectId);
-        await user.save();
-
         return design;
     }
 
-    async deleteFilesRecursively(dirPath: string, filesToDelete: string[]): Promise<void> {
-        if (!fs.existsSync(dirPath)) {
-            console.warn(`Directory does not exist: ${dirPath}`);
-            return;
-        }
+    async createDesign(userId: string, designData: Partial<IDesign>): Promise<IDesign> {
+        try {
+            const design = new Design({
+                ...designData,
+                user: userId
+            });
+            await design.save();
 
-        const items = await fs.promises.readdir(dirPath, { withFileTypes: true });
-
-        for (const item of items) {
-            const itemPath = path.join(dirPath, item.name);
-
-            if (item.isDirectory()) {
-                await this.deleteFilesRecursively(itemPath, filesToDelete);
-            } else if (item.isFile()) {
-                for (const fileName of filesToDelete) {
-                    if (item.name === `${fileName}.svg`) {
-                        try {
-                            await fs.promises.unlink(itemPath);
-                            console.log(`Deleted: ${itemPath}`);
-                        } catch (err) {
-                            console.error(`Error deleting file ${itemPath}:`, err);
-                        }
-                    }
-                }
+            userService.addDesignToUser(userId, design._id as unknown as Types.ObjectId);
+            projectService.addDesignToProject(designData.project as string, design._id as Types.ObjectId);
+            if (designData.sourceDesign) {
+                this.addDesignToDesign(designData.sourceDesign as string, design._id as Types.ObjectId);
             }
+
+            return design;
+        } catch (error) {
+            throw new AppError('Failed to create design', 500);
         }
     }
 
-    async deleteDesignFiles(folderPath: string, deleteFilesOfPages: string[]): Promise<void> {
-        const deletePromises = deleteFilesOfPages.map((filePath) => {
-            const [folderName, fileName] = filePath.split('<<&&>>');
-            if (!folderName || !fileName) {
-                console.warn(`Invalid file structure: ${filePath}`);
-                return Promise.resolve();
+    async getUserDesigns(userId: string): Promise<IDesign[]> {
+        try {
+            return await Design.find({ user: userId })
+                .sort({ createdAt: -1 })
+                .limit(20);
+        } catch (error) {
+            throw new AppError('Failed to fetch user designs', 500);
+        }
+    }
+
+    async handleStructureUpdate(
+        id: string,
+        userId: string,
+        structure: IStructure | undefined,
+        errorMessage: string = 'Updated Structure is missing'
+    ) {
+        const design = await this.findDesignAndVerifyUser(id, userId);
+        if (!design) {
+            return { success: false, message: 'Design not found or unauthorized' };
+        }
+
+        if (!structure) {
+            return { success: false, message: errorMessage };
+        }
+
+        const parsedStructure = parseIfUnparsed(structure) as IStructure;
+        design.structure = parsedStructure;
+        await design.save();
+        return { success: true, design };
+    }
+
+    async deleteDesign(designId: string, userId: Types.ObjectId): Promise<void> {
+        try {
+            const design = await Design.findOne({ _id: designId, user: userId });
+            if (!design) {
+                throw new AppError('Design not found', 404);
             }
 
-            const fullFilePath = path.join(folderPath, folderName, `${fileName}.svg`);
-            return new Promise<void>((resolve) => {
-                fs.unlink(fullFilePath, (err) => {
-                    if (err) {
-                        if (err.code === 'ENOENT') {
-                            console.warn(`File not found: ${fullFilePath}`);
-                        } else {
-                            console.error(`Error deleting file: ${fullFilePath}`, err);
-                        }
-                    } else {
-                        console.log(`Deleted file: ${fullFilePath}`);
-                    }
-                    resolve();
-                });
-            });
-        });
+            await this.fileService.deleteDesignFolder(design.folder);
+            await Design.deleteOne({ _id: designId });
+        } catch (error) {
+            throw new AppError('Failed to delete design', 500);
+        }
+    }
 
-        await Promise.all(deletePromises);
+    // async addComponent(
+    //     structure: IStructure,
+    //     categoryId: string,
+    //     componentName: string,
+    //     isNested: boolean,
+    //     file: Express.Multer.File
+    // ): Promise<IStructure> {
+    //     const fileId = await this.fileService.saveFile(file);
+    //     const component = isNested
+    //         ? { selected: '', options: {} }
+    //         : { fileId };
+
+    //     structure.components[componentName] = component;
+    //     return structure;
+    // }
+
+    async addPage(
+        structure: IStructure,
+        pageName: string,
+    ): Promise<IStructure> {
+        const pageId = uuidv4();
+        structure.pages[pageName] = pageId;
+        return structure;
+    }
+
+    async updateBaseDrawing(
+        structure: IStructure,
+        categoryId: string,
+        file: Express.Multer.File
+    ): Promise<IStructure> {
+        const fileId = await this.fileService.saveFile(file);
+        structure.baseDrawing.fileId = fileId;
+        return structure;
+    }
+
+    async addDesignToDesign(sourceDesign: string, designId: mongoose.Types.ObjectId): Promise<SaveResponse> {
+        try {
+            const design = await Design.findByIdAndUpdate(
+                sourceDesign,
+                { $addToSet: { derivedDesigns: designId } },
+                { new: true }
+            );
+
+            if (!design) {
+                return { success: false, status: 'Design not found' };
+            }
+
+            return {
+                success: true,
+                status: 'Project added to user successfully',
+                design
+            };
+        } catch (error) {
+            console.error('Error adding project to user:', error);
+            return { success: false, status: 'Internal Server Error' };
+        }
     }
 }
+
+export default new DesignService();

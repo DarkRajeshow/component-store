@@ -5,10 +5,11 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { connectDB } from "./config/db";
 import { corsOptions } from "./utils/corsOptions";
-import { errorHandler } from "./middleware/errorHandler";
+import { errorHandler } from "./middleware/errorHandler.middleware";
 import V1Routes from "./routes/v1.routes";
 import userRoutes from './routes/user.routes'
 import designRoutes from './routes/design.routes'
+import projectRoutes from './routes/project.routes'
 
 dotenv.config();
 const app = express();
@@ -32,6 +33,7 @@ app.use(cors({
     },
     credentials: true
 }));
+
 app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -44,8 +46,11 @@ app.get("/", (req, res) => {
     res.send("working")
 })
 
-// app.use('/api/users', userRoutes);
-// app.use('/api/designs', designRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/designs', designRoutes);
+
+
 // // Routes
 // app.use("/api/v1", V1Routes);
 app.use("/api", V1Routes);

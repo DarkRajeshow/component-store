@@ -22,7 +22,7 @@ export interface IUserBase {
 
 // Mongoose document interface
 export interface IUser extends Document {
-    _id: Types.ObjectId;
+    _id: Types.ObjectId | string;
     username: string;
     email: string;
     password: string;

@@ -1,45 +1,92 @@
-// design.routes.ts
-import express from 'express';
-import {
-    addNewAttribute,
-    addNewPage,
-    addNewParentAttribute,
-    createEmptyDesign,
-    deleteAttributes,
-    deleteDesignById,
-    getDesignById,
-    getRecentDesigns,
-    getUserDesigns,
-    renameAttributes,
-    shiftToSelectedCategory,
-    updateUnParsedAttributes,
-    uploadBaseDrawing
-} from '../controllers/design.controller';
-import upload from '../utils/multer';
-import optimizeSVG from '../middleware/optimizeSVG';
-import { handlePDFConversion } from '../middleware/handlePDFConversion';
+// src/routes/design.routes.ts
+import express, { Request } from 'express';
+import { designUpload } from '../utils/designMulter';
+import designController from '../controllers/design.controller';
+import { handlePDFtoSVG } from '../middleware/pdfTosvg.middleware';
+import { optimizeSVG } from '../middleware/optimizeSVG.middleware';
+
+interface RequestWithFiles extends Request {
+  files: Express.Multer.File[];
+}
 
 const router = express.Router();
 
-// POST requests
-router.post('/', createEmptyDesign);
+// Apply auth middleware to all routes
+// router.use(authMiddleware);
 
-// PATCH requests
-router.patch('/:id/attributes/option', upload.array('files'), handlePDFConversion, optimizeSVG, addNewAttribute);
-router.patch('/:id/attributes/base', upload.array('files'), handlePDFConversion, optimizeSVG, uploadBaseDrawing);
-router.patch('/:id/attributes/shift', shiftToSelectedCategory);
-router.patch('/:id/attributes/parent', addNewParentAttribute);
-router.patch('/:id/pages/add', addNewPage);
-router.patch('/:id/attributes/rename', renameAttributes);
-router.patch('/:id/attributes/update', upload.array('files'), handlePDFConversion, optimizeSVG, updateUnParsedAttributes);
-router.patch('/:id/attributes/delete', deleteAttributes);
+// design CRUD
+router.post('/', designController.createDesign);
+router.get('/', designController.getUserDesigns);
+router.get('/recent', designController.getRecentDesigns);
+router.get('/:id', designController.getDesignById);
+router.delete('/:id', designController.deleteDesign);
 
-// GET requests
-router.get('/', getUserDesigns);
-router.get('/recent', getRecentDesigns);
-router.get('/:id', getDesignById);
+// // Category operations
+// router.put('/:id/categories', designController.addCategory);
+// router.put('/:id/rename', designController.renameCategory);
+// router.delete('/:id', designController.deleteCategory);
 
-// DELETE requests
-router.delete('/:id', deleteDesignById);
+// base drawing operations
+router.put(
+    '/:id/base',
+    designUpload.array('files') as express.RequestHandler,
+    handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    designController.updateBaseDrawing
+);
+
+// Component operations
+router.put(
+    '/:id/components/add/child',
+    designUpload.array('files') as express.RequestHandler,
+    handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    designController.addComponent
+);
+
+router.put(
+    '/:id/components/add/parent',
+    designController.addComponent
+);
+
+router.put(
+    '/:id/components/update',
+    designUpload.array('files') as express.RequestHandler,
+    handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    designController.updateComponent
+);
+
+router.put('/:id/components/rename',
+    designController.renameComponent
+);
+
+
+// need to change the component file.
+router.put(
+    '/:id/components/update',
+    designUpload.array('files') as express.RequestHandler,
+    handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+    designController.updateComponent
+);
+
+router.delete('/:id/components',
+    designController.deleteComponent
+);
+
+
+// Page operations 
+router.put('/:id/pages',
+    designController.addPage
+);
+
+router.put('/:id/pages/:pageId/rename',
+    designController.renamePage
+);
+
+router.delete('/:id/pages/:pageId',
+    designController.deletePage
+);
 
 export default router;

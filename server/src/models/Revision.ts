@@ -37,7 +37,6 @@ const RevisionSchema = new Schema<IRevision>({
     },
     description: {
         type: String,
-        default: "",
     },
 });
 

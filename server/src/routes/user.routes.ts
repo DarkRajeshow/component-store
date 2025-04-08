@@ -1,20 +1,21 @@
 import express from "express";
-import {
-    getUserData,
-    getUserId,
-    loginUser,
-    logoutUser,
-    registerUser
-} from "../controllers/user.controller";
-import { getUserDesigns } from "../controllers/design.controller";
+import userController from "../controllers/user.controller";
+import designController from "../controllers/design.controller";
+
 
 const router = express.Router();
 
-router.get("/", getUserData);
-router.get("/id", getUserId);
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
-router.get("/designs", getUserDesigns);
+// User authentication routes
+router.post("/register", userController.registerUser.bind(userController));
+router.post("/login", userController.loginUser.bind(userController));
+router.post("/logout", userController.logoutUser.bind(userController));
+
+// User data routes
+router.get("/", userController.getUserData.bind(userController));
+router.get("/id", userController.getUserId.bind(userController));
+router.get("/designs", designController.getUserDesigns);
+
+// User preferences
+router.put("/preferences", userController.updateUserPreferences.bind(userController));
 
 export default router;

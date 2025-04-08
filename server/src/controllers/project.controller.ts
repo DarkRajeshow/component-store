@@ -1,51 +1,497 @@
 // src/controllers/project.controller.ts
 import { Request, Response } from 'express';
-import { ProjectService } from '../services/project.service';
-import { catchAsync } from '../utils/catchAsync';
+import projectService from '../services/project.service';
+import Project from '../models/Project';
+import { IHierarchy, IProject } from '../types/project.types';
+import { v4 as uuidv4 } from 'uuid';
+import { Types } from 'mongoose';
+import path from 'path';
+
+
+// Helper function for standard response format
+const sendResponse = (res: Response, success: boolean, status: string, data?: any) => {
+    return res.json({ success, status, ...data });
+};
+
+interface IUpdateDesignStructure {
+    success: boolean;
+    message?: string;
+    project?: IProject;
+}
 
 export class ProjectController {
-    private projectService: ProjectService;
+    // Project CRUD Operations
+    async createProject(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
 
-    constructor() {
-        this.projectService = new ProjectService();
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { name, type, description } = req.body;
+
+            if (!type) {
+                return sendResponse(res, false, 'Missing required fields');
+            }
+
+            // Create initial hierarchy with UUID for first category
+
+            const defaultCategoryName = 'main';
+            const defaultPageName = 'gad';
+            const defaultCategoryId = uuidv4();
+            const defaultPageId = uuidv4();
+
+            const projectFolder = uuidv4();
+
+            const initialHierarchy: IHierarchy = {
+                categoryMapping: { defaultCategoryName: defaultCategoryId },
+                categories: {
+                    [defaultCategoryId]: {
+                        pages: {
+                            defaultPageName: defaultPageId
+                        },
+                        baseDrawing: { fileId: '' },
+                        components: {}
+                    }
+                }
+            };
+
+            const project = await projectService.createProject(userId, {
+                name,
+                folder: projectFolder,
+                hierarchy: initialHierarchy,
+                selectedCategory: defaultCategoryName,
+                selectedPage: defaultPageName,
+                type,
+                description,
+            });
+
+            return sendResponse(res, true, 'Project created successfully', { project });
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error creating project');
+        }
     }
 
-    createProject = catchAsync(async (req: Request, res: Response) => {
-        const project = await this.projectService.createProject(req.user.id, req.body);
-        res.json({
-            success: true,
-            status: 'Project created successfully',
-            data: project
-        });
-    });
+    // Component Operations
+    async addComponent(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
 
-    getUserProjects = catchAsync(async (req: Request, res: Response) => {
-        const projects = await this.projectService.getUserProjects(req.user.id);
-        res.json({
-            success: true,
-            status: 'Projects retrieved successfully',
-            data: projects
-        });
-    });
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { categoryStructure } = req.body;
 
-    updateHierarchy = catchAsync(async (req: Request, res: Response) => {
-        const project = await this.projectService.updateProjectHierarchy(
-            req.params.projectId,
-            req.body.hierarchy,
-            req.files as Express.Multer.File[]
-        );
-        res.json({
-            success: true,
-            status: 'Project hierarchy updated successfully',
-            data: project
-        });
-    });
+            // if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+            //     return sendResponse(res, false, 'Component file required');
+            // }
 
-    deleteProject = catchAsync(async (req: Request, res: Response) => {
-        await this.projectService.deleteProject(req.params.projectId, req.user.id);
-        res.json({
-            success: true,
-            status: 'Project deleted successfully'
-        });
-    });
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure );
+            if (!result.success && result.message) {
+                return sendResponse(res, false, result.message);
+            }
+
+            // return sendResponse(res, true, 'Component added successfully', { project: result.project });
+            return sendResponse(res, true, 'Component added successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error adding component');
+        }
+    }
+
+    async renameComponent(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { categoryStructure } = req.body;
+
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure);
+            if (!result.success && result.message) {
+                return sendResponse(res, false, result.message);
+            }
+
+            return sendResponse(res, true, 'Component renamed successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error renaming component');
+        }
+    }
+
+    async deleteComponent(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { categoryStructure } = req.body;
+
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure);
+            if (!result.success && result.message) {
+                return sendResponse(res, false, result.message);
+            }
+
+            return sendResponse(res, true, 'Component deleted successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error deleting component');
+        }
+    }
+
+    async updateComponent(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { categoryStructure, deleteFilesOfPages, filesToDelete } = req.body;
+
+            if (!categoryStructure || !deleteFilesOfPages || !filesToDelete) {
+                return sendResponse(res, false, 'Data is missing.');
+            }
+
+            const result: IUpdateDesignStructure = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure,);
+
+            if (!result.success && result.message) {
+                return sendResponse(res, false, result.message);
+            }
+
+            if (!result.project) {
+                return sendResponse(res, false, 'Some error occurred while retriving the design.');
+            }
+
+            const folderPath = path.join(__dirname, 'public', 'uploads', result.project.folder);
+
+            const parsedDeleteFilesOfPages = JSON.parse(deleteFilesOfPages);
+            const parsedFilesToDelete = JSON.parse(filesToDelete);
+
+            // Handle file deletions
+            await projectService.fileService.deleteFiles(folderPath, parsedDeleteFilesOfPages);
+            if (parsedFilesToDelete && parsedFilesToDelete.length > 0) {
+                await projectService.fileService.deleteFilesRecursively(folderPath, parsedFilesToDelete);
+            }
+            return sendResponse(res, true, 'Component updated successfully');
+
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error renaming component');
+        }
+    }
+
+    // Page Operations
+    async addPage(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { pageName } = req.body;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            const updatedHierarchy = await projectService.addPage(
+                project.hierarchy,
+                categoryId,
+                pageName
+            );
+
+            project.hierarchy = updatedHierarchy;
+            project.selectedPage = pageName;
+            await project.save();
+
+            return sendResponse(res, true, 'Page added successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error adding page');
+        }
+    }
+
+    async renamePage(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId, pageId } = req.params;
+            const { newName } = req.body;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            // Store the page ID and update the mapping
+            const pageIdValue = project.hierarchy.categories[categoryId].pages[pageId];
+            project.hierarchy.categories[categoryId].pages[newName] = pageIdValue;
+            delete project.hierarchy.categories[categoryId].pages[pageId];
+
+            // Update selected page if it was the renamed one
+            if (project.selectedPage === pageIdValue) {
+                project.selectedPage = newName;
+            }
+
+            await project.save();
+            return sendResponse(res, true, 'Page renamed successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error renaming page');
+        }
+    }
+
+    async deletePage(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId, pageId } = req.params;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            // Get the page folder ID before deletion
+            const pageFolderId = project.hierarchy.categories[categoryId].pages[pageId];
+            await projectService.fileService.deleteProjectPageFolder(project.folder, categoryId, pageFolderId);
+
+            delete project.hierarchy.categories[categoryId].pages[pageId];
+
+            // Reset selected page if it was the deleted one
+            if (project.selectedPage === pageId) {
+                const remainingPages = Object.keys(project.hierarchy.categories[categoryId].pages);
+                project.selectedPage = remainingPages[0] || '';
+            }
+
+            await project.save();
+            return sendResponse(res, true, 'Page deleted successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error deleting page');
+        }
+    }
+
+    // Base Drawing Operations
+    async updateBaseDrawing(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+
+            if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+                return sendResponse(res, false, 'Base drawing file required');
+            }
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            const updatedHierarchy = await projectService.updateBaseDrawing(
+                project.hierarchy,
+                categoryId,
+                req.files[0]
+            );
+
+            project.hierarchy = updatedHierarchy;
+            await project.save();
+
+            return sendResponse(res, true, 'Base drawing updated successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error updating base drawing');
+        }
+    }
+
+    // Category Operations
+    async addCategory(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id } = req.params;
+            const { categoryName } = req.body;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            const categoryId = uuidv4();
+            const updatedHierarchy = await projectService.addCategory(
+                project.hierarchy,
+                categoryId,
+                categoryName
+            );
+
+            project.hierarchy = updatedHierarchy;
+            await project.save();
+
+            return sendResponse(res, true, 'Category added successfully', { categoryId });
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error adding category');
+        }
+    }
+
+    async renameCategory(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { oldName, newName } = req.body;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            const updatedHierarchy = await projectService.renameCategory(
+                project.hierarchy,
+                categoryId,
+                oldName,
+                newName
+            );
+
+            project.hierarchy = updatedHierarchy;
+            await project.save();
+
+            return sendResponse(res, true, 'Category renamed successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error renaming category');
+        }
+    }
+
+    async deleteCategory(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            await projectService.deleteCategory(project.folder, categoryId);
+
+            const { [categoryId]: removedCategory, ...remainingCategories } = project.hierarchy.categories;
+            // Remove category from categoryMapping by finding the key with matching value
+            const categoryName = Object.entries(project.hierarchy.categoryMapping)
+                .find(([_, value]) => value === categoryId)?.[0];
+
+            if (categoryName) {
+                delete project.hierarchy.categoryMapping[categoryName];
+            }
+
+            project.hierarchy.categories = remainingCategories;
+
+            if (project.selectedCategory === categoryId) {
+                project.selectedCategory = Object.keys(remainingCategories)[0] || '';
+            }
+
+            await project.save();
+            return sendResponse(res, true, 'Category deleted successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error deleting category');
+        }
+    }
+
+
+    // delete project
+    async deleteProject(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id } = req.params;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            await projectService.deleteProject(id, new Types.ObjectId(userId));
+            return sendResponse(res, true, 'Project deleted successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error deleting project');
+        }
+    }
+
+    // Query Operations
+    async getProjectById(req: Request, res: Response) {
+        try {
+            const project = await Project.findById(req.params.id).populate('user');
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+            return sendResponse(res, true, 'Project retrieved successfully', { project });
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error retrieving project');
+        }
+    }
+
+    async getUserProjects(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const projects = await projectService.getUserProjects(userId);
+
+            return sendResponse(res, true, 'Projects retrieved successfully', { projects });
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error retrieving projects');
+        }
+    }
+
+    async getRecentProjects(_req: Request, res: Response) {
+        try {
+            const projects = await Project.find()
+                .sort({ createdAt: -1 })
+                .limit(20);
+
+            return sendResponse(res, true, 'Recent projects retrieved successfully', { projects });
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error retrieving recent projects');
+        }
+    }
 }
+
+export default new ProjectController();

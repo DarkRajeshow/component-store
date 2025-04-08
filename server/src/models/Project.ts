@@ -1,28 +1,16 @@
 import mongoose, { Schema, Document } from "mongoose";
-
-// Define the interface for the Project document
-interface IAccess {
-    userId: mongoose.Types.ObjectId;
-    permissions: "edit" | "view"; // Enum for permissions
-}
-
-interface IProject extends Document {
-    user: mongoose.Types.ObjectId; // Reference to the User
-    folder: string; // Unique folder name
-    selectedCategory: string; // Selected category
-    selectedPage: string; // Selected page
-    info: any; // Mixed type for additional info
-    hierarchy: any; // Mixed type for hierarchy
-    accessTo: IAccess[]; // Array of access permissions
-    derivedDesigns: mongoose.Types.ObjectId[]; // Array of references to Design
-}
+import { IProject } from "../types/project.types";
 
 // Define the Project schema
-const ProjectSchema = new Schema < IProject > ({
+const ProjectSchema = new Schema<IProject>({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User',
+    },
+    name: {
+        type: String,
+        required: true,
     },
     folder: {
         type: String,
@@ -37,13 +25,16 @@ const ProjectSchema = new Schema < IProject > ({
         type: String,
         required: true,
     },
-    info: {
-        type: Schema.Types.Mixed,
-        required: true,
-    },
     hierarchy: {
         type: Schema.Types.Mixed,
         required: true,
+    },
+    type: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
     },
     accessTo: [
         {
@@ -60,7 +51,7 @@ const ProjectSchema = new Schema < IProject > ({
 }, { timestamps: true });
 
 // Export the Project model
-export default mongoose.model < IProject > ('Project', ProjectSchema);
+export default mongoose.model<IProject>('Project', ProjectSchema);
 
 
 

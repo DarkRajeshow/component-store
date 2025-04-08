@@ -1,45 +1,85 @@
 // src/routes/project.routes.ts
-import express from 'express';
+import express, { Request } from 'express';
 import { ProjectController } from '../controllers/project.controller';
-import { upload, optimizeSVG, handlePDFConversion } from '../middleware';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { projectUpload } from '../utils/projectMulter';
+import { handlePDFtoSVG } from '../middleware/pdfTosvg.middleware';
+import { optimizeSVG } from '../middleware/optimizeSVG.middleware';
+
+interface RequestWithFiles extends Request {
+  files: Express.Multer.File[];
+}
 
 const router = express.Router();
 const projectController = new ProjectController();
 
-// Project routes with authentication
-router.use(authMiddleware);
+// Apply auth middleware to all routes
+// router.use(authMiddleware);
 
-// Project CRUD operations
+// Project CRUD
 router.post('/', projectController.createProject);
 router.get('/', projectController.getUserProjects);
 router.get('/recent', projectController.getRecentProjects);
-router.get('/:projectId', projectController.getProjectById);
-router.delete('/:projectId', projectController.deleteProject);
+router.get('/:id', projectController.getProjectById);
+router.delete('/:id', projectController.deleteProject);
 
-// Hierarchy operations
-router.patch(
-    '/:projectId/hierarchy/attributes',
-    upload.array('files'),
-    handlePDFConversion,
-    optimizeSVG,
-    projectController.addAttribute
+
+// Category operations
+router.put('/:id/categories', projectController.addCategory);
+router.put('/:id/categories/:categoryId/rename', projectController.renameCategory);
+router.delete('/:id/categories/:categoryId', projectController.deleteCategory);
+
+
+// base drawing operations
+router.put(
+  '/:id/categories/:categoryId/base',
+  projectUpload.array('files') as express.RequestHandler,
+  handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+  optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+  projectController.updateBaseDrawing
 );
 
-router.patch(
-    '/:projectId/hierarchy/base',
-    upload.array('files'),
-    handlePDFConversion,
-    optimizeSVG,
-    projectController.uploadBaseDrawing
+// Component operations
+router.put(
+  '/:id/categories/:categoryId/components/add/child',
+  projectUpload.array('files') as express.RequestHandler,
+  handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+  optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+  projectController.addComponent
 );
 
-router.patch('/:projectId/hierarchy/category', projectController.changeCategory);
-router.patch('/:projectId/hierarchy/parent', projectController.updateParentAttribute);
-router.patch('/:projectId/hierarchy/rename', projectController.renameAttribute);
-router.patch('/:projectId/hierarchy/delete', projectController.deleteAttribute);
+router.put(
+  '/:id/categories/:categoryId/components/add/parent',
+  projectController.addComponent
+);
 
-// Page operations
-router.patch('/:projectId/pages', projectController.addPage);
+router.put('/:id/categories/:categoryId/components/rename',
+  projectController.renameComponent
+);
+
+router.put(
+  '/:id/categories/:categoryId/components/update',
+  projectUpload.array('files') as express.RequestHandler,
+  handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
+  optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
+  projectController.updateComponent
+);
+
+router.delete('/:id/categories/:categoryId/components',
+  projectController.deleteComponent
+);
+
+
+// Page operations 
+router.put('/:id/categories/:categoryId/pages',
+  projectController.addPage
+);
+
+router.put('/:id/categories/:categoryId/pages/:pageId/rename',
+  projectController.renamePage
+);
+
+router.delete('/:id/categories/:categoryId/pages/:pageId',
+  projectController.deletePage
+);
 
 export default router;

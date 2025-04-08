@@ -39,7 +39,7 @@ function convertPDFtoSVG(inputPdfPath: string, outputSvgPath: string): Promise<v
     });
 }
 
-export const handlePDFConversion = (req: Request, res: Response, next: NextFunction) => {
+export const handlePDFtoSVG = (req: Request, res: Response, next: NextFunction) => {
     const files: CustomFile[] = (req.files as CustomFile[]) || [req.file as CustomFile];
     const conversionPromises = files.map(async (file: CustomFile) => {
         const filePath = path.join(file.destination, file.filename);

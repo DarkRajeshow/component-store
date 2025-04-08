@@ -8,7 +8,7 @@ interface CustomRequest extends Request {
     files?: Express.Multer.File[];
 }
 
-const optimizeSVG = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+export const optimizeSVG = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
         // Handle both single file and multiple files
         const files: Express.Multer.File[] = req.file ? [req.file] : req.files ?? [];
@@ -57,4 +57,3 @@ const optimizeSVG = async (req: CustomRequest, res: Response, next: NextFunction
     }
 };
 
-export default optimizeSVG;
