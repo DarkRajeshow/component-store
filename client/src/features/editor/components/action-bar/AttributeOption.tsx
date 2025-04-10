@@ -3,7 +3,7 @@ import { LucideEllipsisVertical } from 'lucide-react';
 
 interface AttributeValue {
     value?: boolean;
-    selectedOption?: string;
+    selected?: string;
 }
 
 interface AttributeOptionProps {
@@ -28,7 +28,7 @@ const AttributeOption = memo(({
 }: AttributeOptionProps) => {
     const isBase = attribute === "base";
     const isBoolean = typeof value.value === 'boolean';
-    const isChecked = isBoolean ? value.value : value?.selectedOption !== 'none';
+    const isChecked = isBoolean ? value.value : value?.selected !== 'none';
     
     return (
         <div 

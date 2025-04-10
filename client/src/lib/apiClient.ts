@@ -1,31 +1,45 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
-const api: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_REACT_APP_SERVER_URL || window.location.origin,
-    withCredentials: true,
-});
-
-export interface ApiRequestOptions extends AxiosRequestConfig {
-    headers?: Record<string, string>;
-}
-
-export async function apiRequest<T = any>(
-    method: string,
-    url: string,
-    data?: any,
-    options?: ApiRequestOptions
-): Promise<AxiosResponse<T>> {
+export const apiRequest = async <T>(
+    method: 'get' | 'post' | 'put' | 'delete',
+    endpoint: string,
+    data?: any
+): Promise<T> => {
     try {
-        const response = await api({
-            method,
-            url,
-            data,
-            ...options
-        });
-        return response;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Something went wrong');
-    }
-}
+        let response: AxiosResponse;
 
-export default api;
+        switch (method) {
+            case 'get':
+                response = await axios.get(endpoint);
+                break;
+            case 'post':
+                response = await axios.post(endpoint, data);
+                break;
+            case 'put':
+                response = await axios.put(endpoint, data);
+                break;
+            case 'delete':
+                response = await axios.delete(endpoint, { data });
+                break;
+            default:
+                throw new Error('Invalid HTTP method');
+        }
+
+        // Transform the response to match our interface types
+        const transformedResponse = {
+            success: response.status >= 200 && response.status < 300,
+            status: response.statusText,
+            ...response.data
+        };
+
+        return transformedResponse as T;
+    } catch (error: any) {
+        // Handle error responses
+        const errorResponse = {
+            success: false,
+            status: error.response?.statusText || 'Error',
+            message: error.response?.data?.message || error.message
+        };
+        return errorResponse as T;
+    }
+};

@@ -1,6 +1,6 @@
 // hooks/useAddChild.tsx
-import useStore from "@/store/useStore";
-import { IAttribute } from "@/types/types";
+import useAppStore from "@/store/useAppStore";
+import { IAttribute } from "@/types/request.types";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -19,12 +19,12 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
         menuOf,
         newFiles,
         setNewFiles,
-        setUpdatedAttributes,
-        updatedAttributes,
+        setUpdatedComponents,
+        updatedComponents,
         uniqueFileName,
         setUniqueFileName,
         pages
-    } = useStore();
+    } = useAppStore();
 
     const [optionName, setOptionName] = useState("");
     const [isParent, setIsParent] = useState(false);
@@ -147,7 +147,7 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
         }
 
         // Update attributes
-        const tempAttributes = updateValue(updatedAttributes);
+        const tempAttributes = updateValue(updatedComponents);
 
         const tempUpdateFunc = () => {
             if (nestedIn) {
@@ -170,12 +170,12 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
                 if (isParent) {
                     if (menuOf.length === 2) {
                         tempAttributes[menuOf[0]].options[menuOf[1]].options[optionName] = {
-                            selectedOption: " ",
+                            selected: " ",
                             options: {},
                         };
                     } else if (menuOf.length === 1) {
                         tempAttributes[menuOf[0]].options[optionName] = {
-                            selectedOption: " ",
+                            selected: " ",
                             options: {},
                         };
                     }
@@ -202,8 +202,8 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
             return tempAttributes;
         };
 
-        const newUpdatedAttributes = tempUpdateFunc();
-        setUpdatedAttributes(newUpdatedAttributes);
+        const newupdatedComponents = tempUpdateFunc();
+        setUpdatedComponents(newupdatedComponents);
         setUniqueFileName();
         setOperation("");
     }, [
@@ -213,10 +213,10 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
         uniqueFileName,
         selectedPages,
         updateValue,
-        updatedAttributes,
+        updatedComponents,
         nestedIn,
         menuOf,
-        setUpdatedAttributes,
+        setUpdatedComponents,
         setUniqueFileName,
         setOperation
     ]);

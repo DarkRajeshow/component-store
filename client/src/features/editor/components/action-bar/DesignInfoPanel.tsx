@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { IDesign } from '@/types/types';
+import { IDesign } from '@/types/request.types';
 
 interface Question {
     label: string;

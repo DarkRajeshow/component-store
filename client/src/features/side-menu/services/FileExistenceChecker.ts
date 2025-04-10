@@ -61,8 +61,8 @@ export const FileExistenceChecker = {
         console.log(pages);
         
         return (
-            // tempBaseDrawing?.path !== " " &&
-            baseDrawing?.path !== " " &&
+            // tempBaseDrawing?.fileId !== " " &&
+            baseDrawing?.fileId !== " " &&
             !Object.keys(pages).some((page) => !currentBaseDrawingFileExistanceStatus?.[page])
             // !Object.keys(tempPages).some((page) => !fileExistenceStatus?.[page]) &&
         );

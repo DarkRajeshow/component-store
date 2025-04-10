@@ -12,19 +12,19 @@ export const shiftToSelectedCategoryAPI = async (id, formData) => {
     return apiRequest('patch', `/api/designs/${id}/attributes/shift`, formData);
 };
 
-export const addNewParentAttributeAPI = async (id, updatedAttributes) => {
-    return apiRequest('patch', `/api/designs/${id}/attributes/parent`, updatedAttributes);
+export const addNewParentAttributeAPI = async (id, updatedComponents) => {
+    return apiRequest('patch', `/api/designs/${id}/attributes/parent`, updatedComponents);
 };
 
 export const renameAttributeAPI = async (id, body) => {
     return apiRequest('patch', `/api/designs/${id}/attributes/rename`, body);
 };
 
-export const updateDesignAttributesAPI = async (id, body) => {
+export const updatecomponentsAPI = async (id, body) => {
     return apiRequest('patch', `/api/designs/${id}/attributes/update`, body);
 };
 
-export const deleteDesignAttributesAPI = async (id, body) => {
+export const deletecomponentsAPI = async (id, body) => {
     return apiRequest('patch', `/api/designs/${id}/attributes/delete`, body);
 };
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { IAttribute } from '@/types/design';
+import { IAttribute } from '@/types/design.types';
 import { checkFileExists } from '@/utils/checkFileExists';
 import filePath from '@/utils/filePath';
 
@@ -18,7 +18,7 @@ interface ExistingFiles {
 
 interface UseSVGPathsProps {
   design: Design;
-  designAttributes: Record<string, IAttribute>;
+  components: Record<string, IAttribute>;
   fileVersion: string | number;
   pages: Record<string, string>;
   selectedPage: string;
@@ -27,7 +27,7 @@ interface UseSVGPathsProps {
 
 export const useSVGPaths = ({
   design,
-  designAttributes,
+  components,
   fileVersion,
   pages,
   selectedPage,
@@ -46,14 +46,14 @@ export const useSVGPaths = ({
       return `${baseFilePath}/${value.path}.svg?v=${fileVersion}`;
     }
 
-    if (value.selectedOption === 'none') {
+    if (value.selected === 'none') {
       return null;
     }
 
-    const subOption = value.selectedOption;
+    const subOption = value.selected;
     if (!subOption || !value.options) return null;
     
-    const subSubOption = value.options[subOption]?.selectedOption;
+    const subSubOption = value.options[subOption]?.selected;
 
     if (subSubOption && subSubOption !== " " && value.options[subOption]?.options) {
       return `${baseFilePath}/${value.options[subOption].options?.[subSubOption]?.path}.svg?v=${fileVersion}`;
@@ -68,10 +68,10 @@ export const useSVGPaths = ({
 
   // Generate all file paths
   const filePaths = useMemo(() => {
-    return Object.values(designAttributes)
+    return Object.values(components)
       .map((value) => getSVGPath(value))
       .filter(Boolean) as string[];
-  }, [designAttributes, getSVGPath]);
+  }, [components, getSVGPath]);
 
   // Check if files exist
   useEffect(() => {

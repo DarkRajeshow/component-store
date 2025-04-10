@@ -3,6 +3,11 @@ import { IProject } from "../types/project.types";
 
 // Define the Project schema
 const ProjectSchema = new Schema<IProject>({
+    version: {
+        type: Number,
+        required: true,
+        default: 1,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,

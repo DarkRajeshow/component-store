@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { checkFileExists } from '@/utils/checkFileExists';
-import { IAttribute, IAttributeOption } from '@/types/types';
-import useStore from '@/store/useStore';
+import { IAttribute, IAttributeOption } from '@/types/request.types';
+import useAppStore from '@/store/useAppStore';
 import filePath from '@/utils/filePath';
 
 interface FileExistenceStatus {
@@ -38,7 +38,7 @@ export function useUpdateChild({
         setFilesToDelete,
         deleteFilesOfPages,
         setDeleteFilesOfPages
-    } = useStore();
+    } = useAppStore();
 
     const [renamedOption, setRenamedOption] = useState(option);
     const [operation, setOperation] = useState("");
@@ -88,8 +88,8 @@ export function useUpdateChild({
         // Deep copy
         const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue));
         if (parentOption) {
-            if (tempUpdateValue.options[parentOption].selectedOption === renamedOption) {
-                tempUpdateValue.options[parentOption].selectedOption = " ";
+            if (tempUpdateValue.options[parentOption].selected === renamedOption) {
+                tempUpdateValue.options[parentOption].selected = " ";
             }
 
             if (value?.path) {
@@ -113,8 +113,8 @@ export function useUpdateChild({
                     }
                 }
             }
-            if (tempUpdateValue.selectedOption === renamedOption) {
-                tempUpdateValue.selectedOption = "none";
+            if (tempUpdateValue.selected === renamedOption) {
+                tempUpdateValue.selected = "none";
             }
             delete tempUpdateValue.options[renamedOption];
         }
@@ -140,15 +140,15 @@ export function useUpdateChild({
             tempUpdateValue.options[parentOption].options[newOptionName] = tempUpdateValue.options[parentOption].options[renamedOption];
             delete tempUpdateValue.options[parentOption].options[renamedOption];
 
-            if (tempUpdateValue.options[parentOption].selectedOption === renamedOption) {
-                tempUpdateValue.options[parentOption].selectedOption = newOptionName;
+            if (tempUpdateValue.options[parentOption].selected === renamedOption) {
+                tempUpdateValue.options[parentOption].selected = newOptionName;
             }
         } else {
             tempUpdateValue.options[newOptionName] = tempUpdateValue.options[renamedOption];
             delete tempUpdateValue.options[renamedOption];
 
-            if (tempUpdateValue.selectedOption === renamedOption) {
-                tempUpdateValue.selectedOption = newOptionName;
+            if (tempUpdateValue.selected === renamedOption) {
+                tempUpdateValue.selected = newOptionName;
             }
         }
 
@@ -197,7 +197,7 @@ export function useUpdateChild({
 
     const removeFile = useCallback((page) => {
         const updatedFiles = { ...newFiles };
-        if (value.path && updatedFiles[value.path]) {
+        if (value.fileId&& updatedFiles[value.path]) {
             delete updatedFiles[value.path][pages[page]];
         }
         setNewFiles(updatedFiles);

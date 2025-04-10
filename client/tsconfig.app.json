@@ -32,5 +32,5 @@
   },
   "include": [
     "src"
-  ]
+, "../deprecated/client/types/store.types.ts", "../deprecated/client/types/design.types.ts"  ]
 }

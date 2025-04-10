@@ -1,11 +1,12 @@
 import { toast } from "sonner";
 import { getRecentDesignsAPI } from "../../lib/globalAPI";
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../types/store';
+import { StoreState } from '../../../../deprecated/client/types/store.types';
+import { IDesign } from "@/types/design.types";
 
 // Define types for the recent design slice
 interface RecentDesignState {
-  recentDesigns: any[];
+  recentDesigns: IDesign[];
   RecentDesignLoading: boolean;
 }
 
@@ -22,11 +23,11 @@ const createRecentDesignSlice: StateCreator<StoreState, [], [], RecentDesignSlic
   fetchRecentDesigns: async (id) => {
     set({ RecentDesignLoading: true });
     try {
-      const { data } = await getRecentDesignsAPI(id);
-      if (data.success) {
-        set({ recentDesigns: data.recentDesigns });
+      const response = await getRecentDesignsAPI();
+      if (response.success) {
+        set({ recentDesigns: response.designs });
       } else {
-        toast.error(data.status);
+        toast.error(response.status);
       }
     } catch (error) {
       console.error('Error fetching recent designs:', error);

@@ -1,5 +1,6 @@
+import { IDesign } from '@/types/design.types';
+import { IComponents } from '@/types/project.types';
 import { RefObject } from 'react';
-import { IDesign, IAttribute, IAttributeOption } from '../../../types/types';
 
 // Selection related types
 export interface SelectionBox {
@@ -42,7 +43,7 @@ export interface ViewProps {
 
 // Store types
 export interface DesignStore {
-  designAttributes: Record<string, IAttribute>;
+  components: IComponents;
   design: IDesign;
   loading: boolean;
   setSelectionBox: (selection: SelectionBox | null) => void;
@@ -51,7 +52,7 @@ export interface DesignStore {
   selectedPage: string;
   setSelectedPage: (page: string) => void;
   pages: Record<string, string>;
-  generateStructure: (options: { updatedPages?: Record<string, string> }) => any;
+  generateHierarchy: (options: { updatedPages?: Record<string, string> }) => any;
   fetchProject: (id: string) => Promise<void>;
   rotation: number;
   setRotation: (rotation: number) => void;

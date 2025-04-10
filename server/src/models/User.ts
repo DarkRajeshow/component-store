@@ -7,6 +7,7 @@ interface IUserPreferences {
 }
 
 export interface IUser extends Document {
+    version: number; // Version of the user schema
     username: string; // Unique username
     email: string; // Unique email
     password: string; // User password
@@ -21,6 +22,11 @@ export interface IUser extends Document {
 // Define the User schema
 const UserSchema = new Schema<IUser>(
     {
+        version: {
+            type: Number,
+            required: true,
+            default: 1,
+        },
         username: {
             type: String,
             unique: true,

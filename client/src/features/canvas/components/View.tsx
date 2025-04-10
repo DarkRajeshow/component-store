@@ -27,46 +27,41 @@ import ZoomControls from './ZoomControls';
 // Types
 import { ViewProps } from '../types/viewTypes';
 import PageNavigator from './PageNavigator';
-import { IDesign } from '@/types/types';
 import filePath from '@/utils/filePath';
-import useStore from '@/store/useStore';
-
-// Define BaseDrawing interface
-interface BaseDrawing {
-    path: string;
-}
-
+import useAppStore from '@/store/useAppStore';
+import { IComponent, INestedParentLevel1, INormalComponent, IPages } from '@/types/project.types';
+import { IBaseDrawing, IDesign } from '@/types/design.types';
 
 const View: React.FC<ViewProps> = ({
-    generatePDF,
-    reference,
     zoom,
-    setZoom,
     offset,
+    reference,
+    generatePDF,
+    setZoom,
     setOffset,
 }) => {
     const {
-        designAttributes,
+        components,
         design,
         loading,
-        setSelectionBox,
         fileVersion,
         baseDrawing,
         selectedPage,
-        setSelectedPage,
         pages,
-        generateStructure,
-        fetchProject,
         rotation,
+        setSelectionBox,
+        setSelectedPage,
+        generateHierarchy,
+        fetchProject,
         setRotation
-    } = useStore();
+    } = useAppStore();
 
     const { id } = useParams<{ id: string }>();
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Type assertions for store values
     const typedDesign = design as unknown as IDesign;
-    const typedBaseDrawing = baseDrawing as unknown as BaseDrawing;
+    const typedBaseDrawing = baseDrawing as unknown as IBaseDrawing;
 
     // Initialize custom hooks
     const {
@@ -101,7 +96,7 @@ const View: React.FC<ViewProps> = ({
         isBaseDrawingExists
     } = useSVGPaths({
         design: typedDesign,
-        designAttributes,
+        components,
         fileVersion,
         pages,
         selectedPage,
@@ -118,7 +113,7 @@ const View: React.FC<ViewProps> = ({
         closePopup
     } = usePageManagement({
         pages,
-        generateStructure,
+        generateHierarchy,
         fetchProject,
         projectId: id || ''
     });
@@ -142,15 +137,15 @@ const View: React.FC<ViewProps> = ({
 
     // Generate design elements for the canvas
     const designElements = React.useMemo(() => {
-        if (!designAttributes) return [];
+        if (!components) return [];
 
-        return Object.entries(designAttributes).map(([attribute, value]) => {
-            const href = getSVGPath(value);
-            const isValid = value?.value
-                || (value?.selectedOption && value.selectedOption !== "none"
-                    && !value?.options?.[value.selectedOption]?.options)
-                || (value?.options?.[value?.selectedOption]?.selectedOption
-                    && value.options[value.selectedOption].selectedOption !== ' ');
+        return Object.entries(components).map(([componentName, componentValue]) => {
+            const href = getSVGPath(componentValue);
+            const isValid = (componentValue as INormalComponent)?.value
+                || ((componentValue as IComponent)?.selected && (componentValue as IComponent).selected !== "none"
+                    && !((componentValue as IComponent)?.options?.[((componentValue as IComponent).selected)] as INestedParentLevel1)?.options)
+                || (((componentValue as IComponent)?.options?.[(componentValue as IComponent)?.selected] as INestedParentLevel1)?.selected
+                    && ((componentValue as IComponent).options[((componentValue as IComponent).selected)] as INestedParentLevel1).selected !== ' ');
 
             if (isValid && href && existingFiles[href]) {
                 return (
@@ -161,7 +156,7 @@ const View: React.FC<ViewProps> = ({
                             cursor: isDragging ? 'grabbing' : 'grab',
                             rotate: `${rotation}deg`
                         }}
-                        key={attribute}
+                        key={componentName}
                         href={href}
                         height={window.innerHeight * 0.846}
                         width={window.innerWidth - 32}
@@ -170,11 +165,11 @@ const View: React.FC<ViewProps> = ({
             }
             return null;
         }).filter(Boolean);
-    }, [designAttributes, getSVGPath, existingFiles, zoom, offset, isDragging, rotation]);
+    }, [components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation]);
 
     // Get base drawing path
-    const baseDrawingPath = typedBaseDrawing?.path && typedDesign?.folder
-        ? `${filePath}${typedDesign.folder}/${pages[selectedPage]}/${typedBaseDrawing.path}.svg?v=${fileVersion}`
+    const baseDrawingPath = typedBaseDrawing?.fileId && typedDesign?.folder
+        ? `${filePath}${typedDesign.folder}/${(pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`
         : null;
 
     return (
@@ -239,7 +234,7 @@ const View: React.FC<ViewProps> = ({
                     <Card className="border-0 !py-0 px-1">
                         <CardContent className="flex justify-between items-center p-2">
                             <PageNavigator
-                                pages={pages}
+                                pages={pages as IPages}
                                 selectedPage={selectedPage}
                                 setSelectedPage={setSelectedPage}
                                 onAddPage={() => openPopup('pages')}

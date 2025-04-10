@@ -1,20 +1,21 @@
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../types/store';
+import { StoreState } from '../../../../deprecated/client/types/store.types';
+import { IUser } from '@/types/user.types';
 
 // Define types for the user slice
 interface UserState {
-    user: Record<string, any>;
+    user: IUser | null;
 }
 
 interface UserActions {
-    setUser: (userData: Record<string, any>) => void;
+    setUser: (userData: IUser) => void;
 }
 
 export type UserSlice = UserState & UserActions;
 
 // User Slice
 const createUserSlice: StateCreator<StoreState, [], [], UserSlice> = (set) => ({
-    user: {},
+    user: {} as IUser,
     setUser: (userData) => set({ user: userData }),
 });
 

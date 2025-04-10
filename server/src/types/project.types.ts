@@ -34,7 +34,9 @@ export interface IComponent {
     options: IComponentOptions;
 }
 
-export interface INormalComponent extends IFileInfo { }
+export interface INormalComponent extends IFileInfo {
+    value: boolean
+}
 
 export interface IComponents {
     [key: string]: IComponent | INormalComponent;
@@ -56,6 +58,7 @@ export interface IHierarchy {
 }
 
 export interface IProject extends Document {
+    version: number;
     user: mongoose.Types.ObjectId | string;
     name: string;
     folder: string;

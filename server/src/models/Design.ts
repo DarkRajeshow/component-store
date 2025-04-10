@@ -3,6 +3,11 @@ import { IDesign } from "../types/design.types";
 
 // Define the Design schema
 const DesignSchema = new Schema<IDesign>({
+    version: {
+        type: Number,
+        required: true,
+        default: 1,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId, // Use Schema.Types.ObjectId
         required: true,

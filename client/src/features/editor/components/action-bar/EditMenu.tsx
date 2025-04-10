@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 import { useEffect } from 'react';
-import useStore from '../../../../store/useStore';
+import useAppStore from '../../../../store/useAppStore';
 import { DialogTrigger } from '@/components/ui/dialog';
 
 
 const EditMenu = ({ attributeOption, setDialogType }) => {
 
-    const { menuOf, setMenuOf, setUniqueFileName } = useStore()
+    const { menuOf, setMenuOf, setUniqueFileName } = useAppStore()
 
     useEffect(() => {
         const AttributePath = attributeOption.split(">$>");

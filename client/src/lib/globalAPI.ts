@@ -1,17 +1,38 @@
 import { apiRequest } from "./apiClient";
-import { IDesign, IUser, ApiResponse, CreateDesignRequest } from "../types/types"; // Import from the types file we created earlier
+import { ICreateProjectRequest, IProjectResponse, IGetProjectResponse, IGetProjectsResponse } from "../types/project.types";
+import { ICreateDesignRequest, IDesignResponse, IGetDesignResponse, IGetDesignsResponse } from "../types/design.types";
+import { IUser } from "../types/user.types";
 
-// Design APIs
-export const createEmptyDesignAPI = async (formData: CreateDesignRequest) => {
-    return apiRequest<ApiResponse<IDesign>>('post', "/api/designs/", formData);
+interface ApiResponse<T> {
+    success: boolean;
+    status: string;
+    data?: T;
+}
+
+// Project APIs
+export const createEmptyProjectAPI = async (formData: ICreateProjectRequest) => {
+    return apiRequest<IProjectResponse>('post', "/api/projects/", formData);
+};
+
+export const getProjectByIdAPI = async (projectId: string) => {
+    return apiRequest<IGetProjectResponse>('get', `/api/projects/${projectId}`);
 };
 
 export const getDesignByIdAPI = async (designId: string) => {
-    return apiRequest<ApiResponse<IDesign>>('get', `/api/designs/${designId}`);
+    return apiRequest<IGetDesignResponse>('get', `/api/designs/${designId}`);
+};
+
+export const getRecentProjectsAPI = async () => {
+    return apiRequest<IGetProjectsResponse>('get', `/api/projects/recent`);
+};
+
+// Design APIs
+export const createEmptyDesignAPI = async (formData: ICreateDesignRequest) => {
+    return apiRequest<IDesignResponse>('post', "/api/designs/", formData);
 };
 
 export const getRecentDesignsAPI = async () => {
-    return apiRequest<ApiResponse<IDesign[]>>('get', `/api/designs/recent`);
+    return apiRequest<IGetDesignsResponse>('get', `/api/designs/recent`);
 };
 
 // Auth APIs

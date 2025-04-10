@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import useStore from '../../../../store/useStore';
+import useAppStore from '../../../../store/useAppStore';
 import { shiftToSelectedCategoryAPI } from '../../lib/designAPI';
 
 export const ATTRIBUTE_TYPES = [
@@ -16,17 +16,17 @@ export function useActionBar() {
     const { id } = useParams();
     const {
         loading,
-        designAttributes,
+        components,
         uniqueFileName,
         setUniqueFileName,
         design,
         fetchProject,
         selectedCategory,
-        toggleAttributeValue,
+        toggleComponentValue,
         pushToUndoStack,
         handleUndo,
         handleRedo
-    } = useStore();
+    } = useAppStore();
 
     const [openDropdown, setOpenDropdown] = useState("");
     const [attributeFileName, setAttributeFileName] = useState('');
@@ -38,7 +38,7 @@ export function useActionBar() {
     const [attributeType, setAttributeType] = useState("normal");
     const [infoOpen, setInfoOpen] = useState(false);
     const [tempSelectedCategory, setTempSelectedCategory] = useState(selectedCategory);
-    const [tempDesignAttributes, setTempDesignAttributes] = useState(designAttributes);
+    const [tempcomponents, setTempcomponents] = useState(components);
 
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const infoContext = useRef<HTMLDivElement>(null);
@@ -60,10 +60,10 @@ export function useActionBar() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleUndo, handleRedo]);
 
-    // Update tempDesignAttributes when designAttributes change
+    // Update tempcomponents when components change
     useEffect(() => {
-        setTempDesignAttributes(designAttributes);
-    }, [attributeType, designAttributes]);
+        setTempcomponents(components);
+    }, [attributeType, components]);
 
     // Update tempSelectedCategory when selectedCategory changes
     useEffect(() => {
@@ -93,8 +93,8 @@ export function useActionBar() {
 
     const handleToggle = useCallback((key: string) => {
         pushToUndoStack(); // Push the current state before the change
-        toggleAttributeValue(key);
-    }, [pushToUndoStack, toggleAttributeValue]);
+        toggleComponentValue(key);
+    }, [pushToUndoStack, toggleComponentValue]);
 
     const toggleDropdown = useCallback((attribute: string) => {
         setOpenDropdown(prevDropdown => prevDropdown === attribute ? "" : attribute);
@@ -122,18 +122,18 @@ export function useActionBar() {
 
     const handleAttributeFileNameChange = useCallback(() => {
         const newInput = attributeFileName;
-        const updatedDesignAttributes = JSON.parse(JSON.stringify(designAttributes));
+        const updatedcomponents = JSON.parse(JSON.stringify(components));
 
         switch (attributeType) {
             case 'normal':
-                updatedDesignAttributes[newInput] = { value: true, path: uniqueFileName };
+                updatedcomponents[newInput] = { value: true, path: uniqueFileName };
                 break;
             case 'nestedChildLevel1':
                 if (levelOneNest) {
-                    updatedDesignAttributes[levelOneNest] = {
-                        ...updatedDesignAttributes[levelOneNest],
+                    updatedcomponents[levelOneNest] = {
+                        ...updatedcomponents[levelOneNest],
                         options: {
-                            ...updatedDesignAttributes[levelOneNest]?.options,
+                            ...updatedcomponents[levelOneNest]?.options,
                             [newInput]: { path: uniqueFileName }
                         }
                     };
@@ -141,7 +141,7 @@ export function useActionBar() {
                 break;
             case 'nestedChildLevel2':
                 if (levelOneNest && levelTwoNest) {
-                    const parentOptions = updatedDesignAttributes[levelOneNest]?.options || {};
+                    const parentOptions = updatedcomponents[levelOneNest]?.options || {};
                     const nestedLevelOneOption = parentOptions[levelTwoNest];
                     const nestedLevelTwoOptions = nestedLevelOneOption?.options || {};
 
@@ -151,12 +151,12 @@ export function useActionBar() {
 
                     nestedLevelTwoOptions[newInput] = { path: uniqueFileName };
 
-                    updatedDesignAttributes[levelOneNest] = {
-                        ...updatedDesignAttributes[levelOneNest],
+                    updatedcomponents[levelOneNest] = {
+                        ...updatedcomponents[levelOneNest],
                         options: {
                             ...parentOptions,
                             [levelTwoNest]: {
-                                selectedOption: newInput,
+                                selected: newInput,
                                 options: nestedLevelTwoOptions
                             }
                         },
@@ -164,8 +164,8 @@ export function useActionBar() {
                 }
                 break;
             case 'nestedParentLevel0':
-                updatedDesignAttributes[newInput] = {
-                    selectedOption: "none",
+                updatedcomponents[newInput] = {
+                    selected: "none",
                     options: {
                         none: {
                             path: "none"
@@ -175,27 +175,27 @@ export function useActionBar() {
                 break;
             case 'nestedParentLevel1':
                 if (levelOneNest) {
-                    const newNestedOptions = updatedDesignAttributes[levelOneNest]?.options || {};
+                    const newNestedOptions = updatedcomponents[levelOneNest]?.options || {};
 
                     if (newNestedOptions[oldAttributeFileName]) {
                         delete newNestedOptions[oldAttributeFileName];
                     }
 
                     newNestedOptions[newInput] = {
-                        selectedOption: " ",
+                        selected: " ",
                         options: {},
                     };
 
-                    updatedDesignAttributes[levelOneNest] = {
-                        selectedOption: updatedDesignAttributes[levelOneNest]?.selectedOption,
+                    updatedcomponents[levelOneNest] = {
+                        selected: updatedcomponents[levelOneNest]?.selected,
                         options: newNestedOptions,
                     };
                 }
                 break;
         }
 
-        setTempDesignAttributes(updatedDesignAttributes);
-    }, [attributeFileName, attributeType, levelOneNest, levelTwoNest, designAttributes, oldAttributeFileName, uniqueFileName]);
+        setTempcomponents(updatedcomponents);
+    }, [attributeFileName, attributeType, levelOneNest, levelTwoNest, components, oldAttributeFileName, uniqueFileName]);
 
     // Update attributes when any dependencies change
     useEffect(() => {
@@ -223,7 +223,7 @@ export function useActionBar() {
     return {
         // State
         loading,
-        designAttributes,
+        components,
         design,
         openDropdown,
         attributeFileName,
@@ -235,7 +235,7 @@ export function useActionBar() {
         attributeType,
         infoOpen,
         tempSelectedCategory,
-        tempDesignAttributes,
+        tempcomponents,
         contextMenuRef,
         infoContext,
 

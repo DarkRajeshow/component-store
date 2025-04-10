@@ -61,6 +61,7 @@ c4a456ba0961" }
             "components": { 
                 // this below options of components is "normal" type 
                 "Demo": { 
+                    "value": false,
                     "fileId": "52d1sd3432546a - 4018 - 97e0 - 112a6a8b7062" 
                 } 
             } 
@@ -79,6 +80,7 @@ Design.structure = {
             "components": { 
                 // this below options of components is "normal" type 
                 "Demo": { 
+                    "value": false,
                     "fileId": "52d1sd3432546a - 4018 - 97e0 - 112a6a8b7062" 
                 } 
             } 

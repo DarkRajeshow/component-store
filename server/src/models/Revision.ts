@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 // Define the interface for the Revision document
 interface IRevision extends Document {
+    version: number; // Version of the revision schema
     revisionCode: string; // 4-digit code
     designId: mongoose.Types.ObjectId; // Reference to the Design
     changes: string[]; // Array of change messages
@@ -12,6 +13,11 @@ interface IRevision extends Document {
 
 // Define the schema for the Revision model
 const RevisionSchema = new Schema<IRevision>({
+    version: {
+        type: Number,
+        required: true,
+        default: 1,
+    },
     revisionCode: {
         type: String,
         required: true,

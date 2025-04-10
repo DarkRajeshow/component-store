@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-// import useStore from "../../../../store/useStore";
+// import useAppStore from "../../../../store/useAppStore";
 // import { sideMenuTypes } from "../../../../constants";
 // import { useSideMenu } from "../../hooks/sidemenu/useSideMenu";
 import SideMenuTriggers from "./SideMenuTriggers";
@@ -19,7 +19,7 @@ import PageManagement from "./PageManagement";
 import FileUploadSection from "./FileUploadSection";
 import ActionButtons from "./ActionButtons";
 import { useSideMenu } from "../hooks/useSideMenu";
-import useStore from "@/store/useStore";
+import useAppStore from "@/store/useAppStore";
 import { sideMenuTypes } from "@/constants";
 
 function SideMenu() {
@@ -34,9 +34,9 @@ function SideMenu() {
     baseDrawing,
     setBaseDrawing,
     loading,
-    generateStructure,
+    generateHierarchy,
     pages
-  } = useStore();
+  } = useAppStore();
 
   // Use the custom hook to manage state and logic
   const {
@@ -76,7 +76,7 @@ function SideMenu() {
     baseDrawing,
     setBaseDrawing,
     loading,
-    generateStructure,
+    generateHierarchy,
     pages,
     id: id || "",
   });

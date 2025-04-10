@@ -1,4 +1,4 @@
-import { IAttribute, IAttributeOption } from "@/types/types";
+import { IAttribute, IAttributeOption } from "@/types/request.types";
 import UpdateChild from "./UpdateChild";
 import { memo } from "react";
 

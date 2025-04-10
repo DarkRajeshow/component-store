@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../types/store';
+import { StoreState } from '../../../../deprecated/client/types/store.types';
 
 // Define types for the file slice
 interface FileState {

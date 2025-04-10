@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import useStore from '../../../../store/useStore';
+import useAppStore from '../../../../store/useAppStore';
 import {
     DialogTrigger, DialogTitle, DialogDescription
 } from '../../../../components/ui/dialog';
@@ -11,7 +11,7 @@ interface ExportFormProps {
 function ExportForm({ generatePDF }: ExportFormProps) {
 
     const [fileName, setFileName] = useState<string>("");
-    const { setSelectionBox } = useStore()
+    const { setSelectionBox } = useAppStore()
 
     return (
         <form onSubmit={(e) => {

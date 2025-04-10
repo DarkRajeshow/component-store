@@ -18,7 +18,7 @@ export function useSideMenu(props: SideMenuProps) {
         baseDrawing,
         setBaseDrawing,
         loading,
-        generateStructure,
+        generateHierarchy,
         pages,
         id,
     } = props;
@@ -297,8 +297,8 @@ export function useSideMenu(props: SideMenuProps) {
             const changedPages = SideMenuService.getPagesForCategory(design, tempSelectedCategory);
 
             // Generate updated structure
-            const structure = generateStructure({
-                updatedAttributes: attributes,
+            const structure = generateHierarchy({
+                updatedComponents: attributes,
                 updatedCategory: tempSelectedCategory,
                 updatedPages: tempPages,
                 updatedBaseDrawing: tempBaseDrawing,
@@ -331,7 +331,7 @@ export function useSideMenu(props: SideMenuProps) {
     }, [
         design,
         tempSelectedCategory,
-        generateStructure,
+        generateHierarchy,
         tempPages,
         tempBaseDrawing,
         pages,
@@ -366,8 +366,8 @@ export function useSideMenu(props: SideMenuProps) {
             const folderNames = SideMenuService.getMissingFolderNames(pagesNames, pages);
 
             // Generate updated structure
-            const structure = generateStructure({
-                updatedAttributes: attributes,
+            const structure = generateHierarchy({
+                updatedComponents: attributes,
                 updatedBaseDrawing: {
                     path: uniqueFileName,
                 },
@@ -412,7 +412,7 @@ export function useSideMenu(props: SideMenuProps) {
         newBaseDrawingFiles,
         tempPages,
         pages,
-        generateStructure,
+        generateHierarchy,
         id,
         fetchProject,
         setBaseDrawing,

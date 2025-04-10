@@ -6,14 +6,14 @@ import { ViewPopUpType } from '../types/viewTypes';
 
 interface UsePageManagementProps {
   pages: Record<string, string>;
-  generateStructure: (options: { updatedPages?: Record<string, string> }) => any;
+  generateHierarchy: (options: { updatedPages?: Record<string, string> }) => any;
   fetchProject: (id: string) => Promise<void>;
   projectId: string;
 }
 
 export const usePageManagement = ({
   pages,
-  generateStructure,
+  generateHierarchy,
   fetchProject,
   projectId
 }: UsePageManagementProps) => {
@@ -48,7 +48,7 @@ export const usePageManagement = ({
       };
 
       // Generate structure with updated pages
-      const structure = generateStructure({ updatedPages });
+      const structure = generateHierarchy({ updatedPages });
 
       // Prepare request body
       const body = {
@@ -72,7 +72,7 @@ export const usePageManagement = ({
       console.log(error);
       toast.error('Something went wrong.');
     }
-  }, [newPageName, pages, generateStructure, projectId, fetchProject]);
+  }, [newPageName, pages, generateHierarchy, projectId, fetchProject]);
 
   const openPopup = useCallback((type: ViewPopUpType) => {
     setViewPopUpType(type);

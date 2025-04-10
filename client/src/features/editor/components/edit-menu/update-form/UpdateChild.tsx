@@ -1,7 +1,7 @@
 
 import { memo } from 'react';
 import AddChild from './AddChild';
-import { IAttribute, IAttributeOption } from '../../../../../types/types';
+import { IAttribute, IAttributeOption } from '../../../../../types/request.types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
@@ -82,7 +82,7 @@ const UpdateChild = memo(({
 
                     </h1>
                     <div className='flex items-center gap-3'>
-                        {value?.selectedOption && (
+                        {value?.selected && (
                             <Button
                                 type='button'
                                 variant="ghost"
@@ -128,7 +128,7 @@ const UpdateChild = memo(({
                                     <RenameSection renamedOption={renamedOption} handleRename={handleRename} />
 
                                     {/* File upload section - only shown for options with a path */}
-                                    {(value?.path && option !== "none") && (
+                                    {(value?.fileId && option !== "none") && (
                                         <div className="mt-4">
                                             <PageSelector
                                                 pages={pages}
@@ -138,7 +138,7 @@ const UpdateChild = memo(({
 
                                             <div className='flex flex-col gap-4'>
                                                 {selectedPages.map(page => {
-                                                    const valuePath = value.path || "";
+                                                    const valuePath = value.fileId|| "";
                                                     const pagePath = pages[page];
                                                     const selectedFile = valuePath && newFiles?.[valuePath]?.[pagePath]
                                                         ? newFiles[valuePath][pagePath]
@@ -175,7 +175,7 @@ const UpdateChild = memo(({
                                     setUpdatedValue={setUpdatedValue}
                                     fileCounts={fileCounts}
                                     setFileCounts={setFileCounts}
-                                    path={value.path || ''}
+                                    path={value.fileId|| ''}
                                 />
                             )}
                         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import EditMenu from "./EditMenu";
-import useStore from "../../../../store/useStore";
-import { IAttributeOption } from "../../../../types/types";
+import useAppStore from "../../../../store/useAppStore";
+import { IAttributeOption } from "../../../../types/request.types";
 import OptionItem from "./OptionItem";
 import { cn } from "@/lib/utils";
 
@@ -15,14 +15,14 @@ interface RenderOptionsProps {
 }
 
 const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContextMenu, setDialogType, menuVisible }: RenderOptionsProps) => {
-    const { designAttributes, updateSelectedSubOption, updateSelectedOption } = useStore();
+    const { components, updateSelectedSubOption, updateselected } = useAppStore();
     const [openSubSubOptions, setOpenSubSubOptions] = useState<string[]>([]);
     const [scrollPosition, setScrollPosition] = useState(0);
     const divRef = useRef<HTMLDivElement>(null);
 
     const handleOptionChange = (option: string) => {
         pushToUndoStack(); // Push the current state before the change
-        updateSelectedOption(attribute, option);
+        updateselected(attribute, option);
     };
 
     const handleSubOptionChange = (option: string, subOption: string) => {
@@ -64,8 +64,8 @@ const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContex
             <div key={subOption}>
                 <OptionItem
                     option={subOption}
-                    isSelected={designAttributes[attribute].selectedOption === subOption}
-                    showDropdownIcon={!!subValue.selectedOption}
+                    isSelected={components[attribute].selected === subOption}
+                    showDropdownIcon={!!subValue.selected}
                     isOpen={openSubSubOptions.includes(subOption)}
                     isNone={subOption === "none"}
                     menuVisible={menuVisible}
@@ -83,13 +83,13 @@ const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContex
                     </div>
                 )}
 
-                {subValue.selectedOption && subValue.options && (
+                {subValue.selected && subValue.options && (
                     <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-0 overflow-hidden"}`}>
                         {Object.entries(subValue.options).map(([subSubOption]) => (
                             <div key={subSubOption}>
                                 <OptionItem
                                     option={subSubOption}
-                                    isSelected={subValue.selectedOption === subSubOption}
+                                    isSelected={subValue.selected === subSubOption}
                                     menuVisible={menuVisible}
                                     menuPath={`${attribute}>$>${subOption}>$>${subSubOption}`}
                                     onOptionClick={() => handleSubOptionChange(subOption, subSubOption)}

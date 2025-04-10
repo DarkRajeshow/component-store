@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useUpdateForm } from '../../../hooks/edit-menu/useUpdateForm';
-import { IAttribute } from '@/types/types';
+import { IAttribute } from '@/types/request.types';
 import {
     AddChild,
     UpdateChild,
@@ -102,7 +102,7 @@ const UpdateForm: React.FC = () => {
                 <CardContent className="px-4 flex items-center justify-between">
                     <h1 className='font-medium text-xl uppercase text-blue-700'>{newAttributeName}</h1>
                     <div className='flex items-center gap-3'>
-                        {updatedValue?.selectedOption && (
+                        {updatedValue?.selected && (
                             <Button
                                 type='button'
                                 variant="ghost"
@@ -164,7 +164,7 @@ const UpdateForm: React.FC = () => {
                             </div>
 
                             {/* File Upload Section */}
-                            {selectedAttributeValue?.path && (
+                            {selectedAttributeValue?.fileId && (
                                 <div className="mt-6">
                                     <PageSelector
                                         pages={pages}

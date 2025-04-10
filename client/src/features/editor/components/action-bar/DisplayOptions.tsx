@@ -1,5 +1,5 @@
-import { IAttribute, IAttributeOption } from '../../../../types/types';
-import useStore from '../../../../store/useStore';
+import { IAttribute, IAttributeOption } from '../../../../types/request.types';
+import useAppStore from '../../../../store/useAppStore';
 import {
     SelectContent,
     SelectGroup,
@@ -14,34 +14,34 @@ interface DisplayOptionsProps {
 }
 
 interface DesignStore {
-    designAttributes: Record<string, IAttribute>;
+    components: Record<string, IAttribute>;
 }
 
 const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 = false, levelOneNest }) => {
-    const { designAttributes } = useStore() as DesignStore;
+    const { components } = useAppStore() as DesignStore;
 
-    if (!designAttributes) {
+    if (!components) {
         return null;
     }
 
-    const hasSelectedOption = (attribute: IAttribute): boolean => {
+    const hasselected = (attribute: IAttribute): boolean => {
         if (!attribute.options) return false;
 
         // Check if the current attribute has a selected option that meets the condition
-        if (attribute.selectedOption && attribute.options[attribute.selectedOption]?.selectedOption) {
+        if (attribute.selected && attribute.options[attribute.selected]?.selected) {
             return true;
         }
 
         // Check all nested options
         for (const key in attribute.options) {
             const option = attribute.options[key] as IAttributeOption;
-            if (typeof option === 'object' && option.selectedOption) {
-                if (option.selectedOption) {
+            if (typeof option === 'object' && option.selected) {
+                if (option.selected) {
                     return true;
                 }
             } else if (Array.isArray(attribute.options)) {
                 for (const opt of attribute.options as IAttributeOption[]) {
-                    if (opt.selectedOption) {
+                    if (opt.selected) {
                         return true;
                     }
                 }
@@ -57,8 +57,8 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
             return (
                 <SelectContent>
                     <SelectGroup>
-                        {Object.entries(designAttributes).map(([attribute, value]) => {
-                            if (hasSelectedOption(value)) {
+                        {Object.entries(components).map(([attribute, value]) => {
+                            if (hasselected(value)) {
                                 return (
                                     <SelectItem key={attribute} value={attribute}>
                                         {attribute}
@@ -75,8 +75,8 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
         return (
             <SelectContent>
                 <SelectGroup>
-                    {Object.entries(designAttributes).map(([attribute, value]) => {
-                        if (value.selectedOption) {
+                    {Object.entries(components).map(([attribute, value]) => {
+                        if (value.selected) {
                             return (
                                 <SelectItem key={attribute} value={attribute}>
                                     {attribute}
@@ -91,7 +91,7 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
 
     } else if (level === 1 && levelOneNest) {
         // Render level 1 options
-        const parent = designAttributes[levelOneNest];
+        const parent = components[levelOneNest];
         if (parent?.options) {
             return (
                 <SelectContent>
@@ -99,7 +99,7 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
                         <SelectLabel>{levelOneNest} Options</SelectLabel>
                         {Object.entries(parent.options).map(([attribute, value]) => {
                             const optionValue = value as IAttributeOption;
-                            if (optionValue?.selectedOption) {
+                            if (optionValue?.selected) {
                                 return (
                                     <SelectItem key={attribute} value={attribute}>
                                         {attribute}

@@ -2,7 +2,7 @@ import React, { useState, FormEvent } from 'react';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerAPI } from '../lib/authAPI';
-import { UserSignupRequest } from '../../../types/types';
+import { UserSignupRequest } from '../../../types/request.types';
 
 const SignUp: React.FC = () => {
     const [username, setUsername] = useState<string>('');

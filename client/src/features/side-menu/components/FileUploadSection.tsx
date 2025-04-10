@@ -29,7 +29,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
 }) => {
     // Memoize file preview rendering logic
     const filePreview = useMemo(() => {
-        if (!(tempBaseDrawing?.path && fileExistenceStatus[choosenPage]) && !newBaseDrawingFiles?.[tempPages[choosenPage]]) {
+        if (!(tempBaseDrawing?.fileId && fileExistenceStatus[choosenPage]) && !newBaseDrawingFiles?.[tempPages[choosenPage]]) {
             return null;
         }
 
@@ -63,7 +63,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             <CardContent className="px-5 pb-5 pt-0">
                 <h3 className="font-medium text-lg mb-2">Upload File</h3>
 
-                {tempBaseDrawing?.path === " " && (
+                {tempBaseDrawing?.fileId === " " && (
                     <p className="text-red-700 font-semibold mb-4">
                         You must upload the base drawing with the above combinations to proceed.
                     </p>

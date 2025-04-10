@@ -1,9 +1,9 @@
 import { JSX, useEffect } from "react";
-import useStore from "../store/useStore";
+import useAppStore from "../store/useAppStore";
 import { DesignCard } from "../features/dashboard";
 
 function Home(): JSX.Element {
-  const { fetchRecentDesigns, recentDesigns, fetchAllDesignsLoading } = useStore();
+  const { fetchRecentDesigns, recentDesigns, fetchAllDesignsLoading } = useAppStore();
 
   useEffect(() => {
     fetchRecentDesigns();

@@ -4,10 +4,10 @@ import RenameInput from './update-form/RenameInput';
 import { renameAttributeAPI } from '../../lib/designAPI';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
-import useStore from '../../../../store/useStore';
+import useAppStore from '../../../../store/useAppStore';
 
 const RenameForm = () => {
-    const { menuOf, designAttributes, setDesignAttributes, generateStructure } = useStore();
+    const { menuOf, components, setComponents, generateHierarchy } = useAppStore();
 
     const [newAttributeName, setNewAttributeName] = useState(menuOf[menuOf.length - 1]);
     const [renameLoading, setRenameLoading] = useState(false);
@@ -20,8 +20,8 @@ const RenameForm = () => {
         setRenameLoading(true);
 
         try {
-            // Create a deep copy of designAttributes
-            const updatedAttributes = JSON.parse(JSON.stringify(designAttributes));
+            // Create a deep copy of components
+            const updatedComponents = JSON.parse(JSON.stringify(components));
 
             const renameAttribute = (attributes, keys, newKey) => {
                 if (keys.length === 1) {
@@ -38,9 +38,9 @@ const RenameForm = () => {
                             delete attributes[category].options[option];
                         }
 
-                        // Update selectedOption if necessary
-                        if (attributes[category].selectedOption === option) {
-                            attributes[category].selectedOption = newKey;
+                        // Update selected if necessary
+                        if (attributes[category].selected === option) {
+                            attributes[category].selected = newKey;
                         }
                     }
                 } else if (keys.length === 3) {
@@ -52,18 +52,18 @@ const RenameForm = () => {
                         attributes[category].options[subcategory].options[newKey] = attributes[category].options[subcategory].options[option];
                         delete attributes[category].options[subcategory].options[option];
 
-                        // Update selectedOption if necessary
-                        if (attributes[category].options[subcategory].selectedOption === option) {
-                            attributes[category].options[subcategory].selectedOption = newKey;
+                        // Update selected if necessary
+                        if (attributes[category].options[subcategory].selected === option) {
+                            attributes[category].options[subcategory].selected = newKey;
                         }
                     }
                 }
             };
 
-            renameAttribute(updatedAttributes, menuOf, newAttributeName);
+            renameAttribute(updatedComponents, menuOf, newAttributeName);
 
 
-            let structure = generateStructure({ updatedAttributes: updatedAttributes })
+            let structure = generateHierarchy({ updatedComponents: updatedComponents })
 
             const body = {
                 structure: structure
@@ -72,7 +72,7 @@ const RenameForm = () => {
             const { data } = await renameAttributeAPI(id, body);
 
             if (data.success) {
-                setDesignAttributes(updatedAttributes)
+                setComponents(updatedComponents)
                 toast.success(data.status);
                 document.querySelector("#close").click();
             }

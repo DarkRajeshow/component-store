@@ -1,36 +1,36 @@
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import useStore from '../../../../store/useStore';
+import useAppStore from '../../../../store/useAppStore';
 import { DialogDescription, DialogTrigger, DialogTitle } from '../../../../components/ui/dialog';
-import { deleteDesignAttributesAPI } from '../../lib/designAPI';
+import { deletecomponentsAPI } from '../../lib/designAPI';
 
 
 function DeleteForm() {
 
-    const { menuOf, designAttributes, setDesignAttributes, generateStructure, setUndoStack, setRedoStack } = useStore();
+    const { menuOf, components, setComponents, generateHierarchy, setUndoStack, setRedoStack } = useAppStore();
     const { id } = useParams();
 
-    const tempDesignAttributes = JSON.parse(JSON.stringify(designAttributes));
+    const tempcomponents = JSON.parse(JSON.stringify(components));
 
-    const updatedValue = menuOf.length === 3 ? tempDesignAttributes[menuOf[0]].options[menuOf[1]].options[menuOf[2]] : menuOf.length === 2 ? tempDesignAttributes[menuOf[0]].options[menuOf[1]] : tempDesignAttributes[menuOf[0]];
+    const updatedValue = menuOf.length === 3 ? tempcomponents[menuOf[0]].options[menuOf[1]].options[menuOf[2]] : menuOf.length === 2 ? tempcomponents[menuOf[0]].options[menuOf[1]] : tempcomponents[menuOf[0]];
 
 
     const deleteValue = () => {
         if (menuOf.length === 3) {
-            if (tempDesignAttributes[menuOf[0]].options[menuOf[1]].selectedOption === menuOf[menuOf.length - 1]) {
-                tempDesignAttributes[menuOf[0]].options[menuOf[1]].selectedOption = " "
+            if (tempcomponents[menuOf[0]].options[menuOf[1]].selected === menuOf[menuOf.length - 1]) {
+                tempcomponents[menuOf[0]].options[menuOf[1]].selected = " "
             }
-            delete tempDesignAttributes[menuOf[0]].options[menuOf[1]].options[menuOf[menuOf.length - 1]];
+            delete tempcomponents[menuOf[0]].options[menuOf[1]].options[menuOf[menuOf.length - 1]];
         } else if (menuOf.length === 2) {
-            if (tempDesignAttributes[menuOf[0]].selectedOption === menuOf[menuOf.length - 1]) {
-                tempDesignAttributes[menuOf[0]].selectedOption = "none"
+            if (tempcomponents[menuOf[0]].selected === menuOf[menuOf.length - 1]) {
+                tempcomponents[menuOf[0]].selected = "none"
             }
-            delete tempDesignAttributes[menuOf[0]].options[menuOf[menuOf.length - 1]];
+            delete tempcomponents[menuOf[0]].options[menuOf[menuOf.length - 1]];
         } else if (menuOf.length === 1) {
-            delete tempDesignAttributes[menuOf[menuOf.length - 1]];
+            delete tempcomponents[menuOf[menuOf.length - 1]];
         }
 
-        return tempDesignAttributes;
+        return tempcomponents;
     };
 
     function extractPaths() {
@@ -38,7 +38,7 @@ function DeleteForm() {
 
         function traverse(current) {
             if (typeof current === 'object' && current !== null) {
-                if (current.path && current.path !== "none") {
+                if (current.fileId&& current.fileId!== "none") {
                     paths.push(current.path);
                 }
                 for (let key in current) {
@@ -56,8 +56,8 @@ function DeleteForm() {
     const handleDelete = async () => {
 
         let attributes = deleteValue()
-        let structure = generateStructure({
-            updatedAttributes: attributes
+        let structure = generateHierarchy({
+            updatedComponents: attributes
         })
         
         
@@ -69,9 +69,9 @@ function DeleteForm() {
         try {
             setUndoStack([]);
             setRedoStack([]);
-            const { data } = await deleteDesignAttributesAPI(id, body);
+            const { data } = await deletecomponentsAPI(id, body);
             if (data.success) {
-                setDesignAttributes(tempDesignAttributes)
+                setComponents(tempcomponents)
                 toast.success(data.status);
                 document.querySelector("#close").click();
             }

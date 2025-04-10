@@ -2,19 +2,19 @@ import { memo, useMemo } from 'react';
 import AttributeOption from './AttributeOption';
 import RenderOptions from './RenderOptions';
 import EditMenu from './EditMenu';
-import { IAttributeOption } from '@/types/types';
+import { IAttributeOption } from '@/types/request.types';
 
 interface DesignAttribute {
     options?: Record<string, IAttributeOption>; // You might want to define a more specific type for options
     value?: boolean | undefined;     // Define specific type based on your needs
 }
 
-interface DesignAttributes {
+interface components {
     [key: string]: DesignAttribute;
 }
 
 interface AttributesListProps {
-    designAttributes: DesignAttributes | null;
+    components: components | null;
     openDropdown: string;
     menuVisible: string | boolean;
     handleToggle: (key: string) => void;
@@ -25,7 +25,7 @@ interface AttributesListProps {
 }
 
 const AttributesList = memo(({
-    designAttributes,
+    components,
     openDropdown,
     menuVisible,
     handleToggle,
@@ -35,17 +35,17 @@ const AttributesList = memo(({
     setDialogType
 }: AttributesListProps) => {
     const sortedAttributes = useMemo(() => {
-        if (!designAttributes) return [];
+        if (!components) return [];
 
-        return Object.entries(designAttributes)
+        return Object.entries(components)
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([attribute, value]) => ({
                 attribute,
                 value
             }));
-    }, [designAttributes]);
+    }, [components]);
 
-    if (!designAttributes || sortedAttributes.length === 0) {
+    if (!components || sortedAttributes.length === 0) {
         return <div className="flex items-center justify-center p-4">No attributes found</div>;
     }
 

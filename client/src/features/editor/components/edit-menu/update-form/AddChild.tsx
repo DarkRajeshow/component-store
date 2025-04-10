@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageSelector from "./PageSelector";
-import { IAttribute } from "../../../../../types/types";
+import { IAttribute } from "../../../../../types/request.types";
 import OptionTypeSelector from "./OptionTypeSelector";
 import FileUploader from "./FileUploader";
 import { useAddChild } from "@/features/editor/hooks/edit-menu/useAddChild";

@@ -1,9 +1,9 @@
 import filePath from "../../../utils/filePath";
 import { Link } from "react-router-dom";
-import useStore from "../../../store/useStore";
+import useAppStore from "../../../store/useAppStore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { checkFileExists } from "../../../utils/checkFileExists";
-import { IDesign, IMountingType, ISmileyType } from "../../../types/types";
+import { IDesign, IMountingType, ISmileyType } from "../../../types/request.types";
 
 interface DesignCardProps {
     design: IDesign;
@@ -21,7 +21,7 @@ interface DesignInfo {
 type CustomizationOptions = Partial<IMountingType | ISmileyType>;
 
 function DesignCard({ design }: DesignCardProps) {
-    const { RecentDesignLoading, fileVersion } = useStore();
+    const { RecentDesignLoading, fileVersion } = useAppStore();
     const [existingFiles, setExistingFiles] = useState<ExistingFiles>({});
     const designType = design?.designType;
     const selectedCategory = design?.selectedCategory;
@@ -58,8 +58,8 @@ function DesignCard({ design }: DesignCardProps) {
             return `${baseFilePath}/${value.path}.svg?v=${fileVersion}`;
         }
 
-        const subOption = value.selectedOption;
-        const subSubOption = value.options?.[subOption]?.selectedOption;
+        const subOption = value.selected;
+        const subSubOption = value.options?.[subOption]?.selected;
 
         if (subSubOption && subSubOption.trim() !== "") {
             return `${baseFilePath}/${value.options[subOption]?.options?.[subSubOption]?.path}.svg?v=${fileVersion}`;
@@ -137,7 +137,7 @@ function DesignCard({ design }: DesignCardProps) {
                             viewBox="0 0 340 340"
                             xmlns="http://www.w3.org/2000/svg"
                         >
-                            {customizationOptions.baseDrawing?.path && customizationOptions.pages && (
+                            {customizationOptions.baseDrawing?.fileId && customizationOptions.pages && (
                                 <image
                                     x="0"
                                     y="0"

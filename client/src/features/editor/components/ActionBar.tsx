@@ -21,7 +21,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
     const {
         // State
         loading,
-        designAttributes,
+        components,
         design,
         openDropdown,
         attributeFileName,
@@ -32,7 +32,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         attributeType,
         infoOpen,
         tempSelectedCategory,
-        tempDesignAttributes,
+        tempcomponents,
         contextMenuRef,
         infoContext,
 
@@ -72,7 +72,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                         setAttributeFileName={setAttributeFileName}
                         newAttributeTypes={ATTRIBUTE_TYPES}
                         setAttributeType={setAttributeType}
-                        tempDesignAttributes={tempDesignAttributes}
+                        tempcomponents={tempcomponents}
                     />
                 );
             case 'update':
@@ -146,9 +146,9 @@ function ActionBar({ generatePDF }: ActionBarProps) {
 
                 {/* Main attributes list */}
                 <div className="flex gap-1 rounded-md h-[88%] justify-center" ref={contextMenuRef}>
-                    {!loading && designAttributes && (
+                    {!loading && components && (
                         <AttributesList
-                            designAttributes={designAttributes}
+                            components={components}
                             openDropdown={openDropdown}
                             menuVisible={menuVisible}
                             handleToggle={handleToggle}

@@ -1,7 +1,7 @@
 import { checkFileExists } from "@/utils/checkFileExists";
 import { shiftToSelectedCategoryAPI, updateBaseDrawingAPI } from "../lib/designAPI";
 import { BaseDrawing, Pages } from "../types/sideMenuTypes";
-import { IDesign } from "@/types/types";
+import { IDesign } from "@/types/request.types";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -39,10 +39,10 @@ export const SideMenuService = {
         // If the base drawing is previously uploaded, use the existing path
         if (design?.designType === "motor") {
             const mountingType = design.structure.mountingTypes?.[tempSelectedCategory];
-            uniqueFileName = mountingType?.baseDrawing?.path || uniqueFileName;
+            uniqueFileName = mountingType?.baseDrawing?.fileId || uniqueFileName;
         } else if (design?.designType === "smiley") {
             const smileyType = design.structure.sizes?.[tempSelectedCategory];
-            uniqueFileName = smileyType?.baseDrawing?.path || uniqueFileName;
+            uniqueFileName = smileyType?.baseDrawing?.fileId || uniqueFileName;
         }
 
         return uniqueFileName;

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import filePath from '../../utils/filePath.js';
 import { v4 as uuidv4 } from 'uuid';
 import { designTypes, initialSelectedCategories, initialStructure } from '../../constants/index.jsx';
-import useStore from '../../store/useStore.js';
+import useAppStore from '../../store/useAppStore.js';
 import { createEmptyDesignAPI, getUserAPI, logoutAPI } from '../../lib/globalAPI.js';
 import {
     DialogContent,
@@ -16,7 +16,7 @@ import {
 
 
 const Navbar = () => {
-    const { user, setUser } = useStore();
+    const { user, setUser } = useAppStore();
     const [isAvatarOpen, setIsAvatarOpen] = useState(false);
     // const [baseFile, setBaseFile] = useState();
 
@@ -48,7 +48,7 @@ const Navbar = () => {
                 toast.success("You logged out successfully.")
             }
             else {
-                toast.error(data.status)
+                toast.error(data.message)
             }
         } catch (error) {
             console.log(error);

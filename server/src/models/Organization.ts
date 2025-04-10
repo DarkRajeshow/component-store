@@ -8,6 +8,7 @@ interface IMember {
 }
 
 interface IOrganization extends Document {
+    version: number; // Version of the organization schema
     owner: mongoose.Types.ObjectId; // Reference to User who owns the organization
     name: string; // Name of the organization
     description?: string; // Optional description of the organization
@@ -17,6 +18,11 @@ interface IOrganization extends Document {
 // Define the Organization schema
 const OrganizationSchema = new Schema<IOrganization>(
     {
+        version: {
+            type: Number,
+            required: true,
+            default: 1,
+        },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

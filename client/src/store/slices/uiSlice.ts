@@ -1,21 +1,23 @@
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../types/store';
+import { StoreState } from '../../../../deprecated/client/types/store.types';
+import { IComponents } from '@/types/project.types';
+import { ISelectionBox } from '@/types/store.types';
 
 // Define types for the UI slice
 interface UIState {
-    menuOf: any[];
-    selectionBox: any | null;
+    menuOf: string[];
+    selectionBox: ISelectionBox | null;
     loading: boolean;
-    undoStack: any[];
-    redoStack: any[];
+    undoStack: IComponents[];
+    redoStack: IComponents[];
 }
 
 interface UIActions {
-    setMenuOf: (menu: any[]) => void;
-    setSelectionBox: (box: any | null) => void;
+    setMenuOf: (menu: string[]) => void;
+    setSelectionBox: (box: ISelectionBox | null) => void;
     setLoading: (loading: boolean) => void;
-    setUndoStack: (undoStack: any[]) => void;
-    setRedoStack: (redoStack: any[]) => void;
+    setUndoStack: (undoStack: IComponents[]) => void;
+    setRedoStack: (redoStack: IComponents[]) => void;
 }
 
 export type UISlice = UIState & UIActions;

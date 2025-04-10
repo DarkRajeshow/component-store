@@ -38,7 +38,9 @@ export interface IComponent {
   options: IComponentOptions;
 }
 
-export interface INormalComponent extends IFileInfo { }
+export interface INormalComponent extends IFileInfo {
+  value: boolean
+}
 
 export interface IComponents {
   [key: string]: IComponent | INormalComponent;
@@ -53,6 +55,7 @@ export interface IStructure {
 }
 
 export interface IDesign extends Document {
+  version: number;
   user: mongoose.Types.ObjectId | string | IUser;
   project: mongoose.Types.ObjectId | string;
   sourceDesign: mongoose.Types.ObjectId | string;

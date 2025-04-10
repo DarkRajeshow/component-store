@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { IDesign } from "../../../types/types";
+import { IDesign } from "../../../types/request.types";
 
 // Define types for the component
 export interface Pages {
@@ -27,13 +27,13 @@ export interface SideMenuProps {
     baseDrawing: BaseDrawing;
     setBaseDrawing: (baseDrawing: BaseDrawing) => void;
     loading: boolean;
-    generateStructure: (params: GenerateStructureParams) => any;
+    generateHierarchy: (params: generateHierarchyParams) => any;
     pages: Pages;
     id: string;
 }
 
-export interface GenerateStructureParams {
-    updatedAttributes: object;
+export interface generateHierarchyParams {
+    updatedComponents: object;
     updatedCategory: string;
     updatedPages: Pages;
     updatedBaseDrawing: BaseDrawing;

@@ -19,9 +19,9 @@ import { Separator } from '@/components/ui/separator';
 // API and Utils
 import { addNewAttributeAPI, addNewParentAttributeAPI } from '../../lib/designAPI';
 import { handleClick } from '../../../../utils/dragDrop';
-import useStore from '../../../../store/useStore';
+import useAppStore from '../../../../store/useAppStore';
 import DisplayOptions from '../action-bar/DisplayOptions';
-import { IDesign, IStructure, ApiResponse } from '../../../../types/types';
+import { IDesign, IStructure, ApiResponse } from '../../../../types/request.types';
 
 // Types
 interface StoreState {
@@ -29,7 +29,7 @@ interface StoreState {
     design: IDesign;
     fetchProject: (id: string) => void;
     uniqueFileName: string;
-    generateStructure: (params: { updatedAttributes: Record<string, any> }) => IStructure;
+    generateHierarchy: (params: { updatedComponents: Record<string, any> }) => IStructure;
     setUndoStack: (stack: any[]) => void;
     setRedoStack: (stack: any[]) => void;
     pages: Record<string, string>;
@@ -51,7 +51,7 @@ interface AddFormProps {
     setLevelOneNest: (nest: string) => void;
     levelTwoNest: string;
     setLevelTwoNest: (nest: string) => void;
-    tempDesignAttributes: Record<string, any>;
+    tempcomponents: Record<string, any>;
 }
 
 interface CustomizationFiles {
@@ -316,16 +316,16 @@ const AddForm: React.FC<AddFormProps> = ({
     setLevelOneNest,
     levelTwoNest,
     setLevelTwoNest,
-    tempDesignAttributes
+    tempcomponents
 }) => {
     // Get store data
-    const store = useStore();
+    const store = useAppStore();
     const {
         loading,
         design,
         fetchProject,
         uniqueFileName,
-        generateStructure,
+        generateHierarchy,
         setUndoStack,
         setRedoStack,
         pages
@@ -377,8 +377,8 @@ const AddForm: React.FC<AddFormProps> = ({
         setAddAttributeLoading(true);
 
         try {
-            const structure = generateStructure({
-                updatedAttributes: tempDesignAttributes
+            const structure = generateHierarchy({
+                updatedComponents: tempcomponents
             });
 
             const { data } = await addNewParentAttributeAPI(id, structure);
@@ -390,7 +390,7 @@ const AddForm: React.FC<AddFormProps> = ({
             setAddAttributeLoading(false);
             closeDialog();
         }
-    }, [id, generateStructure, tempDesignAttributes, closeDialog, handleApiResponse]);
+    }, [id, generateHierarchy, tempcomponents, closeDialog, handleApiResponse]);
 
     // Add new attribute with files
     const addNewAttribute = useCallback(async (): Promise<void> => {
@@ -404,8 +404,8 @@ const AddForm: React.FC<AddFormProps> = ({
 
         try {
             if (!loading && design) {
-                const structure = generateStructure({
-                    updatedAttributes: tempDesignAttributes
+                const structure = generateHierarchy({
+                    updatedComponents: tempcomponents
                 });
 
                 // Passing folder, structure, and files in formdata
@@ -428,7 +428,7 @@ const AddForm: React.FC<AddFormProps> = ({
             closeDialog();
         }
 
-    }, [id, loading, design, generateStructure, tempDesignAttributes, uniqueFileName, newCustomizationFiles, closeDialog, handleApiResponse]);
+    }, [id, loading, design, generateHierarchy, tempcomponents, uniqueFileName, newCustomizationFiles, closeDialog, handleApiResponse]);
 
 
     // Handle form submission
