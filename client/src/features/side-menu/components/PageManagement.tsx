@@ -14,8 +14,8 @@ interface PageManagementProps {
     openDeleteConfirmation: (pageName: string) => void;
     setChoosenPage: (pageName: string) => void;
     tempPages: Record<string, any>;
-    openPageDeleteWarning: boolean;
-    setOpenPageDeleteWarning: (open: boolean) => void;
+    openPageDeleteWarning: string;
+    setOpenPageDeleteWarning: (open: string) => void;
     handleDelete: () => void;
 }
 

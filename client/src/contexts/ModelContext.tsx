@@ -1,29 +1,42 @@
 // src/contexts/ModelContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode, useCallback, useState } from 'react';
 import { useModelApi, useStaticModelApi } from '../hooks/useModelApi';
+import useAppStore from '@/store/useAppStore';
+import {
+    IProject, IAddComponentRequest, IAddPageRequest, IAddCategoryRequest,
+    IComponentOperationResponse, IAddPageResponse, IRenamePageRequest,
+    IRenamePageResponse, IDeletePageResponse, IAddCategoryResponse,
+    IRenameCategoryRequest, IRenameCategoryResponse, IDeleteCategoryResponse,
+    IShiftCategoryRequest, IShiftCategoryResponse,
+    IRenameComponentRequest,
+    IDeleteComponentRequest
+} from '@/types/project.types';
+import { IDesign } from '@/types/design.types';
+import filePath from '@/utils/filePath';
 
 interface ModelContextType {
     modelType: 'project' | 'design';
     id: string;
     categoryId?: string;
-    data: any;
+    baseContentPath: string;
     loading: boolean;
     error: Error | null;
-    refreshData: () => Promise<void>;
+    refreshContent: () => Promise<void>;
     // Common operations
-    addComponent: (formData: FormData) => Promise<any>;
-    addParentComponent: (data: any) => Promise<any>;
-    updateBaseDrawing: (formData: FormData) => Promise<any>;
-    renameComponent: (data: any) => Promise<any>;
-    updateComponent: (formData: FormData) => Promise<any>;
-    deleteComponent: (data: any) => Promise<any>;
-    addPage: (data: any) => Promise<any>;
-    renamePage: (pageId: string, data: any) => Promise<any>;
-    deletePage: (pageId: string) => Promise<any>;
+    addComponent: (formData: FormData) => Promise<IComponentOperationResponse | null>;
+    addParentComponent: (data: IAddComponentRequest) => Promise<IComponentOperationResponse | null>;
+    updateBaseDrawing: (formData: FormData) => Promise<IComponentOperationResponse | null>;
+    renameComponent: (data: IRenameComponentRequest) => Promise<IComponentOperationResponse | null>;
+    updateComponent: (formData: FormData) => Promise<IComponentOperationResponse | null>;
+    deleteComponent: (data: IDeleteComponentRequest) => Promise<IComponentOperationResponse | null>;
+    addPage: (data: IAddPageRequest) => Promise<IAddPageResponse | null>;
+    renamePage: (pageId: string, data: IRenamePageRequest) => Promise<IRenamePageResponse | null>;
+    deletePage: (pageId: string) => Promise<IDeletePageResponse | null>;
     // Project-specific operations
-    addCategory?: (data: any) => Promise<any>;
-    renameCategory?: (categoryId: string, data: any) => Promise<any>;
-    deleteCategory?: (categoryId: string) => Promise<any>;
+    shiftCategory?: (data: IShiftCategoryRequest) => Promise<IShiftCategoryResponse | null>;
+    addCategory?: (data: IAddCategoryRequest) => Promise<IAddCategoryResponse | null>;
+    renameCategory?: (categoryId: string, data: IRenameCategoryRequest) => Promise<IRenameCategoryResponse | null>;
+    deleteCategory?: (categoryId: string) => Promise<IDeleteCategoryResponse | null>;
     // Check if it's a project
     isProject: boolean;
 }
@@ -43,33 +56,54 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
     categoryId,
     children,
 }) => {
-    const [data, setData] = useState<any>(null);
+    const { setContent, setDesignStates, setProjectStates } = useAppStore()
+    const [baseContentPath, setBaseContentPath] = useState("")
+
     const isProject = modelType === 'project';
 
-    // Initialize API
+    // // Initialize API
     const api = useModelApi({ modelType, id, categoryId });
 
-    // Load data
-    const fetchData = useCallback(async () => {
-        const result = await api.getById();
-        if (result) {
-            setData(result);
+    // // Load data
+    const fetchContent = useCallback(async () => {
+        const response = await api.getById();
+        
+        if (response?.success) {
+            if (isProject && 'project' in response) {
+                const project = response.project as IProject;
+                setContent(project)
+                setProjectStates(project);
+                const currentCategoryId = project?.hierarchy.categoryMapping[project?.selectedCategory as string];
+                const completeFilePath = `${filePath}projects/${project.folder}/${currentCategoryId}/`
+                setBaseContentPath(completeFilePath)
+            }
+            else if ('design' in response) {
+                const design = response.design as IDesign;
+                setContent(design);
+                setDesignStates(design);
+                const completeFilePath = `${filePath}designs/${design.folder}/`
+                setBaseContentPath(completeFilePath)
+            }
+            else {
+                setContent(null);
+            }
         }
-    }, [api]);
+    }, [isProject, setContent, setDesignStates, setProjectStates]);
+
 
     useEffect(() => {
-        fetchData();
-    }, [modelType, id, categoryId, fetchData]);
+        fetchContent();
+    }, [modelType, id, fetchContent]);
 
     const contextValue: ModelContextType = {
         modelType,
         id,
         categoryId,
-        data,
+        baseContentPath,
         loading: api.loading,
         error: api.error,
-        refreshData: fetchData,
         // Common operations
+        refreshContent: fetchContent,
         addComponent: api.addComponent,
         addParentComponent: api.addParentComponent,
         updateBaseDrawing: api.updateBaseDrawing,
@@ -81,6 +115,7 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
         deletePage: api.deletePage,
         // Project-specific operations
         ...(isProject ? {
+            shiftCategory: api.shiftCategory,
             addCategory: api.addCategory,
             renameCategory: api.renameCategory,
             deleteCategory: api.deleteCategory,

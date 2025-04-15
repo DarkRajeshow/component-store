@@ -25,6 +25,7 @@ router.delete('/:id', projectController.deleteProject);
 
 // Category operations
 router.put('/:id/categories', projectController.addCategory);
+router.put('/:id/categories/shift', projectController.shiftCategory);
 router.put('/:id/categories/:categoryId/rename', projectController.renameCategory);
 router.delete('/:id/categories/:categoryId', projectController.deleteCategory);
 

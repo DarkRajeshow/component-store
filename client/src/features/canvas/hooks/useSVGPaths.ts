@@ -1,73 +1,78 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { IAttribute } from '@/types/design.types';
+import { IBaseDrawing, IComponent, INormalComponent, IStructure } from '@/types/design.types';
 import { checkFileExists } from '@/utils/checkFileExists';
-import filePath from '@/utils/filePath';
-
-interface BaseDrawing {
-  path: string;
-}
-
-interface Design {
-  folder: string;
-  [key: string]: any;
-}
+import { IComponents, IPages } from '@/types/project.types';
 
 interface ExistingFiles {
   [path: string]: boolean;
 }
 
 interface UseSVGPathsProps {
-  design: Design;
-  components: Record<string, IAttribute>;
   fileVersion: string | number;
-  pages: Record<string, string>;
+  pages: IPages;
+  components: IComponents
   selectedPage: string;
-  baseDrawing: BaseDrawing | null;
+  baseDrawing: IBaseDrawing | null;
+  baseContentPath: string;
 }
 
 export const useSVGPaths = ({
-  design,
-  components,
   fileVersion,
-  pages,
   selectedPage,
-  baseDrawing
+  pages,
+  components,
+  baseDrawing,
+  baseContentPath
 }: UseSVGPathsProps) => {
   const [existingFiles, setExistingFiles] = useState<ExistingFiles>({});
   const [isBaseDrawingExists, setIsBaseDrawingExists] = useState(false);
 
   // Get SVG path for a specific attribute
-  const getSVGPath = useCallback((value: IAttribute | null): string | null => {
-    if (!value || typeof value !== 'object') return null;
+  const getSVGPath = useCallback((value: IComponent | INormalComponent | null): string | null => {
+    if (!value) return null;
 
-    const baseFilePath = `${filePath}${design.folder}/${pages[selectedPage]}`;
+    const baseFilePath = `${baseContentPath}/${pages[selectedPage]}`;
 
-    if (value.value && value.path) {
-      return `${baseFilePath}/${value.path}.svg?v=${fileVersion}`;
+    // Handle INormalComponent type
+    if ('value' in value && 'fileId' in value) {
+      return `${baseFilePath}/${value.fileId}.svg?v=${fileVersion}`;
     }
 
-    if (value.selected === 'none') {
+    // Handle IComponent type
+    const component = value as IComponent;
+    if (component.selected === 'none') {
       return null;
     }
 
-    const subOption = value.selected;
-    if (!subOption || !value.options) return null;
-    
-    const subSubOption = value.options[subOption]?.selected;
+    const subOption = component.selected;
+    if (!subOption || !component.options) return null;
 
-    if (subSubOption && subSubOption !== " " && value.options[subOption]?.options) {
-      return `${baseFilePath}/${value.options[subOption].options?.[subSubOption]?.path}.svg?v=${fileVersion}`;
+    const selectedOption = component.options[subOption];
+    if (!selectedOption) return null;
+
+    const selectedOptionComponent = selectedOption as IComponent
+    // Handle nested options
+    if (selectedOptionComponent.options && selectedOptionComponent.selected && selectedOptionComponent.selected !== " ") {
+      const subSubOption = selectedOptionComponent.options[selectedOptionComponent.selected] as INormalComponent;
+      if (subSubOption?.fileId) {
+        return `${baseFilePath}/${subSubOption.fileId}.svg?v=${fileVersion}`;
+      }
     }
 
-    if (subOption && value.options[subOption]?.path) {
-      return `${baseFilePath}/${value.options[subOption].path}.svg?v=${fileVersion}`;
+    // Handle direct fileId
+    const selectedOptionNormalComponent = selectedOption as INormalComponent
+    if (selectedOptionNormalComponent.fileId) {
+      return `${baseFilePath}/${selectedOptionNormalComponent.fileId}.svg?v=${fileVersion}`;
     }
 
     return null;
-  }, [design.folder, fileVersion, pages, selectedPage]);
+  }, [baseContentPath, fileVersion, pages, selectedPage]);
 
   // Generate all file paths
   const filePaths = useMemo(() => {
+    if (!components) {
+      return []
+    }
     return Object.values(components)
       .map((value) => getSVGPath(value))
       .filter(Boolean) as string[];
@@ -96,11 +101,11 @@ export const useSVGPaths = ({
       const result = await checkFileExists(path);
       setIsBaseDrawingExists(result);
     };
-    
-    if (baseDrawing?.path) {
-      checkBaseFileExistence(`${filePath}${design.folder}/${pages[selectedPage]}/${baseDrawing.path}.svg`);
+
+    if (baseDrawing?.fileId) {
+      checkBaseFileExistence(`${baseContentPath}/${pages[selectedPage]}/${baseDrawing.fileId}.svg`);
     }
-  }, [baseDrawing, design.folder, pages, selectedPage]);
+  }, [baseDrawing, baseContentPath, pages, selectedPage]);
 
   return {
     getSVGPath,

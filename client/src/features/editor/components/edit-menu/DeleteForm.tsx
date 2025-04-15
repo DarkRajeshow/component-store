@@ -69,7 +69,7 @@ function DeleteForm() {
         try {
             setUndoStack([]);
             setRedoStack([]);
-            const { data } = await deletecomponentsAPI(id, body);
+            const data = await deletecomponentsAPI(id, body);
             if (data.success) {
                 setComponents(tempcomponents)
                 toast.success(data.status);

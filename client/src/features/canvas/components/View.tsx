@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 // import filePath from '@/utils/filePath';
 import React, { useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import {
     Dialog,
     DialogContent,
@@ -27,10 +26,10 @@ import ZoomControls from './ZoomControls';
 // Types
 import { ViewProps } from '../types/viewTypes';
 import PageNavigator from './PageNavigator';
-import filePath from '@/utils/filePath';
 import useAppStore from '@/store/useAppStore';
 import { IComponent, INestedParentLevel1, INormalComponent, IPages } from '@/types/project.types';
-import { IBaseDrawing, IDesign } from '@/types/design.types';
+import { IBaseDrawing } from '@/types/design.types';
+import { useModel } from '@/contexts/ModelContext';
 
 const View: React.FC<ViewProps> = ({
     zoom,
@@ -41,27 +40,21 @@ const View: React.FC<ViewProps> = ({
     setOffset,
 }) => {
     const {
-        components,
-        design,
         loading,
         fileVersion,
-        baseDrawing,
         selectedPage,
-        pages,
         rotation,
         setSelectionBox,
         setSelectedPage,
-        generateHierarchy,
-        fetchProject,
+        structure,
         setRotation
     } = useAppStore();
 
-    const { id } = useParams<{ id: string }>();
     const containerRef = useRef<HTMLDivElement>(null);
+    const { baseContentPath } = useModel()
 
     // Type assertions for store values
-    const typedDesign = design as unknown as IDesign;
-    const typedBaseDrawing = baseDrawing as unknown as IBaseDrawing;
+    const typedBaseDrawing = structure.baseDrawing as unknown as IBaseDrawing;
 
     // Initialize custom hooks
     const {
@@ -95,10 +88,10 @@ const View: React.FC<ViewProps> = ({
         existingFiles,
         isBaseDrawingExists
     } = useSVGPaths({
-        design: typedDesign,
-        components,
         fileVersion,
-        pages,
+        pages: structure.pages,
+        components: structure.components,
+        baseContentPath,
         selectedPage,
         baseDrawing: typedBaseDrawing
     });
@@ -112,10 +105,7 @@ const View: React.FC<ViewProps> = ({
         openPopup,
         closePopup
     } = usePageManagement({
-        pages,
-        generateHierarchy,
-        fetchProject,
-        projectId: id || ''
+        pages: structure.pages,
     });
 
     const {
@@ -137,9 +127,9 @@ const View: React.FC<ViewProps> = ({
 
     // Generate design elements for the canvas
     const designElements = React.useMemo(() => {
-        if (!components) return [];
+        if (!structure.components) return [];
 
-        return Object.entries(components).map(([componentName, componentValue]) => {
+        return Object.entries(structure.components).map(([componentName, componentValue]) => {
             const href = getSVGPath(componentValue);
             const isValid = (componentValue as INormalComponent)?.value
                 || ((componentValue as IComponent)?.selected && (componentValue as IComponent).selected !== "none"
@@ -165,11 +155,11 @@ const View: React.FC<ViewProps> = ({
             }
             return null;
         }).filter(Boolean);
-    }, [components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation]);
+    }, [structure.components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation]);
 
     // Get base drawing path
-    const baseDrawingPath = typedBaseDrawing?.fileId && typedDesign?.folder
-        ? `${filePath}${typedDesign.folder}/${(pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`
+    const baseDrawingPath = typedBaseDrawing?.fileId
+        ? `${baseContentPath}/${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`
         : null;
 
     return (
@@ -234,7 +224,7 @@ const View: React.FC<ViewProps> = ({
                     <Card className="border-0 !py-0 px-1">
                         <CardContent className="flex justify-between items-center p-2">
                             <PageNavigator
-                                pages={pages as IPages}
+                                pages={structure.pages as IPages}
                                 selectedPage={selectedPage}
                                 setSelectedPage={setSelectedPage}
                                 onAddPage={() => openPopup('pages')}

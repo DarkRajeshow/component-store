@@ -1,6 +1,21 @@
 // src/hooks/useModelApi.ts
 import { useState, useCallback } from 'react';
 import { ApiAdapter } from '../services/apiAdapter';
+import {
+    IAddComponentRequest, IAddPageRequest, IAddCategoryRequest,
+    IComponentOperationResponse, IAddPageResponse, IRenamePageRequest,
+    IRenamePageResponse, IDeletePageResponse, IAddCategoryResponse,
+    IRenameCategoryRequest, IRenameCategoryResponse, IDeleteCategoryResponse,
+    IShiftCategoryRequest, IShiftCategoryResponse,
+    IGetProjectsResponse, ICreateProjectRequest,
+    ICreateProjectResponse, IProjectResponse,
+    IRenameComponentRequest,
+    IDeleteComponentRequest
+} from '../types/project.types';
+import {
+    IGetDesignsResponse,
+    ICreateDesignRequest, ICreateDesignResponse, IDesignResponse
+} from '../types/design.types';
 
 interface UseModelApiOptions {
     modelType: 'project' | 'design';
@@ -50,10 +65,10 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
     );
 
     const addParentComponent = useCallback(
-        (data: any) => {
+        (data: IAddComponentRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.addParentComponent(data));
+            return apiCall<IComponentOperationResponse>(() => adapter.addParentComponent(data));
         },
         [apiAdapter, apiCall]
     );
@@ -68,7 +83,7 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
     );
 
     const renameComponent = useCallback(
-        (data: any) => {
+        (data: IRenameComponentRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
             return apiCall(() => adapter.renameComponent(data));
@@ -86,7 +101,7 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
     );
 
     const deleteComponent = useCallback(
-        (data: any) => {
+        (data: IDeleteComponentRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
             return apiCall(() => adapter.deleteComponent(data));
@@ -95,19 +110,19 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
     );
 
     const addPage = useCallback(
-        (data: any) => {
+        (data: IAddPageRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.addPage(data));
+            return apiCall<IAddPageResponse>(() => adapter.addPage(data));
         },
         [apiAdapter, apiCall]
     );
 
     const renamePage = useCallback(
-        (pageId: string, data: any) => {
+        (pageId: string, data: IRenamePageRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.renamePage(pageId, data));
+            return apiCall<IRenamePageResponse>(() => adapter.renamePage(pageId, data));
         },
         [apiAdapter, apiCall]
     );
@@ -116,26 +131,35 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
         (pageId: string) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.deletePage(pageId));
+            return apiCall<IDeletePageResponse>(() => adapter.deletePage(pageId));
         },
         [apiAdapter, apiCall]
     );
 
     // Project-specific operations
     const addCategory = useCallback(
-        (data: any) => {
+        (data: IAddCategoryRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.addCategory(data));
+            return apiCall<IAddCategoryResponse>(() => adapter.addCategory(data));
+        },
+        [apiAdapter, apiCall]
+    );
+
+    const shiftCategory = useCallback(
+        (data: IShiftCategoryRequest) => {
+            const adapter = apiAdapter();
+            if (!adapter) return Promise.resolve(null);
+            return apiCall<IShiftCategoryResponse>(() => adapter.shiftCategory(data));
         },
         [apiAdapter, apiCall]
     );
 
     const renameCategory = useCallback(
-        (categoryId: string, data: any) => {
+        (categoryId: string, data: IRenameCategoryRequest) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.renameCategory(categoryId, data));
+            return apiCall<IRenameCategoryResponse>(() => adapter.renameCategory(categoryId, data));
         },
         [apiAdapter, apiCall]
     );
@@ -144,7 +168,7 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
         (categoryId: string) => {
             const adapter = apiAdapter();
             if (!adapter) return Promise.resolve(null);
-            return apiCall(() => adapter.deleteCategory(categoryId));
+            return apiCall<IDeleteCategoryResponse>(() => adapter.deleteCategory(categoryId));
         },
         [apiAdapter, apiCall]
     );
@@ -176,6 +200,7 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
         // Project-specific operations
         ...(modelType === 'project' ? {
             addCategory,
+            shiftCategory,
             renameCategory,
             deleteCategory,
         } : {}),
@@ -213,21 +238,21 @@ export const useStaticModelApi = () => {
 
     const getUserModels = useCallback(
         (modelType: 'project' | 'design') => {
-            return apiCall(() => ApiAdapter.getUserModels(modelType));
+            return apiCall<IGetProjectsResponse | IGetDesignsResponse>(() => ApiAdapter.getUserModels(modelType));
         },
         [apiCall]
     );
 
     const create = useCallback(
-        (modelType: 'project' | 'design', data: any) => {
-            return apiCall(() => ApiAdapter.create(modelType, data));
+        (modelType: 'project' | 'design', data: ICreateProjectRequest | ICreateDesignRequest) => {
+            return apiCall<ICreateProjectResponse | ICreateDesignResponse>(() => ApiAdapter.create(modelType, data));
         },
         [apiCall]
     );
 
     const deleteModel = useCallback(
         (modelType: 'project' | 'design', id: string) => {
-            return apiCall(() => ApiAdapter.delete(modelType, id));
+            return apiCall<IProjectResponse | IDesignResponse>(() => ApiAdapter.delete(modelType, id));
         },
         [apiCall]
     );

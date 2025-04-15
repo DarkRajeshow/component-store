@@ -8,7 +8,6 @@ import useAppStore from '../store/useAppStore';
 import SideMenu from '@/features/side-menu';
 import ActionBar from '@/features/editor';
 import View from '@/features/canvas';
-import { useModel } from '@/contexts/ModelContext';
 
 interface Offset {
     x: number;

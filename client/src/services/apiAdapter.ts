@@ -7,7 +7,9 @@ import {
     IAddPageResponse, IRenamePageRequest, IRenamePageResponse,
     IDeletePageResponse, IAddCategoryRequest, IAddCategoryResponse,
     IRenameCategoryRequest, IRenameCategoryResponse, IDeleteCategoryResponse,
-    IGetProjectResponse, IGetProjectsResponse, IGetRecentProjectsResponse
+    IGetProjectResponse, IGetProjectsResponse, IGetRecentProjectsResponse,
+    IShiftCategoryResponse,
+    IShiftCategoryRequest
 } from "../types/project.types";
 import {
     IDesignResponse, ICreateDesignRequest, ICreateDesignResponse,
@@ -151,6 +153,13 @@ export class ApiAdapter {
             throw new Error('Operation not supported for design model');
         }
         return apiRequest('put', `/api/projects/${this.id}/categories`, data);
+    }
+
+    async shiftCategory(data: IShiftCategoryRequest): Promise<IShiftCategoryResponse> {
+        if (this.modelType !== 'project') {
+            throw new Error('Operation not supported for design model');
+        }
+        return apiRequest('put', `/api/projects/${this.id}/categories/shift`, data);
     }
 
     /**

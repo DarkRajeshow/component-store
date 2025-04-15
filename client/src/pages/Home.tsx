@@ -3,7 +3,7 @@ import useAppStore from "../store/useAppStore";
 import { DesignCard } from "../features/dashboard";
 
 function Home(): JSX.Element {
-  const { fetchRecentDesigns, recentDesigns, fetchAllDesignsLoading } = useAppStore();
+  const { fetchRecentDesigns, recentDesigns, RecentDesignLoading } = useAppStore();
 
   useEffect(() => {
     fetchRecentDesigns();
@@ -14,7 +14,7 @@ function Home(): JSX.Element {
       <h1 className="text-2xl pt-10 pb-6 font-medium">Recents Designs</h1>
       <div className="w-full flex flex-col items-start gap-3">
         {
-          !fetchAllDesignsLoading && recentDesigns.map((design, index) => (
+          !RecentDesignLoading && recentDesigns && recentDesigns.length > 0 && recentDesigns.map((design, index) => (
             <DesignCard design={design} key={index} />
           ))
         }

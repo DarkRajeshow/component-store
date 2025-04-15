@@ -19,17 +19,17 @@ const PageNavigator: React.FC<PageNavigatorProps> = ({
   onAddPage,
   maxPages = 8
 }) => {
-  const pageKeys = Object.keys(pages);
+  const pageKeys = pages ? Object.keys(pages) : [];
   const canAddMorePages = pageKeys.length <= maxPages;
 
   return (
     <div className='flex items-center gap-1'>
       <span className='font-medium text-sm text-muted-foreground pr-1'>Pages</span>
-      
+
       <Tabs value={selectedPage} onValueChange={setSelectedPage} className="w-auto">
         <TabsList className="bg-muted/40">
           {pageKeys.map((page) => (
-            <TabsTrigger 
+            <TabsTrigger
               key={page}
               value={page}
               className="uppercase text-sm font-medium data-[state=active]:bg-background"
@@ -39,7 +39,7 @@ const PageNavigator: React.FC<PageNavigatorProps> = ({
           ))}
         </TabsList>
       </Tabs>
-      
+
       {canAddMorePages && (
         <Tooltip>
           <TooltipTrigger asChild>

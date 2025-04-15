@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 interface ActionButtonsProps {
     saveLoading: boolean;
     tempBaseDrawing: string | null;
-    newBaseDrawingFiles: File[] | null;
+    newBaseDrawingFiles: Record<string, File> | null;
     updateBaseDrawing: () => void;
     allowedToClose: boolean;
     memoizedToggleDialog: () => void;

@@ -1,10 +1,11 @@
+import { IUserLoginRequest, IUserLoginResponse, IUserRegisterResponse } from "@/types/user.types";
 import { apiRequest } from "../../../lib/apiClient";
-import { ApiResponse, IUser, UserLoginRequest, UserSignupRequest } from "../../../types/request.types";
+import { UserSignupRequest } from "../../../../../deprecated/client/types/design.types";
 
-export const loginAPI = async (userCredentials: UserLoginRequest) => {
-    return apiRequest<ApiResponse<IUser>>('post', "/api/users/login", userCredentials, { withCredentials: true });
+export const loginAPI = async (userCredentials: IUserLoginRequest) => {
+    return apiRequest<IUserLoginResponse>('post', "/api/users/login", userCredentials);
 };
 
 export const registerAPI = async (userCredentials: UserSignupRequest) => {
-    return apiRequest<ApiResponse<IUser>>('post', "/api/users/register", userCredentials, { withCredentials: true });
+    return apiRequest<IUserRegisterResponse>('post', "/api/users/register", userCredentials);
 };

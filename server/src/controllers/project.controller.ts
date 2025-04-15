@@ -6,7 +6,8 @@ import { IHierarchy, IProject } from '../types/project.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Types } from 'mongoose';
 import path from 'path';
-
+import fsExtra from 'fs-extra';
+import parseIfUnparsed from '../utils/parseIfUnparsed';
 
 // Helper function for standard response format
 const sendResponse = (res: Response, success: boolean, status: string, data?: any) => {
@@ -44,11 +45,11 @@ export class ProjectController {
             const projectFolder = uuidv4();
 
             const initialHierarchy: IHierarchy = {
-                categoryMapping: { defaultCategoryName: defaultCategoryId },
+                categoryMapping: { [defaultCategoryName]: defaultCategoryId },
                 categories: {
                     [defaultCategoryId]: {
                         pages: {
-                            defaultPageName: defaultPageId
+                            [defaultPageName]: defaultPageId
                         },
                         baseDrawing: { fileId: '' },
                         components: {}
@@ -88,7 +89,7 @@ export class ProjectController {
             //     return sendResponse(res, false, 'Component file required');
             // }
 
-            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure );
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure);
             if (!result.success && result.message) {
                 return sendResponse(res, false, result.message);
             }
@@ -210,7 +211,8 @@ export class ProjectController {
             );
 
             project.hierarchy = updatedHierarchy;
-            project.selectedPage = pageName;
+            // Mark the hierarchy field as modified
+            project.markModified('hierarchy');
             await project.save();
 
             return sendResponse(res, true, 'Page added successfully');
@@ -245,6 +247,7 @@ export class ProjectController {
                 project.selectedPage = newName;
             }
 
+            project.markModified('hierarchy');
             await project.save();
             return sendResponse(res, true, 'Page renamed successfully');
         } catch (error) {
@@ -295,7 +298,20 @@ export class ProjectController {
             }
 
             const userId = await projectService.verifyUser(req.cookies.jwt);
-            const { id, categoryId } = req.params;
+            const { id } = req.params;
+
+            const {
+                selectedCategory,
+                folderNames,
+                hierarchy
+            } = req.body
+
+
+            if (!hierarchy || !selectedCategory) {
+                return sendResponse(res, false, 'Updated hierarchy or selectedCategory is missing.');
+            }
+
+            const paresedHierarchy = parseIfUnparsed(hierarchy);
 
             if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
                 return sendResponse(res, false, 'Base drawing file required');
@@ -306,19 +322,90 @@ export class ProjectController {
                 return sendResponse(res, false, 'Project not found');
             }
 
-            const updatedHierarchy = await projectService.updateBaseDrawing(
-                project.hierarchy,
-                categoryId,
-                req.files[0]
-            );
+            const baseDir = path.join(__dirname, '..', 'server', 'public', 'uploads', project.folder);
 
-            project.hierarchy = updatedHierarchy;
+
+            const categoryId = project.hierarchy.categoryMapping[selectedCategory]
+
+            if (folderNames && Array.isArray(folderNames) && folderNames.length > 0) {
+                for (const pageFolderName of folderNames) {
+                    projectService.fileService.deleteProjectPageFolder(project.folder, categoryId, pageFolderName)
+                }
+            }
+
+
+            if (hierarchy) {
+                project.markModified('hierarchy');
+                project.hierarchy = paresedHierarchy as IHierarchy;
+            }
+
+            project.selectedCategory = selectedCategory;
             await project.save();
+
+            // const project = await projectService.findProjectAndVerifyUser(id, userId);
+            // if (!project) {
+            //     return sendResponse(res, false, 'Project not found');
+            // }
+
+            // const updatedHierarchy = await projectService.updateBaseDrawing(
+            //     project.hierarchy,
+            //     categoryId,
+            //     req.files[0]
+            // );
+
+            // project.hierarchy = updatedHierarchy;
+            // await project.save();
 
             return sendResponse(res, true, 'Base drawing updated successfully');
         } catch (error) {
             console.error(error);
             return sendResponse(res, false, 'Error updating base drawing');
+        }
+    }
+
+    // Category Operations
+    async shiftCategory(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id } = req.params;
+            const { selectedCategory, hierarchy, folderNames } = req.body;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            const categoryId = project.hierarchy.categoryMapping[selectedCategory]
+
+            if (folderNames && Array.isArray(folderNames) && folderNames.length > 0) {
+                for (const pageFolderName of folderNames) {
+                    projectService.fileService.deleteProjectPageFolder(project.folder, categoryId, pageFolderName)
+                }
+            }
+
+            let successMessage = "Shifted to the selected category."
+            if (hierarchy) {
+                if (project.selectedCategory == selectedCategory) {
+                    successMessage = "Pages updated successfully."
+                }
+                else {
+                    successMessage = "Shited to selected category and updated pages."
+                }
+                project.markModified('hierarchy');
+                project.hierarchy = hierarchy;
+            }
+
+            project.selectedCategory = selectedCategory;
+            await project.save();
+
+            return sendResponse(res, true, successMessage);
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error while shifting category');
         }
     }
 
@@ -345,6 +432,7 @@ export class ProjectController {
                 categoryName
             );
 
+            project.markModified('hierarchy')
             project.hierarchy = updatedHierarchy;
             await project.save();
 

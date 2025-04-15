@@ -16,6 +16,7 @@ import { IComponent, IComponents, IFileInfo, IHierarchy, INormalComponent } from
 const useAppStore = create<StoreState>()(
   devtools(
     persist(
+
       (set, get) => ({
         ...createUserSlice(set, get),
         ...createDesignSlice(set, get),
@@ -29,28 +30,35 @@ const useAppStore = create<StoreState>()(
           set({ loading: true });
           try {
             const response = await getProjectByIdAPI(id);
-            if (response.success) {
-              const selectedCategory = response.project?.selectedCategory;
-              set({
-                project: response.project,
-                category: selectedCategory,
-                selectedPage: response.project?.selectedPage
-              });
 
+            if (response.success && response.project) {
               const hierarchy = response.project?.hierarchy;
 
-              if (hierarchy) {
-                const selectedCategoryId = hierarchy?.categoryMapping[selectedCategory as string];
-                const selectedCategoryData = hierarchy?.categories[selectedCategoryId];
-                set({
-                  components: selectedCategoryData.components || {},
-                  baseDrawing: selectedCategoryData?.baseDrawing || null,
-                  pages: selectedCategoryData?.pages || {}
-                });
-              }
-              else {
+              if (!hierarchy) {
                 console.log("Hierarchy not found in project response:", response.project);
+                return;
               }
+
+              const selectedCategory = response.project?.selectedCategory;
+              const categoryId = hierarchy?.categoryMapping[selectedCategory];
+              const structure = hierarchy?.categories?.[categoryId];
+
+              // Only update if values are different from current state
+              set((state) => {
+                const needsUpdate = state.project?._id !== response.project?._id ||
+                  state.category !== selectedCategory ||
+                  JSON.stringify(state.structure) !== JSON.stringify(structure);
+
+                return needsUpdate ? {
+                  project: response.project,
+                  category: selectedCategory,
+                  structure: structure,
+                  selectedPage: response.project?.selectedPage,
+                  components: structure?.components || {},
+                  baseDrawing: structure?.baseDrawing || null,
+                  pages: structure?.pages || {}
+                } : {};
+              });
             } else {
               toast.error(response.status);
             }
@@ -66,20 +74,16 @@ const useAppStore = create<StoreState>()(
           try {
             const response = await getDesignByIdAPI(id);
             if (response.success) {
+              const structure = response.design?.structure;
               set({
                 design: response.design,
                 category: response.design?.category,
-                selectedPage: response.design?.selectedPage
-              });
-              // Set components and drawing based on design type
-              const structure = response.design?.structure;
-
-              set({
+                selectedPage: response.design?.selectedPage,
+                structure: structure,
                 components: structure?.components || {},
                 baseDrawing: structure?.baseDrawing || null,
                 pages: structure?.pages || {}
               });
-
             } else {
               toast.error(response.status);
             }
@@ -87,6 +91,56 @@ const useAppStore = create<StoreState>()(
             console.error('Error fetching project:', error);
           } finally {
             set({ loading: false });
+          }
+        },
+
+        setProjectStates: async (project) => {
+          set({ loading: true });
+          if (project) {
+            const hierarchy = project?.hierarchy;
+
+            if (!hierarchy) {
+              console.log("Hierarchy not found in project response:", project);
+              return;
+            }
+
+            const selectedCategory = project?.selectedCategory;
+            const categoryId = hierarchy?.categoryMapping[selectedCategory];
+            const structure = hierarchy?.categories?.[categoryId];
+
+            // Only update if values are different from current state
+            set((state) => {
+              const needsUpdate = state.project?._id !== project?._id ||
+                state.selectedCategory !== selectedCategory ||
+                JSON.stringify(state.structure) !== JSON.stringify(structure);
+
+              return needsUpdate ? {
+                project: project,
+                selectedCategory, 
+                structure: structure,
+                selectedPage: Object.keys(structure.pages)[0],
+                components: structure?.components || {},
+                baseDrawing: structure?.baseDrawing || null,
+                pages: structure?.pages || {}
+              } : {};
+            });
+          }
+          set({ loading: false });
+        },
+
+        setDesignStates: async (design) => {
+          set({ loading: true });
+          if (design) {
+            const structure = design.structure;
+            set({
+              design: design,
+              category: design.category,
+              selectedPage: design.selectedPage,
+              structure: structure,
+              components: structure?.components || {},
+              baseDrawing: structure?.baseDrawing || null,
+              pages: structure?.pages || {}
+            });
           }
         },
 

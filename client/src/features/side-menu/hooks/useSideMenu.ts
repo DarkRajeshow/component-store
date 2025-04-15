@@ -6,31 +6,36 @@ import { SideMenuService } from "../services/SideMenuService";
 import { FileUploadService } from "../services/FileUploadService";
 import { FileExistenceChecker } from "../services/FileExistenceChecker";
 import filePath from "@/utils/filePath";
-import { FileExistenceStatus, NewBaseDrawingFiles, Pages, SideMenuProps } from "../types/sideMenuTypes";
+import { FileExistenceStatus, NewBaseDrawingFiles, SideMenuProps } from "../types/sideMenuTypes";
+import { IPages } from "@/types/project.types";
+import useAppStore from "@/store/useAppStore";
+import { useModel } from "@/contexts/ModelContext";
 
 export function useSideMenu(props: SideMenuProps) {
     const {
-        design,
+        folder,
+        modelType,
+        structure,
         selectedCategory,
-        fetchProject,
+        baseContentPath,
         incrementFileVersion,
         fileVersion,
-        baseDrawing,
         setBaseDrawing,
         loading,
         generateHierarchy,
-        pages,
-        id,
     } = props;
+
+    const { project } = useAppStore();
+    const { updateBaseDrawing, shiftCategory, refreshContent } = useModel();
 
     // State variables
     const [sideMenuType, setSideMenuType] = useState("");
     const [tempSelectedCategory, setTempSelectedCategory] = useState(selectedCategory);
-    const [tempBaseDrawing, setTempBaseDrawing] = useState(baseDrawing);
+    const [tempBaseDrawing, setTempBaseDrawing] = useState(structure.baseDrawing);
     const [saveLoading, setSaveLoading] = useState(false);
     const [newBaseDrawingFiles, setNewBaseDrawingFiles] = useState<NewBaseDrawingFiles>({});
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
-    const [tempPages, setTempPages] = useState<Pages>(pages || {});
+    const [tempPages, setTempPages] = useState<IPages>(structure.pages || {});
     const [newPageName, setNewPageName] = useState('');
     const [choosenPage, setChoosenPage] = useState('gad');
     const [fileExistenceStatus, setFileExistenceStatus] = useState<FileExistenceStatus>({});
@@ -39,30 +44,33 @@ export function useSideMenu(props: SideMenuProps) {
     const [isCheckingFiles, setIsCheckingFiles] = useState(false);
 
     // Derived values with useMemo
-    const baseFilePath = useMemo(() => `${filePath}${design.folder}`, [design.folder]);
+    const baseFilePath = useMemo(() => `${filePath}${modelType + "s"}/${folder}`, [folder, modelType]);
 
-    const allowedToClose = useMemo(() =>
-        FileExistenceChecker.allowedToClose(currentBaseDrawingFileExistanceStatus, baseDrawing, pages),
-        [currentBaseDrawingFileExistanceStatus, pages, baseDrawing]
+    const allowedToClose = useMemo(() => {
+        if (structure.baseDrawing && structure.pages) {
+            return FileExistenceChecker.allowedToClose(currentBaseDrawingFileExistanceStatus, structure.baseDrawing, structure.pages)
+        }
+    },
+        [currentBaseDrawingFileExistanceStatus, structure.pages, structure.baseDrawing]
     );
 
     // Reset states when design changes
     useEffect(() => {
         setFileExistenceStatus({});
-        setTempPages(pages || {});
+        setTempPages(structure.pages || {});
         setChoosenPage('gad');
         setNewBaseDrawingFiles({});
-    }, [design, pages]);
+    }, [structure.pages]);
 
     // Reset state when baseDrawing or pages change
     useEffect(() => {
-        setTempBaseDrawing(baseDrawing);
-        setTempPages(pages || {});
+        setTempBaseDrawing(structure.baseDrawing);
+        setTempPages(structure.pages || {});
         setFileExistenceStatus({});
         setNewBaseDrawingFiles({});
         setChoosenPage('gad');
         setIsPopUpOpen(false);
-    }, [design, baseDrawing, pages]);
+    }, [structure.baseDrawing, structure.pages]);
 
     // Update tempSelectedCategory when selectedCategory changes
     useEffect(() => {
@@ -75,8 +83,9 @@ export function useSideMenu(props: SideMenuProps) {
         setChoosenPage('gad');
     }, [tempSelectedCategory]);
 
-    // Check file existence
 
+
+    // temp category selection file existence check
     useEffect(() => {
         if (Object.keys(tempPages).length === 0) {
             return;
@@ -87,25 +96,13 @@ export function useSideMenu(props: SideMenuProps) {
             try {
                 const tempBaseDrawingFileExistanceStatus = await FileExistenceChecker.checkAllFiles(
                     tempPages,
-                    baseFilePath,
-                    tempBaseDrawing
+                    baseContentPath,
+                    tempBaseDrawing,
+                    fileVersion
                 );
 
                 setFileExistenceStatus(tempBaseDrawingFileExistanceStatus);
 
-                // const tempCurrentBaseDrawingFileExistanceStatus = await FileExistenceChecker.checkAllFiles(
-                //     pages,
-                //     baseFilePath,
-                //     baseDrawing
-                // );
-
-                // setCurrentBaseDrawingFileExistanceStatus(tempCurrentBaseDrawingFileExistanceStatus)
-
-                // // Only open popup if files are missing
-                // const missingFiles = FileExistenceChecker.shouldShowPopup(statusObject);
-                // if (missingFiles) {
-                //     setIsPopUpOpen(true);
-                // }
             } catch (error) {
                 console.error('Error checking file existence:', error);
             } finally {
@@ -119,8 +116,9 @@ export function useSideMenu(props: SideMenuProps) {
         }, 100);
 
         return () => clearTimeout(timeoutId);
-    }, [tempBaseDrawing, tempPages, baseFilePath]);
+    }, [tempBaseDrawing, tempPages, baseContentPath, fileVersion]);
 
+    // original selected catggory file existence Check
     useEffect(() => {
         if (Object.keys(tempPages).length === 0) {
             return;
@@ -130,16 +128,17 @@ export function useSideMenu(props: SideMenuProps) {
             setIsCheckingFiles(true);
             try {
                 const currentBaseDrawingFileExistanceStatusObject = await FileExistenceChecker.checkAllFiles(
-                    pages,
-                    baseFilePath,
-                    baseDrawing
+                    structure.pages,
+                    baseContentPath,
+                    structure.baseDrawing,
+                    fileVersion
                 );
 
                 setCurrentBaseDrawingFileExistanceStatus(currentBaseDrawingFileExistanceStatusObject)
 
-                // Only open popup if files are missing
+                // Only open popup if files are missing and not already open
                 const missingFiles = FileExistenceChecker.shouldShowPopup(currentBaseDrawingFileExistanceStatusObject);
-                if (missingFiles) {
+                if (missingFiles && !isPopUpOpen) { // Add condition to check if popup is not already open
                     setIsPopUpOpen(true);
                 }
             } catch (error) {
@@ -149,13 +148,13 @@ export function useSideMenu(props: SideMenuProps) {
             }
         };
 
-        // Small delay to ensure all state updates have propagated
         const timeoutId = setTimeout(() => {
             checkFilesExistence();
         }, 100);
 
         return () => clearTimeout(timeoutId);
-    }, [baseDrawing, pages, baseFilePath]);
+        // Add isPopUpOpen to dependencies array to prevent unnecessary checks when popup is open
+    }, [baseContentPath, structure.baseDrawing, structure.pages, tempPages, isPopUpOpen, fileVersion]);
 
     // Handlers
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,21 +227,148 @@ export function useSideMenu(props: SideMenuProps) {
         setNewPageName('');
     }, [newPageName, tempPages]);
 
-    const handleCategoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newCategory = e.target.value;
+    const handleCategoryChange = useCallback((newCategory: string) => {
         setTempSelectedCategory(newCategory);
 
-        const baseDrawing = SideMenuService.getBaseDrawingForCategory(design, newCategory);
+        if (!project?.hierarchy) {
+            return toast.error("Error : Project hierarchy not found.");
+        }
+        const baseDrawing = SideMenuService.getBaseDrawingForCategory(project?.hierarchy, newCategory);
         if (baseDrawing) {
             setTempBaseDrawing(baseDrawing);
         }
 
-        const categoryPages = SideMenuService.getPagesForCategory(design, newCategory);
+        const categoryPages = SideMenuService.getPagesForCategory(project?.hierarchy, newCategory);
         setTempPages(categoryPages || {});
-    }, [design]);
+    }, [project?.hierarchy]);
+
+    // Handle shifting to a selected category without uploading new files
+    const handleShiftToCategory = useCallback(async () => {
+        try {
+            if (!project?.hierarchy) {
+                return toast.error("Error : Project hierarchy not found.");
+            }
+            const attributes = SideMenuService.getComponentsForCategory(project?.hierarchy, tempSelectedCategory);
+            const changedPages = SideMenuService.getPagesForCategory(project?.hierarchy, tempSelectedCategory);
+            const updatedHierarchy = generateHierarchy({
+                updatedComponents: attributes,
+                updatedCategory: tempSelectedCategory,
+                updatedPages: tempPages,
+                updatedBaseDrawing: tempBaseDrawing,
+            });
+
+            const pagesNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
+            const folderNames = SideMenuService.getMissingFolderNames(pagesNames, structure.pages);
+
+            if (!shiftCategory) {
+                toast.error("Error: shifting category due to missing functions.");
+                return;
+            }
+
+            const data = await shiftCategory({
+                selectedCategory: tempSelectedCategory,
+                hierarchy: updatedHierarchy,
+                folderNames,
+            });
+
+            if (data && data.success) {
+                toast.success(data.status);
+                await refreshContent()
+
+                setNewBaseDrawingFiles({});
+                setIsPopUpOpen(false);
+            } else {
+                toast.error(data ? data.status : "Error while shifting category.");
+            }
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }, [
+        project?.hierarchy,
+        tempSelectedCategory,
+        shiftCategory,
+        generateHierarchy,
+        tempPages,
+        tempBaseDrawing,
+        refreshContent,
+        structure.pages,
+    ]);
+
+    // Handle uploading and updating base drawing with new files
+    const handleUploadAndUpdateBaseDrawing = useCallback(async () => {
+        try {
+            console.log("this is calling");
+
+            if (!project?.hierarchy) {
+                return toast.error("handleUploadAndUpdateBaseDrawing Error : Project hierarchy not found.");
+            }
+
+            const uniqueFileName = SideMenuService.createUniqueFileName(project?.hierarchy, tempSelectedCategory);
+            const formData = new FormData();
+            formData.append('folder', folder);
+
+            const attributes = SideMenuService.getComponentsForCategory(project?.hierarchy, tempSelectedCategory);
+            const changedPages = SideMenuService.getPagesForCategory(project?.hierarchy, tempSelectedCategory);
+            const pagesNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
+            const folderNames = SideMenuService.getMissingFolderNames(pagesNames, structure.pages);
+
+            const updatedHierarchy = generateHierarchy({
+                updatedComponents: attributes,
+                updatedBaseDrawing: {
+                    fileId: uniqueFileName,
+                },
+                updatedCategory: tempSelectedCategory,
+                updatedPages: tempPages,
+            });
+
+            formData.append('selectedCategory', tempSelectedCategory);
+            formData.append('folderNames', folderNames.join(','));
+            formData.append('hierarchy', JSON.stringify(updatedHierarchy));
+
+            for (const [folder, file] of Object.entries(newBaseDrawingFiles)) {
+                const customName = `${folder}<<&&>>${uniqueFileName}${file.name.slice(-4)}`;
+                formData.append('files', file, customName);
+            }
+            // /projects/7ed67452-9386-42ef-a9cf-a7ad01c60465/e96e43a8-3419-40d9-9627-a084cf84ed1d/668ec1dd-bbf2-465b-bb66-0c2494094348.svg
+            const data = await updateBaseDrawing(formData);
+
+            if (data && data.success) {
+                toast.success(data.status);
+                await refreshContent()
+
+                setNewBaseDrawingFiles({});
+                setSideMenuType("");
+                setBaseDrawing({
+                    fileId: uniqueFileName,
+                });
+                incrementFileVersion();
+                setIsPopUpOpen(false);
+
+                //refresh page.
+            } else {
+                toast.error(data ? data.status : "Error while updating the base drawing.");
+            }
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }, [
+        folder,
+        project?.hierarchy,
+        updateBaseDrawing,
+        tempSelectedCategory,
+        newBaseDrawingFiles,
+        tempPages,
+        refreshContent,
+        structure.pages,
+        generateHierarchy,
+        setBaseDrawing,
+        incrementFileVersion
+    ]);
 
     // Core business logic
-    const updateBaseDrawing = useCallback(async () => {
+    const updateBaseDrawingFunc = useCallback(async () => {
         setSaveLoading(true);
 
         try {
@@ -279,145 +405,18 @@ export function useSideMenu(props: SideMenuProps) {
     }, [
         loading,
         tempPages,
+        handleShiftToCategory,
+        handleUploadAndUpdateBaseDrawing,
         fileExistenceStatus,
         newBaseDrawingFiles,
-        tempSelectedCategory,
-        tempBaseDrawing,
-        design,
-        id
-    ]);
-
-    // Handle shifting to a selected category without uploading new files
-    const handleShiftToCategory = useCallback(async () => {
-        try {
-            // Get attributes for the selected category
-            const attributes = SideMenuService.getAttributesForCategory(design, tempSelectedCategory);
-
-            // Get pages for the selected category
-            const changedPages = SideMenuService.getPagesForCategory(design, tempSelectedCategory);
-
-            // Generate updated structure
-            const structure = generateHierarchy({
-                updatedComponents: attributes,
-                updatedCategory: tempSelectedCategory,
-                updatedPages: tempPages,
-                updatedBaseDrawing: tempBaseDrawing,
-            });
-
-            // Calculate missing pages
-            const pagesNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
-            const folderNames = SideMenuService.getMissingFolderNames(pagesNames, pages);
-
-            // Call API to shift to selected category
-            const { data } = await SideMenuService.shiftToSelectedCategory(id, {
-                selectedCategory: tempSelectedCategory,
-                structure,
-                folderNames,
-            });
-
-            if (data.success) {
-                toast.success(data.status);
-                setNewBaseDrawingFiles({});
-                await fetchProject(id);
-                setSideMenuType("");
-                setIsPopUpOpen(false);
-            } else {
-                toast.error(data.status);
-            }
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }, [
-        design,
-        tempSelectedCategory,
-        generateHierarchy,
-        tempPages,
-        tempBaseDrawing,
-        pages,
-        id,
-        fetchProject
     ]);
 
     const resetSideBarState = useCallback(() => {
         setTempSelectedCategory(selectedCategory);
-        setTempBaseDrawing(baseDrawing);
-        setTempPages(pages || {});
+        setTempBaseDrawing(structure.baseDrawing);
+        setTempPages(structure.pages || {});
         setChoosenPage('gad');
-    }, [selectedCategory, baseDrawing, pages]);    
-    // Handle uploading and updating base drawing with new files
-    const handleUploadAndUpdateBaseDrawing = useCallback(async () => {
-        try {
-            // Create a unique filename or use existing one
-            const uniqueFileName = SideMenuService.createUniqueFileName(design, tempSelectedCategory);
-
-            // Create FormData for the upload
-            const formData = new FormData();
-            formData.append('folder', design.folder);
-
-            // Get attributes for the selected category
-            const attributes = SideMenuService.getAttributesForCategory(design, tempSelectedCategory);
-
-            // Get pages for the selected category
-            const changedPages = SideMenuService.getPagesForCategory(design, tempSelectedCategory);
-
-            // Calculate missing pages
-            const pagesNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
-            const folderNames = SideMenuService.getMissingFolderNames(pagesNames, pages);
-
-            // Generate updated structure
-            const structure = generateHierarchy({
-                updatedComponents: attributes,
-                updatedBaseDrawing: {
-                    path: uniqueFileName,
-                },
-                updatedCategory: tempSelectedCategory,
-                updatedPages: tempPages,
-            });
-
-            // Add data to formData
-            formData.append('selectedCategory', tempSelectedCategory);
-            formData.append('folderNames', folderNames.join(','));
-            formData.append('structure', JSON.stringify(structure));
-
-            // Add files to formData
-            for (const [folder, file] of Object.entries(newBaseDrawingFiles)) {
-                const customName = `${folder}<<&&>>${uniqueFileName}${file.name.slice(-4)}`;
-                formData.append('files', file, customName);
-            }
-
-            // Call API to update base drawing
-            const { data } = await SideMenuService.updateBaseDrawing(id, formData);
-
-            if (data.success) {
-                toast.success(data.status);
-                setNewBaseDrawingFiles({});
-                await fetchProject(id);
-                setSideMenuType("");
-                setBaseDrawing({
-                    path: uniqueFileName,
-                });
-                incrementFileVersion();
-                setIsPopUpOpen(false);
-            } else {
-                toast.error(data.status);
-            }
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }, [
-        design,
-        tempSelectedCategory,
-        newBaseDrawingFiles,
-        tempPages,
-        pages,
-        generateHierarchy,
-        id,
-        fetchProject,
-        setBaseDrawing,
-        incrementFileVersion
-    ]);
+    }, [selectedCategory, structure.baseDrawing, structure.pages]);
 
     // Return all state and handlers
     return {
@@ -448,7 +447,7 @@ export function useSideMenu(props: SideMenuProps) {
         handleDelete,
         addNewPage,
         handleCategoryChange,
-        updateBaseDrawing,
+        updateBaseDrawingFunc,
         fileVersion,
         resetSideBarState
     };

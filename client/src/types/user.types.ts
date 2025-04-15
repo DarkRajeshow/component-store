@@ -1,6 +1,3 @@
-import { Request } from 'express';
-import { Document, Types } from 'mongoose';
-
 export interface IUserPreferences {
     theme: 'light' | 'dark';
     language: string;
@@ -8,30 +5,30 @@ export interface IUserPreferences {
 
 // Base user interface
 export interface IUserBase {
-    _id?: Types.ObjectId;
+    _id?: string;
     username: string;
     email: string;
     password: string;
     dp: string;
     role: 'user' | 'admin';
     preferences: IUserPreferences;
-    projects: Types.ObjectId[];
-    designs: Types.ObjectId[];
-    organization?: Types.ObjectId;
+    projects: string[];
+    designs: string[];
+    organization?: string;
 }
 
 // Mongoose document interface
 export interface IUser extends Document {
-    _id: Types.ObjectId | string;
+    _id: string | string;
     username: string;
     email: string;
     password: string;
     dp: string;
     role: 'user' | 'admin';
     preferences: IUserPreferences;
-    projects: Types.ObjectId[];
-    designs: Types.ObjectId[];
-    organization?: Types.ObjectId;
+    projects: string[];
+    designs: string[];
+    organization?: string;
 }
 
 export interface AuthRequest extends Request {
@@ -39,7 +36,7 @@ export interface AuthRequest extends Request {
     userId?: string;
 }
 
-export interface UserResponse {
+export interface IUserResponse {
     success: boolean;
     status?: string;
     user?: IUserBase;
@@ -47,9 +44,45 @@ export interface UserResponse {
     token?: string;
 }
 
-export interface CookieConfig {
+export interface ICookieConfig {
     maxAge: number;
     secure: boolean;
     httpOnly: boolean;
     sameSite: 'strict' | 'lax' | 'none';
+}
+
+// user request 
+export interface IUserLoginRequest {
+    username: string;
+    password: string;
+}
+
+export interface IUserRegisterRequest {
+    username: string;
+    email: string;
+    password: string;
+}
+
+export interface IUpdatePreferencesRequest {
+    theme: 'light' | 'dark';
+    language: string;
+}
+
+// user responses
+export interface IUserLoginResponse {
+    success: boolean;
+    status?: string;
+    user?: IUserBase;
+}
+
+export interface IUserRegisterResponse {
+    success: boolean;
+    status?: string;
+    user?: IUserBase;
+}
+
+export interface IUpdatePreferencesResponse {
+    success: boolean;
+    status?: string;
+    user?: IUserBase;
 }

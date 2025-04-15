@@ -49,7 +49,7 @@ export const handlePDFtoSVG = (req: Request, res: Response, next: NextFunction) 
             return convertPDFtoSVG(filePath, svgFilePath)
                 .then(() => {
                     // Update the request file to point to the new SVG file
-                    file.fileId= svgFilePath;
+                    file.path = svgFilePath;
                     file.mimetype = 'image/svg+xml';
                 })
                 .catch((err: Error) => {

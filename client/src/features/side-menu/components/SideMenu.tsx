@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -21,22 +20,24 @@ import ActionButtons from "./ActionButtons";
 import { useSideMenu } from "../hooks/useSideMenu";
 import useAppStore from "@/store/useAppStore";
 import { sideMenuTypes } from "@/constants";
+import { useModel } from "@/contexts/ModelContext";
 
 function SideMenu() {
   // Get params and store values
-  const { id } = useParams();
+  const { modelType, baseContentPath } = useModel()
+
   const {
     design,
+    project,
     selectedCategory,
-    fetchProject,
     incrementFileVersion,
-    fileVersion,
-    baseDrawing,
     setBaseDrawing,
-    loading,
     generateHierarchy,
-    pages
+    fileVersion,
+    loading,
+    structure,
   } = useAppStore();
+
 
   // Use the custom hook to manage state and logic
   const {
@@ -57,7 +58,6 @@ function SideMenu() {
     openPageDeleteWarning,
     setOpenPageDeleteWarning,
     resetSideBarState,
-    baseFilePath,
     allowedToClose,
     handleFileChange,
     handleDrop,
@@ -66,22 +66,22 @@ function SideMenu() {
     handleDelete,
     addNewPage,
     handleCategoryChange,
-    updateBaseDrawing
+    updateBaseDrawingFunc
   } = useSideMenu({
-    design,
+    folder: `${modelType === "project" ? project?.folder : design?.folder}`,
+    modelType,
     selectedCategory,
-    fetchProject,
     incrementFileVersion,
     fileVersion,
-    baseDrawing,
+    structure,
     setBaseDrawing,
     loading,
     generateHierarchy,
-    pages,
-    id: id || "",
+    baseContentPath,
   });
 
-  // Memoize dialog open state
+
+  // Memoize dialog open state  
   const dialogOpen = useMemo(() => {
     return isPopUpOpen;
   }, [isPopUpOpen]);
@@ -99,7 +99,7 @@ function SideMenu() {
 
   return (
     <Dialog open={dialogOpen}>
-      <SideMenuTriggers 
+      <SideMenuTriggers
         sideMenuTypes={sideMenuTypes}
         sideMenuType={sideMenuType}
         setSideMenuType={setSideMenuType}
@@ -123,19 +123,21 @@ function SideMenu() {
 
         <DialogDescription hidden />
 
-        {design.designType && (
+        {modelType && (project || design) && (
           <div className='group flex flex-col gap-4 w-full'>
             <DialogTitle className="text-xl font-semibold text-dark/70 text-center py-2">
               Upload / Change Base Drawing
             </DialogTitle>
 
-            <CategorySelection 
-              designType={design.designType}
-              tempSelectedCategory={tempSelectedCategory}
-              handleCategoryChange={handleCategoryChange}
-            />
+            {modelType === "project" && project && (
+              <CategorySelection
+                categoryMapping={project.hierarchy && project.hierarchy.categoryMapping}
+                tempSelectedCategory={tempSelectedCategory}
+                handleCategoryChange={handleCategoryChange}
+              />
+            )}
 
-            <PageManagement 
+            <PageManagement
               newPageName={newPageName}
               setNewPageName={setNewPageName}
               addNewPage={addNewPage}
@@ -149,7 +151,7 @@ function SideMenu() {
               handleDelete={handleDelete}
             />
 
-            <FileUploadSection 
+            <FileUploadSection
               choosenPage={choosenPage}
               tempBaseDrawing={tempBaseDrawing}
               handleFileChange={handleFileChange}
@@ -157,16 +159,16 @@ function SideMenu() {
               tempPages={tempPages}
               fileExistenceStatus={fileExistenceStatus}
               newBaseDrawingFiles={newBaseDrawingFiles}
-              baseFilePath={baseFilePath}
+              baseContentPath={baseContentPath}
               fileVersion={fileVersion}
             />
 
-            <ActionButtons 
+            <ActionButtons
               saveLoading={saveLoading}
-              tempBaseDrawing={tempBaseDrawing}
+              tempBaseDrawing={tempBaseDrawing?.fileId}
               newBaseDrawingFiles={newBaseDrawingFiles}
-              updateBaseDrawing={updateBaseDrawing}
-              allowedToClose={allowedToClose}
+              updateBaseDrawing={updateBaseDrawingFunc}
+              allowedToClose={allowedToClose as boolean}
               memoizedToggleDialog={memoizedToggleDialog}
             />
           </div>

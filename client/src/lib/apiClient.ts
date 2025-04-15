@@ -1,4 +1,5 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import api from './api';
 
 export const apiRequest = async <T>(
     method: 'get' | 'post' | 'put' | 'delete',
@@ -10,16 +11,16 @@ export const apiRequest = async <T>(
 
         switch (method) {
             case 'get':
-                response = await axios.get(endpoint);
+                response = await api.get(endpoint);
                 break;
             case 'post':
-                response = await axios.post(endpoint, data);
+                response = await api.post(endpoint, data);
                 break;
             case 'put':
-                response = await axios.put(endpoint, data);
+                response = await api.put(endpoint, data);
                 break;
             case 'delete':
-                response = await axios.delete(endpoint, { data });
+                response = await api.delete(endpoint, { data });
                 break;
             default:
                 throw new Error('Invalid HTTP method');

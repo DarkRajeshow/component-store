@@ -63,7 +63,8 @@ export interface IHierarchy {
     categories: ICategories;
 }
 
-export interface IProject extends Document {
+export interface IProject {
+    _id: string;
     user: string;
     name: string;
     folder: string;
@@ -132,6 +133,12 @@ export interface IAddCategoryResponse {
     categoryId?: string;
 }
 
+export interface IShiftCategoryResponse {
+    success: boolean;
+    status: string;
+}
+
+
 export interface IRenameCategoryResponse {
     success: boolean;
     status: string;
@@ -165,6 +172,8 @@ export interface IGetRecentProjectsResponse {
     status: string;
     projects?: IProject[];
 }
+
+
 
 
 
@@ -213,6 +222,12 @@ export interface IUpdateBaseDrawingRequest {
 
 export interface IAddCategoryRequest {
     categoryName: string;
+}
+
+export interface IShiftCategoryRequest {
+    hierarchy: IHierarchy;
+    selectedCategory: string;
+    folderNames: string[];
 }
 
 export interface IRenameCategoryRequest {

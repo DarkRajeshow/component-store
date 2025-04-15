@@ -8,8 +8,12 @@ class UserController {
     async registerUser(req: Request, res: Response, next: NextFunction) {
         const { username, email, password } = req.body;
 
+        console.log('Registering user:', username, email, password);
+        
+
         try {
             const result = await userService.registerUser(username, email, password);
+
 
             if (result.success && result.token) {
                 // Determine if the environment is development or production

@@ -19,14 +19,15 @@ const storage = multer.diskStorage({
     file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void
   ) => {
-    const { folder, categoryId } = req.body;
+    const { folder } = req.body;
+    const { categoryId } = req.params;
     const filePathParts = file.originalname.split('<<&&>>');
     const pageFolder = filePathParts[0] || '';
 
     const uploadPath = path.join(
-      server_dirname, 
-      'public', 
-      'uploads', 
+      server_dirname,
+      'public',
+      'uploads',
       'projects',
       folder,
       categoryId,
@@ -38,14 +39,16 @@ const storage = multer.diskStorage({
   },
   filename: (
     req: MulterRequestBody,
-    file: Express.Multer.File, 
+    file: Express.Multer.File,
     cb: (error: Error | null, filename: string) => void
   ) => {
-    const ext = path.extname(file.originalname) || '.svg';
+
+    const ext = path.extname(file.originalname) || '.svg'; // Default to '.svg' if there's no extension
     const filePathParts = file.originalname.split('<<&&>>');
-    const filename = filePathParts[1] || file.originalname;
-    
-    cb(null, filename + ext);
+    const filename = filePathParts.length > 1 ? filePathParts.slice(1).join('') : file.originalname;
+
+    const uniqueName = req.body.title ? req.body.title + ext : file.originalname ? filename : "base.svg";
+    cb(null, uniqueName);
   }
 });
 

@@ -16,11 +16,11 @@ export class FileService {
     }
 
     private getProjectPath(projectFolder: string): string {
-        return path.join(this.uploadDir, projectFolder);
+        return path.join(this.uploadDir, 'projects', projectFolder);
     }
 
     private getDesignPath(designFolder: string): string {
-        return path.join(this.uploadDir, designFolder);
+        return path.join(this.uploadDir, 'designs', designFolder);
     }
 
     private getCategoryPath(projectFolder: string, categoryId: string): string {
@@ -112,7 +112,7 @@ export class FileService {
             throw new AppError('Failed to delete page folder', 500);
         }
     }
-    
+
     async deleteDesignPageFolder(designFolder: string, pageFolderId: string): Promise<void> {
         try {
             const pagePath = path.join(

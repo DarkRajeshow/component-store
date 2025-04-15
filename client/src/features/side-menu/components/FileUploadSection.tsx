@@ -5,14 +5,14 @@ import { FileUploadService } from "../services/FileUploadService";
 interface FileUploadSectionProps {
     choosenPage: string;
     tempBaseDrawing: {
-        path: string;
+        fileId: string;
     } | null;
     handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     handleDrop: (event: React.DragEvent<HTMLDivElement>) => void;
     tempPages: Record<string, string>;
     fileExistenceStatus: Record<string, boolean>;
     newBaseDrawingFiles: Record<string, File>;
-    baseFilePath: string;
+    baseContentPath: string;
     fileVersion: string | number;
 }
 
@@ -24,14 +24,17 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
     tempPages,
     fileExistenceStatus,
     newBaseDrawingFiles,
-    baseFilePath,
+    baseContentPath,
     fileVersion
 }) => {
     // Memoize file preview rendering logic
     const filePreview = useMemo(() => {
+        console.log("Rendering file preview for page:", choosenPage, "with fileId:", tempBaseDrawing?.fileId, "and file existence status:", fileExistenceStatus);
+        
         if (!(tempBaseDrawing?.fileId && fileExistenceStatus[choosenPage]) && !newBaseDrawingFiles?.[tempPages[choosenPage]]) {
             return null;
         }
+
 
         if (newBaseDrawingFiles?.[tempPages[choosenPage]]?.type === "application/pdf") {
             return (
@@ -48,12 +51,12 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             <img
                 src={newBaseDrawingFiles?.[tempPages[choosenPage]]
                     ? URL.createObjectURL(newBaseDrawingFiles[tempPages[choosenPage]])
-                    : `${baseFilePath}/${tempPages[choosenPage]}/${tempBaseDrawing?.path}.svg?v=${fileVersion}`}
+                    : `${baseContentPath}/${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
                 alt="base drawing"
                 className="w-full rounded-xl"
             />
         );
-    }, [tempBaseDrawing?.path, choosenPage, newBaseDrawingFiles, tempPages, fileExistenceStatus, baseFilePath, fileVersion]);
+    }, [tempBaseDrawing?.fileId, choosenPage, newBaseDrawingFiles, tempPages, fileExistenceStatus, baseContentPath, fileVersion]);
 
     return (
         <Card className="bg-blue-50 border-none">

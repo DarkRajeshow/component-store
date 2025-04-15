@@ -1,46 +1,87 @@
 import { ReactNode } from "react";
-import { IDesign } from "../../../types/request.types";
+import { IComponents, IFileInfo, IHierarchy, IPages } from "@/types/project.types";
+import { IBaseDrawing, IDesign, IStructure } from "@/types/design.types";
 
-// Define types for the component
-export interface Pages {
-    [key: string]: string;
-}
+// Types for the side menu feature
 
 export interface BaseDrawing {
-    path: string;
+  fileId: string;
+}
+
+export type NewBaseDrawingFiles = Record<string, File>;
+
+export interface CategorySelection {
+  value: string;
+  label: string;
+}
+
+export interface FileUploadSectionProps {
+  choosenPage: string;
+  tempBaseDrawing: BaseDrawing;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleDrop: (e: React.DragEvent<HTMLDivElement>) => void;
+  tempPages: IPages;
+  fileExistenceStatus: Record<string, boolean>;
+  newBaseDrawingFiles: NewBaseDrawingFiles;
+  baseFilePath: string;
+  fileVersion: number;
+}
+
+export interface CategorySelectionProps {
+  categoryMapping: Record<string, string>;
+  tempSelectedCategory: string;
+  handleCategoryChange: (event: { target: { value: string } }) => void;
+}
+
+export interface PageManagementProps {
+  newPageName: string;
+  setNewPageName: (name: string) => void;
+  addNewPage: () => void;
+  choosenPage: string;
+  fileExistenceStatus: Record<string, boolean>;
+  openDeleteConfirmation: (page: string) => void;
+  setChoosenPage: (page: string) => void;
+  tempPages: IPages;
+  openPageDeleteWarning: boolean;
+  setOpenPageDeleteWarning: (open: boolean) => void;
+  handleDelete: () => void;
+}
+
+export interface ActionButtonsProps {
+  saveLoading: boolean;
+  tempBaseDrawing: BaseDrawing;
+  newBaseDrawingFiles: NewBaseDrawingFiles;
+  updateBaseDrawing: () => Promise<void>;
+  allowedToClose: boolean;
+  memoizedToggleDialog: () => void;
 }
 
 export interface FileExistenceStatus {
-    [key: string]: boolean;
-}
-
-export interface NewBaseDrawingFiles {
-    [key: string]: File;
+  [key: string]: boolean;
 }
 
 export interface SideMenuProps {
-    design: IDesign;
-    selectedCategory: string;
-    fetchProject: (id: string) => Promise<void>;
-    incrementFileVersion: () => void;
-    fileVersion: number;
-    baseDrawing: BaseDrawing;
-    setBaseDrawing: (baseDrawing: BaseDrawing) => void;
-    loading: boolean;
-    generateHierarchy: (params: generateHierarchyParams) => any;
-    pages: Pages;
-    id: string;
+  folder: string;
+  modelType: "project" | "design";
+  selectedCategory: string;
+  baseContentPath: string;
+  incrementFileVersion: () => void;
+  fileVersion: number;
+  setBaseDrawing: (baseDrawing: IBaseDrawing) => void;
+  loading: boolean;
+  generateHierarchy: (params: generateHierarchyParams) => IHierarchy;
+  structure: IStructure;
 }
 
 export interface generateHierarchyParams {
-    updatedComponents: object;
-    updatedCategory: string;
-    updatedPages: Pages;
-    updatedBaseDrawing: BaseDrawing;
+  updatedComponents?: IComponents | null;
+  updatedBaseDrawing?: IFileInfo | null;
+  updatedCategory?: string | null;
+  updatedPages?: IPages | null;
 }
 
 export interface SideMenuTypeOption {
-    value: string;
-    label: string;
-    icon: ReactNode;
+  value: string;
+  label: string;
+  icon: ReactNode;
 }

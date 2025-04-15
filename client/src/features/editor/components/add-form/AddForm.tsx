@@ -381,7 +381,7 @@ const AddForm: React.FC<AddFormProps> = ({
                 updatedComponents: tempcomponents
             });
 
-            const { data } = await addNewParentAttributeAPI(id, structure);
+            const data = await addNewParentAttributeAPI(id, structure);
             handleApiResponse(data);
         } catch (error) {
             console.error(error);
@@ -418,7 +418,7 @@ const AddForm: React.FC<AddFormProps> = ({
                 }
             }
 
-            const { data } = await addNewAttributeAPI(id, formData);
+            const data = await addNewAttributeAPI(id, formData);
             handleApiResponse(data);
         } catch (error) {
             console.error(error);

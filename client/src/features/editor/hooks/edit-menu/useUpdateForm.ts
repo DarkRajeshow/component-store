@@ -318,7 +318,7 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
         }
       }
 
-      const { data } = await updatecomponentsAPI(id!, formData);
+      const data = await updatecomponentsAPI(id!, formData);
 
       if (data.success) {
         setComponents(updatedcomponents);
@@ -353,7 +353,7 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
         filesToDelete: await extractPaths()
       };
 
-      const { data } = await deletecomponentsAPI(id!, body);
+      const data = await deletecomponentsAPI(id!, body);
 
       console.log(data);
 

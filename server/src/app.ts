@@ -6,7 +6,7 @@ import path from "path";
 import { connectDB } from "./config/db";
 import { corsOptions } from "./utils/corsOptions";
 import { errorHandler } from "./middleware/errorHandler.middleware";
-import V1Routes from "./routes/v1.routes";
+import V1Routes from "./routes/v1.routes"; 
 import userRoutes from './routes/user.routes'
 import designRoutes from './routes/design.routes'
 import projectRoutes from './routes/project.routes'

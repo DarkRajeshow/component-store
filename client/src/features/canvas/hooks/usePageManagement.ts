@@ -1,35 +1,33 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { v4 as uuidv4 } from 'uuid';
-import { addNewPageAPI } from '../lib/designAPI';
 import { ViewPopUpType } from '../types/viewTypes';
+import { useModel } from '@/contexts/ModelContext';
+import { IPages } from '@/types/project.types';
 
 interface UsePageManagementProps {
-  pages: Record<string, string>;
-  generateHierarchy: (options: { updatedPages?: Record<string, string> }) => any;
-  fetchProject: (id: string) => Promise<void>;
-  projectId: string;
+  pages: IPages;
 }
 
 export const usePageManagement = ({
   pages,
-  generateHierarchy,
-  fetchProject,
-  projectId
 }: UsePageManagementProps) => {
   const [newPageName, setNewPageName] = useState('');
   const [viewPopUpType, setViewPopUpType] = useState<ViewPopUpType>('');
   const [isPopUpON, setIsPopUpON] = useState(false);
 
+
+  // api functions 
+  const { addPage, refreshContent } = useModel()
+
   const addNewPage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate page name
     if (!newPageName.trim()) {
       toast.warning('Page name cannot be empty.');
       return;
     }
-    
+
     // Check if page already exists
     const pageExists = Object.keys(pages).some(pageName =>
       pageName.toLocaleLowerCase() === newPageName.toLocaleLowerCase()
@@ -41,38 +39,26 @@ export const usePageManagement = ({
     }
 
     try {
-      // Create updated pages object with new page
-      const updatedPages = {
-        ...pages,
-        [newPageName]: uuidv4()
-      };
-
-      // Generate structure with updated pages
-      const structure = generateHierarchy({ updatedPages });
-
-      // Prepare request body
-      const body = {
-        structure: structure
-      };
-
       // Call API to add new page
-      const { data } = await addNewPageAPI(projectId, body);
+      const data = await addPage({
+        pageName: newPageName
+      });
 
-      if (data.success) {
+      if (data && data.success) {
         toast.success(data.status);
-        await fetchProject(projectId);
+        await refreshContent();
         setViewPopUpType('');
         setIsPopUpON(false);
         setNewPageName('');
       } else {
         console.log(data);
-        toast.error(data.status);
+        toast.error(data ? data.status : "Error occured while adding new page.");
       }
     } catch (error) {
       console.log(error);
       toast.error('Something went wrong.');
     }
-  }, [newPageName, pages, generateHierarchy, projectId, fetchProject]);
+  }, [newPageName, pages, refreshContent, addPage]);
 
   const openPopup = useCallback((type: ViewPopUpType) => {
     setViewPopUpType(type);

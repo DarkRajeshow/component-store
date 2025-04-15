@@ -1,13 +1,8 @@
 import { apiRequest } from "./apiClient";
 import { ICreateProjectRequest, IProjectResponse, IGetProjectResponse, IGetProjectsResponse } from "../types/project.types";
 import { ICreateDesignRequest, IDesignResponse, IGetDesignResponse, IGetDesignsResponse } from "../types/design.types";
-import { IUser } from "../types/user.types";
+import { IUserLoginRequest, IUserLoginResponse, IUserRegisterRequest, IUserRegisterResponse, IUserResponse } from "../types/user.types";
 
-interface ApiResponse<T> {
-    success: boolean;
-    status: string;
-    data?: T;
-}
 
 // Project APIs
 export const createEmptyProjectAPI = async (formData: ICreateProjectRequest) => {
@@ -36,10 +31,20 @@ export const getRecentDesignsAPI = async () => {
 };
 
 // Auth APIs
+export const loginAPI = async (userCredentials: IUserLoginRequest) => {
+    return apiRequest<IUserLoginResponse>('post', "/api/users/login", userCredentials);
+};
+
+export const registerAPI = async (userCredentials: IUserRegisterRequest) => {
+    return apiRequest<IUserRegisterResponse>('post', "/api/users/register", userCredentials);
+};
+
 export const getUserAPI = async () => {
-    return apiRequest<ApiResponse<IUser>>('get', "/api/users");
+    return apiRequest<IUserResponse>('get', "/api/users");
 };
 
 export const logoutAPI = async () => {
-    return apiRequest<ApiResponse<null>>('post', "/api/users/logout");
+    return apiRequest<IUserResponse>('post', "/api/users/logout");
 };
+
+

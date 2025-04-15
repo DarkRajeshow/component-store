@@ -20,7 +20,7 @@ const SignIn = () => {
 
         // Register API call
         try {
-            const { data } = await loginAPI({ username, password })
+            const data = await loginAPI({ username, password })
             if (data.success) {
                 toast.success(data.status);
                 navigate('/')

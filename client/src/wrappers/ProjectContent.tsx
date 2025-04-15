@@ -2,8 +2,6 @@ import { useRef, useState, useCallback, JSX } from 'react';
 import { svg2pdf } from 'svg2pdf.js';
 import jsPDF from 'jspdf';
 import useAppStore from '../store/useAppStore';
-
-
 import SideMenu from '@/features/side-menu';
 import ActionBar from '@/features/editor';
 import View from '@/features/canvas';
@@ -18,7 +16,6 @@ const ProjectContent = (): JSX.Element => {
     const designRef = useRef<SVGSVGElement | null>(null);
     const [zoom, setZoom] = useState<number>(1);
     const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
-
 
     const generatePDF = useCallback(async (fileName: string): Promise<void> => {
         const svgElement = designRef.current;
@@ -81,7 +78,7 @@ const ProjectContent = (): JSX.Element => {
     return (
         <main className="h-screen fixed w-screen">
             <SideMenu />
-            <ActionBar generatePDF={generatePDF} />
+            {/* <ActionBar generatePDF={generatePDF} /> */}
             <View
                 generatePDF={generatePDF}
                 zoom={zoom}

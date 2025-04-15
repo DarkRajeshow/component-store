@@ -22,7 +22,9 @@ export const optimizeSVG = async (req: CustomRequest, res: Response, next: NextF
                 continue;
             }
 
+            
             const svgPath = file.path;
+            console.log(svgPath);
             const svgContent = fs.readFileSync(svgPath, 'utf8');
 
             // Correct SVGO plugin configuration

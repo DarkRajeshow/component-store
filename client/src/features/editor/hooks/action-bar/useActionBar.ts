@@ -204,7 +204,7 @@ export function useActionBar() {
 
     const shiftCategory = async () => {
         try {
-            const { data } = await shiftToSelectedCategoryAPI(id, {
+            const data = await shiftToSelectedCategoryAPI(id, {
                 selectedCategory: tempSelectedCategory,
             });
 

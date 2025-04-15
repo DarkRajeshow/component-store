@@ -11,7 +11,7 @@ interface RecentDesignState {
 }
 
 interface RecentDesignActions {
-  fetchRecentDesigns: (id: string) => Promise<void>;
+  fetchRecentDesigns: () => Promise<void>;
 }
 
 export type RecentDesignSlice = RecentDesignState & RecentDesignActions;
@@ -20,7 +20,7 @@ export type RecentDesignSlice = RecentDesignState & RecentDesignActions;
 const createRecentDesignSlice: StateCreator<StoreState, [], [], RecentDesignSlice> = (set) => ({
   recentDesigns: [],
   RecentDesignLoading: false,
-  fetchRecentDesigns: async (id) => {
+  fetchRecentDesigns: async () => {
     set({ RecentDesignLoading: true });
     try {
       const response = await getRecentDesignsAPI();

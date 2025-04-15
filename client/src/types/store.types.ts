@@ -5,13 +5,15 @@ import { RecentDesignSlice } from '@/store/slices/recentDesignSlice'; // Fixed r
 import { UISlice } from '@/store/slices/uiSlice';          // Fixed relative path
 import { UserSlice } from '@/store/slices/userSlice';      // Fixed relative path
 import { EditorSlice } from '@/store/slices/editorSlice';
-import { IComponents, IFileInfo, IPages } from './design.types';
-import { IHierarchy } from './project.types';
+import { IComponents, IDesign, IFileInfo, IPages } from './design.types';
+import { IHierarchy, IProject } from './project.types';
 
 // Additional types for the store
 interface StoreActions {
     fetchProject: (id: string) => Promise<void>;
     fetchDesign: (id: string) => Promise<void>;
+    setProjectStates: (project: IProject) => void;
+    setDesignStates: (design: IDesign) => void;
     generateHierarchy: (params?: {
         updatedComponents?: IComponents | null;
         updatedBaseDrawing?: IFileInfo | null;

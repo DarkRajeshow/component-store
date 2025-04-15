@@ -1,26 +1,34 @@
-import { BaseDrawing, FileExistenceStatus, NewBaseDrawingFiles, Pages } from "../types/sideMenuTypes";
+import { IFileInfo, IPages } from "@/types/project.types";
+import { FileExistenceStatus, NewBaseDrawingFiles } from "../types/sideMenuTypes";
 import { SideMenuService } from "./SideMenuService";
 
 // FileExistenceChecker.ts - A dedicated service for checking file existence
 export const FileExistenceChecker = {
     async checkAllFiles(
-        tempPages: Pages,
-        baseFilePath: string,
-        tempBaseDrawing: BaseDrawing
+        tempPages: IPages,
+        baseContentPath: string,
+        tempBaseDrawing: IFileInfo | null,
+        fileVersion: number
     ): Promise<FileExistenceStatus> {
         if (Object.keys(tempPages).length === 0) {
             return {};
         }
 
         try {
+
             const results = await Promise.all(
                 Object.entries(tempPages).map(async ([pageFolder]) => {
+                    console.log(`${baseContentPath}/${tempPages[pageFolder]}/${tempBaseDrawing?.fileId}.svg?version=${fileVersion}`);
+
                     const exists = await SideMenuService.checkFileExists(
-                        `${baseFilePath}/${tempPages[pageFolder]}/${tempBaseDrawing?.path}.svg`
+                        `${baseContentPath}/${tempPages[pageFolder]}/${tempBaseDrawing?.fileId}.svg`
                     );
                     return { [pageFolder]: exists };
                 })
             );
+
+            // http://localhost:8080/api/uploads/projects/7ed67452-9386-42ef-a9cf-a7ad01c60465edd21e7c-ba62-45c4-9949-5428b064a6bb/e96e43a8-3419-40d9-9627-a084cf84ed1d/668ec1dd-bbf2-465b-bb66-0c2494094348.svg
+
 
             // Convert array of objects to a single object with pageFolder as keys
             return results.reduce((acc, curr) => ({ ...acc, ...curr }), {});
@@ -31,7 +39,7 @@ export const FileExistenceChecker = {
     },
 
     areAllFilesUploaded(
-        tempPages: Pages,
+        tempPages: IPages,
         fileExistenceStatus: FileExistenceStatus,
         newBaseDrawingFiles: NewBaseDrawingFiles
     ): boolean {
@@ -54,12 +62,12 @@ export const FileExistenceChecker = {
 
     allowedToClose(
         currentBaseDrawingFileExistanceStatus: FileExistenceStatus,
-        baseDrawing: BaseDrawing,
-        pages: Pages
+        baseDrawing: IFileInfo | null,
+        pages: IPages
     ): boolean {
 
         console.log(pages);
-        
+
         return (
             // tempBaseDrawing?.fileId !== " " &&
             baseDrawing?.fileId !== " " &&

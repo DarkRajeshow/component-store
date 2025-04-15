@@ -69,7 +69,7 @@ const RenameForm = () => {
                 structure: structure
             }
 
-            const { data } = await renameAttributeAPI(id, body);
+            const data = await renameAttributeAPI(id, body);
 
             if (data.success) {
                 setComponents(updatedComponents)
