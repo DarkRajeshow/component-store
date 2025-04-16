@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { updatecomponentsAPI, deletecomponentsAPI } from '../../lib/designAPI';
 import useAppStore from '../../../../store/useAppStore';
 import { checkFileExists } from '../../../../utils/checkFileExists';
-import filePath from '../../../../utils/filePath';
-import { IStructure, IAttribute, IAttributeOption } from '../../../../types/request.types';
+import { IStructure, IComponent, IFileInfo, IComponents, INestedChildLevel2 } from '@/types/design.types';
+import { useModel } from '@/contexts/ModelContext';
+import { INestedChildLevel1, INestedParentLevel1 } from '@/types/project.types';
 
 interface FileCountInfo {
   fileUploads: number;
@@ -15,85 +15,67 @@ interface FileExistenceStatus {
   [key: string]: boolean;
 }
 
-interface NewFiles {
-  [key: string]: {
-    [key: string]: File;
-  };
-}
-
 interface FileCounts {
   [key: string]: FileCountInfo;
 }
 
-interface AttributeValue {
-  options?: {
-    [key: string]: IAttribute | IAttributeOption;
-  };
-  [key: string]: any;
-}
-
-interface UseUpdateFormProps {
-  id: string | undefined;
-}
-
-export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
+export const useUpdateForm = () => {
   const {
-    design,
     menuOf,
-    components,
-    setComponents,
-    incrementFileVersion,
     newFiles,
-    setNewFiles,
     updatedComponents,
+    structure,
+    loading,
+    filesToDelete,
+    deleteFilesOfPages,
+    setStructureElements,
+    setDeleteFilesOfPages,
+    incrementFileVersion,
+    setNewFiles,
+    setFilesToDelete,
     setUpdatedComponents,
-    generateHierarchy,
     setUndoStack,
     setRedoStack,
-    pages,
-    loading,
-    deleteFilesOfPages,
-    setDeleteFilesOfPages,
-    filesToDelete,
-    setFilesToDelete
   } = useAppStore();
+
+  const { baseContentPath, contentFolder, updateComponent, deleteComponent } = useModel();
 
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [operation, setOperation] = useState<"update" | "add" | "delete" | "">("update");
-  const [newAttributeName, setNewAttributeName] = useState<string>(menuOf[menuOf.length - 1]);
-  const [updatedValue, setUpdatedValue] = useState<AttributeValue>({});
-  const [selectedAttributeValue, setSelectedAttributeValue] = useState<AttributeValue>({});
+  const [newComponentName, setNewComponentName] = useState<string>(menuOf[menuOf.length - 1]);
+  const [updatedValue, setUpdatedValue] = useState<IComponent | INestedParentLevel1 | INestedChildLevel1 | INestedChildLevel2 | null>(null);
+  const [selectedComponentValue, setSelectedComponentValue] = useState<IComponent | INestedParentLevel1 | INestedChildLevel1 | INestedChildLevel2 | null>(null);
   const [fileExistenceStatus, setFileExistenceStatus] = useState<FileExistenceStatus>({});
   const [selectedPages, setSelectedPages] = useState<string[]>(['gad']);
   const [fileCounts, setFileCounts] = useState<FileCounts>({});
 
-  const baseFilePath = `${filePath}${design.folder}`;
-
-  // Initialize updated attributes
+  // Initialize updated components
   useEffect(() => {
-    const deepCopyValue = JSON.parse(JSON.stringify(components));
+    console.log(structure.components);
+    
+    const deepCopyValue = JSON.parse(JSON.stringify(structure.components));
     setUpdatedComponents(deepCopyValue);
-  }, [components, setUpdatedComponents]);
+  }, [structure.components, setUpdatedComponents]);
 
-  // Set the current values for the selected attribute
+  // Set the current values for the selected component
   useEffect(() => {
     const value = (menuOf.length === 3)
-      ? updatedComponents[menuOf[0]]?.options[menuOf[1]]?.options[menuOf[2]]
+      ? ((updatedComponents[menuOf[0]] as IComponent)?.options[menuOf[1]] as IComponent)?.options[menuOf[2]]
       : (menuOf.length === 2)
-        ? updatedComponents[menuOf[0]]?.options[menuOf[1]]
+        ? (updatedComponents[menuOf[0]] as IComponent)?.options[menuOf[1]]
         : updatedComponents[menuOf[0]];
 
     if (value) {
       const deepCopyValue = JSON.parse(JSON.stringify(value));
       setUpdatedValue(deepCopyValue);
-      setSelectedAttributeValue(deepCopyValue);
+      setSelectedComponentValue(deepCopyValue);
     }
   }, [updatedComponents, menuOf]);
 
-  // Check which files exist for the selected attribute
+  // Check which files exist for the selected component
   useEffect(() => {
     const checkFilesExistence = async () => {
-      if (!selectedAttributeValue?.path) {
+      if (!(selectedComponentValue as IFileInfo)?.fileId) {
         setFileExistenceStatus({});
         return;
       }
@@ -101,8 +83,8 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
       const alreadySelectedPages: string[] = [];
 
       const results = await Promise.all(
-        Object.keys(pages).map(async (page) => {
-          const exists = await checkFileExists(`${baseFilePath}/${pages[page]}/${selectedAttributeValue?.path}.svg`);
+        Object.keys(structure.pages).map(async (page) => {
+          const exists = await checkFileExists(`${baseContentPath}/${structure.pages[page]}/${(selectedComponentValue as IFileInfo)?.fileId}.svg`);
           if (exists) {
             alreadySelectedPages.push(page);
           }
@@ -121,15 +103,15 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
     if (!loading) {
       checkFilesExistence();
     }
-  }, [loading, pages, baseFilePath, selectedAttributeValue?.path]);
+  }, [loading, structure.pages, baseContentPath, (selectedComponentValue as IFileInfo)?.fileId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, page: string) => {
     if (e.target.files && (e.target.files[0].type === 'image/svg+xml' || e.target.files[0].type === 'application/pdf')) {
       setNewFiles({
         ...newFiles,
-        [selectedAttributeValue?.path]: {
-          ...newFiles?.[selectedAttributeValue?.path],
-          [pages[page]]: e.target.files[0]
+        [(selectedComponentValue as IFileInfo)?.fileId]: {
+          ...newFiles?.[(selectedComponentValue as IFileInfo)?.fileId],
+          [structure.pages[page]]: e.target.files[0]
         },
       });
     } else {
@@ -142,9 +124,9 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
     if (e.dataTransfer.files[0].type === 'image/svg+xml' || e.dataTransfer.files[0].type === 'application/pdf') {
       setNewFiles({
         ...newFiles,
-        [selectedAttributeValue?.path]: {
-          ...newFiles?.[selectedAttributeValue?.path],
-          [pages[page]]: e.dataTransfer.files[0]
+        [(selectedComponentValue as IFileInfo)?.fileId]: {
+          ...newFiles?.[(selectedComponentValue as IFileInfo)?.fileId],
+          [structure.pages[page]]: e.dataTransfer.files[0]
         },
       });
     } else {
@@ -152,52 +134,52 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
     }
   };
 
-  // Function to update attribute value
-  const updateValue = async (renamedAttributes: any) => {
-    const tempAttributes = { ...renamedAttributes };
+  // Function to update component value
+  const updateValue = async (renamedComponents: IComponents): Promise<IComponents> => {
+    const tempComponents = { ...renamedComponents };
 
     if (menuOf.length === 3) {
-      tempAttributes[menuOf[0]].options[menuOf[1]].options[newAttributeName] = updatedValue;
+      ((tempComponents[menuOf[0]] as IComponent).options[menuOf[1]] as INestedParentLevel1).options[newComponentName] = updatedValue as IFileInfo;
     } else if (menuOf.length === 2) {
-      tempAttributes[menuOf[0]].options[newAttributeName] = updatedValue;
+      (tempComponents[menuOf[0]] as IComponent).options[newComponentName] = updatedValue as IFileInfo | INestedParentLevel1;
     } else if (menuOf.length === 1) {
-      tempAttributes[newAttributeName] = updatedValue;
+      tempComponents[newComponentName] = updatedValue as IComponent;
     }
 
-    return tempAttributes;
+    return tempComponents;
   };
 
-  // Function to delete attribute value
-  const deleteValue = async () => {
-    const tempAttributes = { ...components };
+  // Function to delete component value
+  const deleteValue = async (): Promise<IComponents> => {
+    const tempComponents = { ...structure.components };
 
     if (menuOf.length === 3) {
-      if (tempAttributes[menuOf[0]].options[menuOf[1]].selected === menuOf[menuOf.length - 1]) {
-        tempAttributes[menuOf[0]].options[menuOf[1]].selected = " ";
+      if (((tempComponents[menuOf[0]] as IComponent).options[menuOf[1]] as IComponent).selected === menuOf[menuOf.length - 1]) {
+        ((tempComponents[menuOf[0]] as IComponent).options[menuOf[1]] as IComponent).selected = " ";
       }
-      delete tempAttributes[menuOf[0]].options[menuOf[1]].options[menuOf[menuOf.length - 1]];
+      delete ((tempComponents[menuOf[0]] as IComponent).options[menuOf[1]] as IComponent).options[menuOf[menuOf.length - 1]];
     } else if (menuOf.length === 2) {
-      if (tempAttributes[menuOf[0]].selected === menuOf[menuOf.length - 1]) {
-        tempAttributes[menuOf[0]].selected = "none";
+      if ((tempComponents[menuOf[0]] as IComponent).selected === menuOf[menuOf.length - 1]) {
+        (tempComponents[menuOf[0]] as IComponent).selected = "none";
       }
-      delete tempAttributes[menuOf[0]].options[menuOf[menuOf.length - 1]];
+      delete (tempComponents[menuOf[0]] as IComponent).options[menuOf[menuOf.length - 1]];
     } else if (menuOf.length === 1) {
-      delete tempAttributes[menuOf[menuOf.length - 1]];
+      delete tempComponents[menuOf[menuOf.length - 1]];
     }
 
-    return tempAttributes;
+    return tempComponents;
   };
 
   // Function to extract file paths for deletion
   const extractPaths = async (): Promise<string[]> => {
-    let paths: string[] = [];
+    const paths: string[] = [];
 
     function traverse(current: any): void {
       if (typeof current === 'object' && current !== null) {
-        if (current.fileId&& current.fileId!== "none") {
-          paths.push(current.path);
+        if ('fileId' in current && (current as IFileInfo).fileId !== "none") {
+          paths.push((current as IFileInfo).fileId);
         }
-        for (let key in current) {
+        for (const key in current) {
           if (current[key]) {
             traverse(current[key]);
           }
@@ -209,48 +191,47 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
     return paths;
   };
 
-  // Function to rename attributes
-  const renameAttribute = async (attributes: any, keys: string[], newKey: string) => {
+  // Function to rename components
+  const renameComponent = async (components: IComponents, keys: string[], newKey: string): Promise<IComponents> => {
     if (keys[keys.length - 1] === newKey) {
-      return attributes; // Return early if newKey is the same as the last key
+      return components; // Return early if newKey is the same as the last key
     }
 
     if (keys.length === 1) {
       const oldKey = keys[0];
-      if (attributes[oldKey]) {
-        attributes[newKey] = attributes[oldKey];
-        delete attributes[oldKey];
+      if (components[oldKey]) {
+        components[newKey] = components[oldKey];
+        delete components[oldKey];
       }
     } else if (keys.length === 2) {
       const [category, option] = keys;
-      if (attributes[category] && attributes[category].options) {
-        if (attributes[category].options[option]) {
-          attributes[category].options[newKey] = attributes[category].options[option];
-          delete attributes[category].options[option];
+      if (components[category] && (components[category] as IComponent).options) {
+        if ((components[category] as IComponent).options[option]) {
+          (components[category] as IComponent).options[newKey] = (components[category] as IComponent).options[option];
+          delete (components[category] as IComponent).options[option];
         }
 
         // Update selected if necessary
-        if (attributes[category].selected === option) {
-          attributes[category].selected = newKey;
+        if ((components[category] as IComponent).selected === option) {
+          (components[category] as IComponent).selected = newKey;
         }
       }
     } else if (keys.length === 3) {
       const [category, subcategory, option] = keys;
-      if (attributes[category] && attributes[category].options &&
-        attributes[category].options[subcategory] &&
-        attributes[category].options[subcategory].options) {
+      if (components[category] && (components[category] as IComponent).options &&
+        ((components[category] as IComponent).options[subcategory] as IComponent).options) {
 
-        attributes[category].options[subcategory].options[newKey] = attributes[category].options[subcategory].options[option];
-        delete attributes[category].options[subcategory].options[option];
+        ((components[category] as IComponent).options[subcategory] as IComponent).options[newKey] = ((components[category] as IComponent).options[subcategory] as IComponent).options[option];
+        delete ((components[category] as IComponent).options[subcategory] as IComponent).options[option];
 
         // Update selected if necessary
-        if (attributes[category].options[subcategory].selected === option) {
-          attributes[category].options[subcategory].selected = newKey;
+        if (((components[category] as IComponent).options[subcategory] as IComponent).selected === option) {
+          ((components[category] as IComponent).options[subcategory] as IComponent).selected = newKey;
         }
       }
     }
 
-    return attributes; // Return the updated attributes object
+    return components; // Return the updated components object
   };
 
   // Handle form submission for updating
@@ -258,13 +239,13 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
     e.preventDefault();
     setUpdateLoading(true);
 
-    if (!newAttributeName.trim()) {
-      toast.error("Attribute name field is required.");
+    if (!newComponentName.trim()) {
+      toast.error("Component name field is required.");
       setUpdateLoading(false);
       return;
     }
 
-    if (selectedAttributeValue?.path) {
+    if ((selectedComponentValue as IFileInfo)?.fileId) {
       const fileUploadCount = selectedPages.reduce((count, page) => {
         const exists = fileExistenceStatus[page];
         if (exists) {
@@ -273,8 +254,8 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
         return count;
       }, 0);
 
-      const newFileUploadCount = newFiles?.[selectedAttributeValue?.path]
-        ? Object.keys(newFiles?.[selectedAttributeValue?.path]).length
+      const newFileUploadCount = newFiles?.[(selectedComponentValue as IFileInfo)?.fileId]
+        ? Object.keys(newFiles?.[(selectedComponentValue as IFileInfo)?.fileId]).length
         : 0;
 
       if ((newFileUploadCount + fileUploadCount) < Object.keys(selectedPages).length) {
@@ -298,30 +279,35 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
       setUndoStack([]);
       setRedoStack([]);
 
-      const renamedAttributes = await renameAttribute(components, menuOf, newAttributeName);
-      const updatedcomponents = await updateValue(renamedAttributes);
-      const structure: IStructure = generateHierarchy({
-        updatedComponents: updatedcomponents
-      });
+      const renamedComponents = await renameComponent(structure.components, menuOf, newComponentName);
+      const updatedComponents = await updateValue(renamedComponents);
+      const updatedStructure: IStructure = {
+        ...structure,
+        components: updatedComponents
+      };
 
       const formData = new FormData();
-      formData.append('folder', design.folder);
+      formData.append('folder', contentFolder);
       formData.append('filesToDelete', JSON.stringify(filesToDelete));
       formData.append('deleteFilesOfPages', JSON.stringify(deleteFilesOfPages));
-      formData.append('structure', JSON.stringify(structure));
+      formData.append('structure', JSON.stringify(updatedStructure));
 
       // Add files to FormData
       for (const [title, value] of Object.entries(newFiles)) {
         for (const [folder, file] of Object.entries(value)) {
-          const customName = `${folder}<<&&>>${title}${file.name.slice(-4)}`; // Folder path + filename
-          formData.append('files', file, customName);
+          const customName = `${folder}<<&&>>${title}${(file as File).name.slice(-4)}`; // Folder path + filename
+          formData.append('files', (file as File), customName);
         }
       }
 
-      const data = await updatecomponentsAPI(id!, formData);
+      const data = await updateComponent(formData);
 
-      if (data.success) {
-        setComponents(updatedcomponents);
+      if (data && data.success) {
+
+        setStructureElements({
+          updatedComponents: updatedComponents
+        })
+
         toast.success(data.status);
         const closeButton = document.querySelector("#close");
         if (closeButton instanceof HTMLElement) {
@@ -330,35 +316,41 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
         setNewFiles({});
         incrementFileVersion();
       } else {
-        toast.error(data.status);
+        toast.error(data ? data.status : "Error renaming component.");
       }
     } catch (error) {
-      console.error('Failed to rename attribute:', error);
-      toast.error('Failed to update attribute');
+      console.error('Failed to rename component:', error);
+      toast.error('Failed to update component');
     }
 
     setUpdateLoading(false);
   };
 
-  // Handle attribute deletion
+  // Handle component deletion
   const handleDelete = async () => {
+
+    console.log("callign");
+
     try {
       const updateValueAfterDelete = await deleteValue();
-      const structure: IStructure = generateHierarchy({
-        updatedComponents: updateValueAfterDelete
-      });
+      const updatedStructure = {
+        ...structure,
+        components: updateValueAfterDelete
+      }
 
       const body = {
-        structure: structure,
+        structure: updatedStructure,
         filesToDelete: await extractPaths()
       };
 
-      const data = await deletecomponentsAPI(id!, body);
+      const data = await deleteComponent(body);
 
       console.log(data);
 
-      if (data.success) {
-        setComponents(updateValueAfterDelete);
+      if (data && data.success) {
+        setStructureElements({
+          updatedComponents: updateValueAfterDelete
+        })
         toast.success(data.status);
         const closeButton = document.querySelector("#close");
         if (closeButton instanceof HTMLElement) {
@@ -366,18 +358,18 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
         }
         incrementFileVersion();
       } else {
-        toast.error(data.status);
+        toast.error(data ? data.status : "Error while deleting component.");
       }
     } catch (error) {
-      console.error('Failed to delete attribute:', error);
-      toast.error('Failed to delete attribute');
+      console.error('Failed to delete component:', error);
+      toast.error('Failed to delete component');
     }
   };
 
   // Function to reset all states
   const resetStates = () => {
-    setUpdatedValue(selectedAttributeValue);
-    setNewAttributeName(menuOf[menuOf.length - 1]);
+    setUpdatedValue(selectedComponentValue);
+    setNewComponentName(menuOf[menuOf.length - 1]);
     setNewFiles({});
     setDeleteFilesOfPages([]);
     setFilesToDelete([]);
@@ -387,20 +379,20 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
   // Function to handle page selection
   const handlePageSelection = (pageName: string) => {
     if (selectedPages.includes(pageName)) {
-      let updatedNewFiles = { ...newFiles };
-      const fileName = selectedAttributeValue?.path;
-      delete updatedNewFiles?.[fileName]?.[pages[pageName]];
+      const updatedNewFiles = { ...newFiles };
+      const fileName = (selectedComponentValue as IFileInfo)?.fileId;
+      delete updatedNewFiles?.[fileName]?.[structure.pages[pageName]];
       setNewFiles(updatedNewFiles);
 
       if (fileExistenceStatus[pageName]) {
-        setDeleteFilesOfPages([...deleteFilesOfPages, `${pages[pageName]}<<&&>>${selectedAttributeValue?.path}`]);
+        setDeleteFilesOfPages([...deleteFilesOfPages, `${structure.pages[pageName]}<<&&>>${(selectedComponentValue as IFileInfo)?.fileId}`]);
       }
 
       const tempSelectedPages = selectedPages.filter((page) => page !== pageName);
       setSelectedPages(tempSelectedPages);
     } else {
       const tempDeleteFileOfPages = deleteFilesOfPages.filter(
-        (path) => path !== `${pages[pageName]}<<&&>>${selectedAttributeValue?.path}`
+        (path) => path !== `${structure.pages[pageName]}<<&&>>${(selectedComponentValue as IFileInfo)?.fileId}`
       );
 
       setDeleteFilesOfPages(tempDeleteFileOfPages);
@@ -411,27 +403,27 @@ export const useUpdateForm = ({ id }: UseUpdateFormProps) => {
   // Function to remove a selected file
   const removeSelectedFile = (page: string) => {
     const updatedFiles = { ...newFiles };
-    delete updatedFiles?.[selectedAttributeValue?.path][pages[page]];
+    delete updatedFiles?.[(selectedComponentValue as IFileInfo)?.fileId][structure.pages[page]];
     setNewFiles(updatedFiles);
   };
 
   return {
+    newComponentName,
     updateLoading,
-    operation,
-    setOperation,
-    newAttributeName,
-    setNewAttributeName,
     updatedValue,
-    setUpdatedValue,
-    selectedAttributeValue,
+    operation,
+    selectedComponentValue,
     fileExistenceStatus,
     selectedPages,
-    baseFilePath,
-    pages,
+    baseContentPath,
+    pages: structure.pages,
     newFiles,
     fileCounts,
-    setFileCounts,
     menuOf,
+    setOperation,
+    setNewComponentName,
+    setUpdatedValue,
+    setFileCounts,
     handleFileChange,
     handleDrop,
     handleUpdate,

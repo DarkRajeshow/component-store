@@ -88,6 +88,7 @@ export class DesignService {
 
         const parsedStructure = parseIfUnparsed(structure) as IStructure;
         design.structure = parsedStructure;
+        design.markModified("structure")
         await design.save();
         return { success: true, design };
     }

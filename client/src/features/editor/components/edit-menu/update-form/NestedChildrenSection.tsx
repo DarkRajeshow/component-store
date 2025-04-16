@@ -1,4 +1,4 @@
-import { IAttribute, IAttributeOption } from "@/types/request.types";
+import { IComponent, IFileInfo } from "@/types/project.types";
 import UpdateChild from "./UpdateChild";
 import { memo } from "react";
 
@@ -11,16 +11,15 @@ const NestedChildrenSection = memo(({
     setUpdatedValue,
     fileCounts,
     setFileCounts,
-    path
 }: {
-    value: IAttribute | IAttributeOption;
+    value: IComponent | IFileInfo;
     option: string;
     renamedOption: string;
     updatedValue: any;
     setUpdatedValue: (value: any) => void;
     fileCounts: Record<string, { fileUploads: number; selectedPagesCount: number }>;
     setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
-    path: string;
+    // fileId: string;
 }) => {
     if (!value?.options) return null;
 
@@ -38,8 +37,8 @@ const NestedChildrenSection = memo(({
                         updatedValue={updatedValue}
                         setUpdatedValue={setUpdatedValue}
                         option={subOption}
-                        value={subValue as IAttribute | IAttributeOption}
-                        path={path}
+                        value={subValue as IComponent | IFileInfo}
+                        // fileId={fileId}
                     />
                 ))}
             </div>

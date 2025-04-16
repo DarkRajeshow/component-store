@@ -44,7 +44,7 @@ export function useSideMenu(props: SideMenuProps) {
     const [isCheckingFiles, setIsCheckingFiles] = useState(false);
 
     // Derived values with useMemo
-    const baseFilePath = useMemo(() => `${filePath}${modelType + "s"}/${folder}`, [folder, modelType]);
+    const baseFilePath = useMemo(() => `${filePath}/${modelType + "s"}/${folder}`, [folder, modelType]);
 
     const allowedToClose = useMemo(() => {
         if (structure.baseDrawing && structure.pages) {
@@ -248,10 +248,10 @@ export function useSideMenu(props: SideMenuProps) {
             if (!project?.hierarchy) {
                 return toast.error("Error : Project hierarchy not found.");
             }
-            const attributes = SideMenuService.getComponentsForCategory(project?.hierarchy, tempSelectedCategory);
+            const components = SideMenuService.getComponentsForCategory(project?.hierarchy, tempSelectedCategory);
             const changedPages = SideMenuService.getPagesForCategory(project?.hierarchy, tempSelectedCategory);
             const updatedHierarchy = generateHierarchy({
-                updatedComponents: attributes,
+                updatedComponents: components,
                 updatedCategory: tempSelectedCategory,
                 updatedPages: tempPages,
                 updatedBaseDrawing: tempBaseDrawing,
@@ -308,13 +308,13 @@ export function useSideMenu(props: SideMenuProps) {
             const formData = new FormData();
             formData.append('folder', folder);
 
-            const attributes = SideMenuService.getComponentsForCategory(project?.hierarchy, tempSelectedCategory);
+            const components = SideMenuService.getComponentsForCategory(project?.hierarchy, tempSelectedCategory);
             const changedPages = SideMenuService.getPagesForCategory(project?.hierarchy, tempSelectedCategory);
             const pagesNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
             const folderNames = SideMenuService.getMissingFolderNames(pagesNames, structure.pages);
 
             const updatedHierarchy = generateHierarchy({
-                updatedComponents: attributes,
+                updatedComponents: components,
                 updatedBaseDrawing: {
                     fileId: uniqueFileName,
                 },

@@ -2,24 +2,24 @@ import React from 'react';
 import FileUpload from './FileUpload';
 import FilePreview from './FilePreview';
 
-interface AttributeFileSectionProps {
+interface ComponentFileSectionProps {
   page: string;
   pages: { [key: string]: string };
   selectedFile: File | null;
-  baseFilePath: string;
-  attributePath: string;
+  baseContentPath: string;
+  componentPath: string;
   fileExists: boolean;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   onRemoveFile: () => void;
 }
 
-const AttributeFileSection: React.FC<AttributeFileSectionProps> = ({
+const ComponentFileSection: React.FC<ComponentFileSectionProps> = ({
   page,
   pages,
   selectedFile,
-  baseFilePath,
-  attributePath,
+  baseContentPath,
+  componentPath,
   fileExists,
   onFileChange,
   onDrop,
@@ -59,7 +59,7 @@ const AttributeFileSection: React.FC<AttributeFileSectionProps> = ({
         
         <FilePreview 
           selectedFile={selectedFile}
-          existingFileUrl={`${baseFilePath}/${pages[page]}/${attributePath}.svg`}
+          existingFileUrl={`${baseContentPath}/${pages[page]}/${componentPath}.svg`}
           hasExistingFile={fileExists}
         />
       </div>
@@ -67,4 +67,4 @@ const AttributeFileSection: React.FC<AttributeFileSectionProps> = ({
   );
 };
 
-export default AttributeFileSection;
+export default ComponentFileSection;

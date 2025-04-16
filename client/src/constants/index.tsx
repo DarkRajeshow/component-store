@@ -65,35 +65,35 @@ export const initialStructure = {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             },
             B5: {
                 pages: {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             },
             B14: {
                 pages: {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             },
             B35: {
                 pages: {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             },
             V1: {
                 pages: {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             }
         }
     },
@@ -104,21 +104,21 @@ export const initialStructure = {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             },
             medium: {
                 pages: {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             },
             large: {
                 pages: {
                     gad: uuidv4()
                 },
                 baseDrawing: " ",
-                attributes: {}
+                components: {}
             }
         }
     }

@@ -4,14 +4,14 @@ import useAppStore from '../../../../store/useAppStore';
 import { DialogTrigger } from '@/components/ui/dialog';
 
 
-const EditMenu = ({ attributeOption, setDialogType }) => {
+const EditMenu = ({ componentOption, setDialogType }) => {
 
     const { menuOf, setMenuOf, setUniqueFileName } = useAppStore()
 
     useEffect(() => {
-        const AttributePath = attributeOption.split(">$>");
-        setMenuOf(AttributePath);
-    }, [attributeOption, setMenuOf])
+        const ComponentPath = componentOption.split(">$>");
+        setMenuOf(ComponentPath);
+    }, [componentOption, setMenuOf])
 
     if (menuOf.length === 1) {
         return (
@@ -78,7 +78,7 @@ const EditMenu = ({ attributeOption, setDialogType }) => {
 };
 
 EditMenu.propTypes = {
-    attributeOption: PropTypes.string.isRequired,
+    componentOption: PropTypes.string.isRequired,
     setDialogType: PropTypes.func.isRequired
 };
 

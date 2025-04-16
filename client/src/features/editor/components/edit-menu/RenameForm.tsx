@@ -1,88 +1,95 @@
 import { useState } from 'react';
 import { DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import RenameInput from './update-form/RenameInput';
-import { renameAttributeAPI } from '../../lib/designAPI';
 import { toast } from 'sonner';
-import { useParams } from 'react-router-dom';
 import useAppStore from '../../../../store/useAppStore';
+import { useModel } from '@/contexts/ModelContext';
+import { IStructure } from '@/types/design.types';
+import { IComponents } from '@/types/project.types';
 
 const RenameForm = () => {
-    const { menuOf, components, setComponents, generateHierarchy } = useAppStore();
+    const { menuOf, structure, setStructureElements } = useAppStore();
 
-    const [newAttributeName, setNewAttributeName] = useState(menuOf[menuOf.length - 1]);
+    const { renameComponent } = useModel()
+
+    const [newComponentName, setNewComponentName] = useState(menuOf[menuOf.length - 1]);
     const [renameLoading, setRenameLoading] = useState(false);
-    const { id } = useParams();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!newAttributeName.trim()) return;
+        if (!newComponentName.trim()) return;
 
         setRenameLoading(true);
 
         try {
             // Create a deep copy of components
-            const updatedComponents = JSON.parse(JSON.stringify(components));
+            const updatedComponents = JSON.parse(JSON.stringify(structure.components));
 
-            const renameAttribute = (attributes, keys, newKey) => {
+            const renameComponentFunc = (components: IComponents, keys, newKey) => {
                 if (keys.length === 1) {
                     const oldKey = keys[0];
-                    if (attributes[oldKey]) {
-                        attributes[newKey] = attributes[oldKey];
-                        delete attributes[oldKey];
+                    if (components[oldKey]) {
+                        components[newKey] = components[oldKey];
+                        delete components[oldKey];
                     }
                 } else if (keys.length === 2) {
                     const [category, option] = keys;
-                    if (attributes[category] && attributes[category].options) {
-                        if (attributes[category].options[option]) {
-                            attributes[category].options[newKey] = attributes[category].options[option];
-                            delete attributes[category].options[option];
+                    if (components[category] && components[category].options) {
+                        if (components[category].options[option]) {
+                            components[category].options[newKey] = components[category].options[option];
+                            delete components[category].options[option];
                         }
 
                         // Update selected if necessary
-                        if (attributes[category].selected === option) {
-                            attributes[category].selected = newKey;
+                        if (components[category].selected === option) {
+                            components[category].selected = newKey;
                         }
                     }
                 } else if (keys.length === 3) {
                     const [category, subcategory, option] = keys;
-                    if (attributes[category] && attributes[category].options &&
-                        attributes[category].options[subcategory] &&
-                        attributes[category].options[subcategory].options) {
+                    if (components[category] && components[category].options &&
+                        components[category].options[subcategory] &&
+                        components[category].options[subcategory].options) {
 
-                        attributes[category].options[subcategory].options[newKey] = attributes[category].options[subcategory].options[option];
-                        delete attributes[category].options[subcategory].options[option];
+                        components[category].options[subcategory].options[newKey] = components[category].options[subcategory].options[option];
+                        delete components[category].options[subcategory].options[option];
 
                         // Update selected if necessary
-                        if (attributes[category].options[subcategory].selected === option) {
-                            attributes[category].options[subcategory].selected = newKey;
+                        if (components[category].options[subcategory].selected === option) {
+                            components[category].options[subcategory].selected = newKey;
                         }
                     }
                 }
             };
 
-            renameAttribute(updatedComponents, menuOf, newAttributeName);
+            renameComponentFunc(updatedComponents, menuOf, newComponentName);
 
 
-            let structure = generateHierarchy({ updatedComponents: updatedComponents })
+            // let structure = generateHierarchy({ updatedComponents: updatedComponents })
 
+            const updatedStructure: IStructure = {
+                ...structure,
+                components: updatedComponents
+            }
             const body = {
-                structure: structure
+                structure: updatedStructure
             }
 
-            const data = await renameAttributeAPI(id, body);
+            const data = await renameComponent(body);
 
-            if (data.success) {
-                setComponents(updatedComponents)
+            if (data && data.success) {
+                setStructureElements({ updatedComponents: updatedComponents })
                 toast.success(data.status);
-                document.querySelector("#close").click();
+                (document.querySelector("#close") as HTMLElement)?.click();
+                // await refreshContent();
             }
             else {
-                toast.error(data.status);
+                toast.error(data ? data.status : "Error renaming component.");
             }
         }
 
         catch (error) {
-            console.error('Failed to rename attribute:', error);
+            console.error('Failed to rename component:', error);
         }
 
         setRenameLoading(false);
@@ -91,13 +98,13 @@ const RenameForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
-            <DialogTitle className="text-dark font-medium py-2">Rename Attribute</DialogTitle>
+            <DialogTitle className="text-dark font-medium py-2">Rename Component</DialogTitle>
             <DialogTrigger id='close' className='absolute top-3 right-3 shadow-none'>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
             </DialogTrigger>
-            <RenameInput newAttributeName={newAttributeName} setNewAttributeName={setNewAttributeName} />
+            <RenameInput newComponentName={newComponentName} setNewComponentName={setNewComponentName} />
             <button disabled={renameLoading} type='submit' className={`flex items-center justify-center gap-3 hover:bg-green-300 py-2 px-3 rounded-full text-dark font-medium mt-4 relative ${renameLoading ? "bg-blue-300/60 hover:bg-blue-300/60" : "bg-blue-300"}`}>Rename
                 {
                     renameLoading && <div className='absolute right-4 h-4 w-4 rounded-full bg-transparent border-t-transparent border-[2px] border-green-900 animate-spin' />

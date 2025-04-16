@@ -1,32 +1,32 @@
 import { memo } from 'react';
 import { LucideEllipsisVertical } from 'lucide-react';
 
-interface AttributeValue {
+interface ComponentValue {
     value?: boolean;
     selected?: string;
 }
 
-interface AttributeOptionProps {
-    attribute: string;
-    value: AttributeValue;
+interface ComponentOptionProps {
+    component: string;
+    value: ComponentValue;
     openDropdown: string | null;
-    toggleDropdown: (attribute: string) => void;
-    handleToggle: (attribute: string) => void;
-    handleToggleContextMenu: (attribute: string) => void;
+    toggleDropdown: (component: string) => void;
+    handleToggle: (component: string) => void;
+    handleToggleContextMenu: (component: string) => void;
     menuVisible: string | boolean;
 }
 
-// Single attribute option component
-const AttributeOption = memo(({ 
-    attribute, 
+// Single component option component
+const ComponentOption = memo(({ 
+    component, 
     value, 
     openDropdown, 
     toggleDropdown, 
     handleToggle, 
     handleToggleContextMenu,
     menuVisible
-}: AttributeOptionProps) => {
-    const isBase = attribute === "base";
+}: ComponentOptionProps) => {
+    const isBase = component === "base";
     const isBoolean = typeof value.value === 'boolean';
     const isChecked = isBoolean ? value.value : value?.selected !== 'none';
     
@@ -43,17 +43,17 @@ const AttributeOption = memo(({
                     onChange={() => {
                         if (isBase) return;
                         if (isBoolean) {
-                            handleToggle(attribute);
+                            handleToggle(component);
                         } else {
-                            if (menuVisible) handleToggleContextMenu(attribute);
-                            toggleDropdown(attribute);
+                            if (menuVisible) handleToggleContextMenu(component);
+                            toggleDropdown(component);
                         }
                     }}
                     hidden
                 />
                 <div className='flex items-center gap-2'>
                     <span className={`h-5 w-5 flex items-center justify-center rounded-full ${
-                        openDropdown === attribute ? "border border-dark" : ""
+                        openDropdown === component ? "border border-dark" : ""
                     } ${isChecked ? "bg-green-300/60" : "bg-design/30"}`}>
                         {isBoolean && isChecked && (
                             <svg 
@@ -75,20 +75,20 @@ const AttributeOption = memo(({
                                 viewBox="0 0 24 24" 
                                 strokeWidth={1.5} 
                                 stroke="currentColor" 
-                                className={`size-[12px] text-dark ${openDropdown === attribute ? "rotate-180" : "rotate-0"}`}
+                                className={`size-[12px] text-dark ${openDropdown === component ? "rotate-180" : "rotate-0"}`}
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                             </svg>
                         )}
                     </span>
                     <span className="py-0 text-dark text-xs cursor-pointer capitalize font-[430]">
-                        {attribute}
+                        {component}
                     </span>
                 </div>
             </label>
 
             <span 
-                onClick={() => handleToggleContextMenu(attribute)} 
+                onClick={() => handleToggleContextMenu(component)} 
                 className='hover:bg-dark/5 p-1 rounded-full'
             >
                 <LucideEllipsisVertical 
@@ -100,6 +100,6 @@ const AttributeOption = memo(({
     );
 });
 
-AttributeOption.displayName = 'AttributeOption';
+ComponentOption.displayName = 'ComponentOption';
 
-export default AttributeOption;
+export default ComponentOption;

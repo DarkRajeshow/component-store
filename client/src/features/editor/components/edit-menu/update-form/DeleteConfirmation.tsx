@@ -16,7 +16,7 @@ const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({ onDelete, onCan
           <AlertTriangle className="h-5 w-5" />
           <h2 className="font-medium">This action cannot be undone</h2>
         </div>
-        <p className="text-gray-700">Are you sure you want to delete this attribute?</p>
+        <p className="text-gray-700">Are you sure you want to delete this component?</p>
         <div className="flex items-center gap-3 mt-2">
           <Button 
             variant="destructive" 

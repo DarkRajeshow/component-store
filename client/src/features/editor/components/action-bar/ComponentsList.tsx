@@ -1,30 +1,30 @@
 import { memo, useMemo } from 'react';
-import AttributeOption from './AttributeOption';
+import ComponentOption from './ComponentOption';
 import RenderOptions from './RenderOptions';
 import EditMenu from './EditMenu';
-import { IAttributeOption } from '@/types/request.types';
+import { IComponentOptions } from '@/types/project.types';
 
-interface DesignAttribute {
-    options?: Record<string, IAttributeOption>; // You might want to define a more specific type for options
+interface DesignComponent {
+    options?: IComponentOptions; // You might want to define a more specific type for options
     value?: boolean | undefined;     // Define specific type based on your needs
 }
 
 interface components {
-    [key: string]: DesignAttribute;
+    [key: string]: DesignComponent;
 }
 
-interface AttributesListProps {
+interface ComponentsListProps {
     components: components | null;
     openDropdown: string;
     menuVisible: string | boolean;
     handleToggle: (key: string) => void;
-    toggleDropdown: (attribute: string) => void;
-    handleToggleContextMenu: (attribute: string, subOption?: string, subSubOption?: string) => void;
+    toggleDropdown: (component: string) => void;
+    handleToggleContextMenu: (component: string, subOption?: string, subSubOption?: string) => void;
     pushToUndoStack: () => void;
     setDialogType: (type: string) => void;
 }
 
-const AttributesList = memo(({
+const ComponentsList = memo(({
     components,
     openDropdown,
     menuVisible,
@@ -33,35 +33,35 @@ const AttributesList = memo(({
     handleToggleContextMenu,
     pushToUndoStack,
     setDialogType
-}: AttributesListProps) => {
-    const sortedAttributes = useMemo(() => {
+}: ComponentsListProps) => {
+    const sortedComponents = useMemo(() => {
         if (!components) return [];
 
         return Object.entries(components)
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([attribute, value]) => ({
-                attribute,
+            .map(([component, value]) => ({
+                component,
                 value
             }));
     }, [components]);
 
-    if (!components || sortedAttributes.length === 0) {
-        return <div className="flex items-center justify-center p-4">No attributes found</div>;
+    if (!components || sortedComponents.length === 0) {
+        return <div className="flex items-center justify-center p-4">No components found</div>;
     }
 
     return (
         <>
-            {sortedAttributes.map(({ attribute, value }) => (
+            {sortedComponents.map(({ component, value }) => (
                 <div
                     className="relative text-xs"
-                    key={attribute}
-                    onMouseEnter={() => {
-                        if (attribute === 'base' || menuVisible) return;
-                        toggleDropdown(attribute);
+                    key={component}
+                    onClick={() => {
+                        if (component === 'base' || menuVisible) return;
+                        toggleDropdown(component);
                     }}
                 >
-                    <AttributeOption
-                        attribute={attribute}
+                    <ComponentOption
+                        component={component}
                         value={value}
                         openDropdown={openDropdown}
                         toggleDropdown={toggleDropdown}
@@ -70,7 +70,7 @@ const AttributesList = memo(({
                         menuVisible={menuVisible}
                     />
 
-                    {openDropdown === attribute && value.options && (
+                    {openDropdown === component && value.options && (
                         <div
                             onMouseLeave={() => handleToggleContextMenu('')}
                             className="absolute border border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max py-2"
@@ -80,17 +80,17 @@ const AttributesList = memo(({
                                 menuVisible={menuVisible}
                                 pushToUndoStack={pushToUndoStack}
                                 handleToggleContextMenu={handleToggleContextMenu}
-                                attribute={attribute}
+                                component={component}
                                 options={value.options}
                             />
                         </div>
                     )}
 
-                    {menuVisible === attribute && (
+                    {menuVisible === component && (
                         <div className="absolute -right-[40px] border border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max">
                             <EditMenu
                                 setDialogType={setDialogType}
-                                attributeOption={menuVisible}
+                                componentOption={menuVisible}
                             />
                         </div>
                     )}
@@ -100,6 +100,6 @@ const AttributesList = memo(({
     );
 });
 
-AttributesList.displayName = 'AttributesList';
+ComponentsList.displayName = 'ComponentsList';
 
-export default AttributesList;
+export default ComponentsList;

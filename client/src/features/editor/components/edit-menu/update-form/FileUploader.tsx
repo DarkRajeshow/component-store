@@ -11,7 +11,7 @@ const FileUploader = memo(({
     handleDrop,
     selectedFile,
     fileExists = false,
-    baseFilePath = "",
+    baseContentPath = "",
     valuePath = "",
     removeFile
 }: {
@@ -21,7 +21,7 @@ const FileUploader = memo(({
     handleDrop: (e: any, page: string) => void;
     selectedFile: File | null | undefined;
     fileExists?: boolean;
-    baseFilePath?: string;
+    baseContentPath?: string;
     valuePath?: string;
     removeFile: (page: string) => void;
 }) => { 
@@ -92,7 +92,7 @@ const FileUploader = memo(({
                         ) : (
                             fileExists ? (
                                 <img
-                                    src={`${baseFilePath}/${pagePath}/${valuePath}.svg`}
+                                    src={`${baseContentPath}/${pagePath}/${valuePath}.svg`}
                                     alt="base drawing"
                                     className="w-full rounded-xl"
                                 />

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { IBaseDrawing, IComponent, INormalComponent, IStructure } from '@/types/design.types';
+import { IBaseDrawing, IComponent, INormalComponent } from '@/types/design.types';
 import { checkFileExists } from '@/utils/checkFileExists';
 import { IComponents, IPages } from '@/types/project.types';
 
@@ -16,6 +16,14 @@ interface UseSVGPathsProps {
   baseContentPath: string;
 }
 
+// http://localhost:8080/api/uploads/projects/7ed67452-9386-42ef-a9cf-a7ad01c60465/edd21e7c-ba62-45c4-9949-5428b064a6bb/75298797-d67a-464c-8d4d-573c0c4d3030
+// 
+
+// http://localhost:8080/api/uploads/projects/7ed67452-9386-42ef-a9cf-a7ad01c60465/edd21e7c-ba62-45c4-9949-5428b064a6bb/75298797-d67a-464c-8d4d-573c0c4d3030/f0326e80-b1c7-4d90-aeb0-775a6f094f62.svg
+
+// /uploads/projects/7ed67452-9386-42ef-a9cf-a7ad01c60465/edd21e7c-ba62-45c4-9949-5428b064a6bb/75298797-d67a-464c-8d4d-573c0c4d3030/668ec1dd-bbf2-465b-bb66-0c2494094348.svg
+// "http://localhost:8080/api/uploads/projects/7ed67452-9386-42ef-a9cf-a7ad01c60465/edd21e7c-ba62-45c4-9949-5428b064a6bb/e96e43a8-3419-40d9-9627-a084cf84ed1d/f0326e80-b1c7-4d90-aeb0-775a6f094f62.svg?v=1"
+
 export const useSVGPaths = ({
   fileVersion,
   selectedPage,
@@ -27,7 +35,7 @@ export const useSVGPaths = ({
   const [existingFiles, setExistingFiles] = useState<ExistingFiles>({});
   const [isBaseDrawingExists, setIsBaseDrawingExists] = useState(false);
 
-  // Get SVG path for a specific attribute
+  // Get SVG path for a specific component
   const getSVGPath = useCallback((value: IComponent | INormalComponent | null): string | null => {
     if (!value) return null;
 
@@ -70,6 +78,7 @@ export const useSVGPaths = ({
 
   // Generate all file paths
   const filePaths = useMemo(() => {
+    console.log("working");
     if (!components) {
       return []
     }
@@ -90,6 +99,7 @@ export const useSVGPaths = ({
       setExistingFiles((prev) => ({ ...prev, ...results }));
     };
 
+    console.log(filePaths);
     if (filePaths.length > 0) {
       fetchFileExistence();
     }
@@ -103,7 +113,7 @@ export const useSVGPaths = ({
     };
 
     if (baseDrawing?.fileId) {
-      checkBaseFileExistence(`${baseContentPath}/${pages[selectedPage]}/${baseDrawing.fileId}.svg`);
+      checkBaseFileExistence(`${baseContentPath}//${pages[selectedPage]}/${baseDrawing.fileId}.svg`);
     }
   }, [baseDrawing, baseContentPath, pages, selectedPage]);
 

@@ -17,41 +17,30 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 // API and Utils
-import { addNewAttributeAPI, addNewParentAttributeAPI } from '../../lib/designAPI';
 import { handleClick } from '../../../../utils/dragDrop';
 import useAppStore from '../../../../store/useAppStore';
 import DisplayOptions from '../action-bar/DisplayOptions';
-import { IDesign, IStructure, ApiResponse } from '../../../../types/request.types';
+import { useModel } from '@/contexts/ModelContext';
+import { IComponentOperationResponse, IStructure } from '@/types/design.types';
+import { IComponents } from '@/types/project.types';
 
-// Types
-interface StoreState {
-    loading: boolean;
-    design: IDesign;
-    fetchProject: (id: string) => void;
-    uniqueFileName: string;
-    generateHierarchy: (params: { updatedComponents: Record<string, any> }) => IStructure;
-    setUndoStack: (stack: any[]) => void;
-    setRedoStack: (stack: any[]) => void;
-    pages: Record<string, string>;
-}
-
-interface AttributeType {
+interface ComponentType {
     value: string;
     Description: string;
 }
 
 interface AddFormProps {
-    attributeType: string;
-    setOldAttributeFileName: (name: string) => void;
-    attributeFileName: string;
-    setAttributeFileName: (name: string) => void;
-    newAttributeTypes: AttributeType[];
-    setAttributeType: (type: string) => void;
+    componentType: string;
+    setOldComponentFileName: (name: string) => void;
+    componentFileName: string;
+    setComponentFileName: (name: string) => void;
+    newComponentTypes: ComponentType[];
+    setComponentType: (type: string) => void;
     levelOneNest: string;
     setLevelOneNest: (nest: string) => void;
     levelTwoNest: string;
     setLevelTwoNest: (nest: string) => void;
-    tempcomponents: Record<string, any>;
+    tempComponents: IComponents;
 }
 
 interface CustomizationFiles {
@@ -206,7 +195,7 @@ const PageSelectionSection: React.FC<{
             setSelectedPages(tempSelectedPages);
         } else {
             // Add page
-            setSelectedPages((prev) => [...prev, pageName]);
+            setSelectedPages((prev) => [pageName, ...prev]);
         }
     }, [pages, selectedPages, setSelectedPages, newCustomizationFiles, setNewCustomizationFiles]);
 
@@ -231,23 +220,23 @@ const PageSelectionSection: React.FC<{
     );
 };
 
-// Attribute Type Selection Component
-const AttributeTypeSection: React.FC<{
-    attributeType: string;
-    setAttributeType: (type: string) => void;
-    attributeTypes: AttributeType[];
-}> = ({ attributeType, setAttributeType, attributeTypes }) => {
+// Component Type Selection Component
+const ComponentTypeSection: React.FC<{
+    componentType: string;
+    setComponentType: (type: string) => void;
+    componentTypes: ComponentType[];
+}> = ({ componentType, setComponentType, componentTypes }) => {
     return (
         <div className="space-y-2">
-            <Label htmlFor="attribute-type" className="text-black font-medium">
-                Select Attribute type
+            <Label htmlFor="component-type" className="text-black font-medium">
+                Select Component type
             </Label>
-            <Select value={attributeType} onValueChange={setAttributeType}>
+            <Select value={componentType} onValueChange={setComponentType}>
                 <SelectTrigger className="w-full bg-white/80">
-                    <SelectValue placeholder="Select attribute type" />
+                    <SelectValue placeholder="Select component type" />
                 </SelectTrigger>
                 <SelectContent>
-                    {attributeTypes.map((attType, index) => (
+                    {componentTypes.map((attType, index) => (
                         <SelectItem key={index} value={attType.value}>
                             {index + 1 + ". " + attType.Description}
                         </SelectItem>
@@ -258,8 +247,8 @@ const AttributeTypeSection: React.FC<{
     );
 };
 
-// Parent Attribute Selection Component
-const ParentAttributeSection: React.FC<{
+// Parent Component Selection Component
+const ParentComponentSection: React.FC<{
     level: number;
     levelOneNest: string;
     setLevelOneNest: (nest: string) => void;
@@ -270,15 +259,15 @@ const ParentAttributeSection: React.FC<{
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="parent-attribute" className="text-black font-medium">
-                    Select Parent Attribute
+                <Label htmlFor="parent-component" className="text-black font-medium">
+                    Select Parent Component
                 </Label>
                 <Select value={levelOneNest} onValueChange={setLevelOneNest}>
                     <SelectTrigger className="w-full bg-white/80">
-                        <SelectValue placeholder="Select parent attribute" />
+                        <SelectValue placeholder="Select parent component" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value=" " disabled>Select Parent Attribute</SelectItem>
+                        <SelectItem value=" " disabled>Select Parent Component</SelectItem>
                         <DisplayOptions level={0} levelOneNest="" isNestedLevel2={isNestedLevel2} />
                     </SelectContent>
                 </Select>
@@ -286,15 +275,15 @@ const ParentAttributeSection: React.FC<{
 
             {level === 2 && levelOneNest && setLevelTwoNest && (
                 <div className="space-y-2">
-                    <Label htmlFor="nested-attribute" className="text-black font-medium">
-                        Select Level 1 Nested Attribute
+                    <Label htmlFor="nested-component" className="text-black font-medium">
+                        Select Level 1 Nested Component
                     </Label>
                     <Select value={levelTwoNest || ""} onValueChange={setLevelTwoNest}>
                         <SelectTrigger className="w-full bg-white/80">
-                            <SelectValue placeholder="Select level 1 nested attribute" />
+                            <SelectValue placeholder="Select level 1 nested component" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="" disabled>Select Level 1 Nested Attribute</SelectItem>
+                            <SelectItem value="" disabled>Select Level 1 Nested Component</SelectItem>
                             <DisplayOptions level={1} levelOneNest={levelOneNest} />
                         </SelectContent>
                     </Select>
@@ -306,57 +295,57 @@ const ParentAttributeSection: React.FC<{
 
 // SOLID: Main component with dependency injection and separation of concerns
 const AddForm: React.FC<AddFormProps> = ({
-    attributeType,
-    setOldAttributeFileName,
-    attributeFileName,
-    setAttributeFileName,
-    newAttributeTypes,
-    setAttributeType,
+    componentType,
+    setOldComponentFileName,
+    componentFileName,
+    setComponentFileName,
+    newComponentTypes,
+    setComponentType,
     levelOneNest,
     setLevelOneNest,
     levelTwoNest,
     setLevelTwoNest,
-    tempcomponents
+    tempComponents
 }) => {
     // Get store data
     const store = useAppStore();
     const {
         loading,
-        design,
-        fetchProject,
+        content,
         uniqueFileName,
-        generateHierarchy,
+        structure,
         setUndoStack,
         setRedoStack,
-        pages
-    } = store as unknown as StoreState;
+    } = store;
 
+
+    const { addComponent, addParentComponent, refreshContent } = useModel()
     const { id } = useParams<{ id: string }>();
 
     // Local state
-    const [addAttributeLoading, setAddAttributeLoading] = useState<boolean>(false);
+    const [addComponentLoading, setAddComponentLoading] = useState<boolean>(false);
     const [selectedPages, setSelectedPages] = useState<string[]>(['gad']);
     const [newCustomizationFiles, setNewCustomizationFiles] = useState<CustomizationFiles>({});
 
-    // Determine if this is a parent attribute type
-    const isParentAttributeType = useMemo(() => {
-        return attributeType === "nestedParentLevel0" || attributeType === "nestedParentLevel1";
-    }, [attributeType]);
+    // Determine if this is a parent component type
+    const isParentComponentType = useMemo(() => {
+        return componentType === "nestedParentLevel0" || componentType === "nestedParentLevel1";
+    }, [componentType]);
 
     // SOLID: Single Responsibility - API calls extracted to separate functions
 
 
     // Handle API response
-    const handleApiResponse = useCallback((data: ApiResponse<any>) => {
+    const handleApiResponse = useCallback((data: IComponentOperationResponse) => {
         if (data.success) {
-            toast.success(data.message || 'Operation successful');
+            toast.success(data.status || 'Operation successful');
             setNewCustomizationFiles({});
-            setAttributeFileName("");
-            if (id) fetchProject(id);
+            setComponentFileName("");
+            refreshContent();
         } else {
-            toast.error(data.error || 'Operation failed');
+            toast.error(data.status || 'Operation failed');
         }
-    }, [fetchProject, id, setAttributeFileName]);
+    }, [refreshContent, setComponentFileName]);
 
     // Close dialog
     const closeDialog = useCallback(() => {
@@ -367,89 +356,93 @@ const AddForm: React.FC<AddFormProps> = ({
     }, []);
 
 
-    // Add new parent attribute (no files)
-    const addNewParentAttribute = useCallback(async (): Promise<void> => {
-        if (!id) {
-            toast.error("No design ID found");
-            return;
-        }
-
-        setAddAttributeLoading(true);
-
+    // Add new parent component (no files)
+    const addParentComponentOperation = useCallback(async (): Promise<void> => {
+        setAddComponentLoading(true);
         try {
-            const structure = generateHierarchy({
-                updatedComponents: tempcomponents
+            const updatedStructure: IStructure = {
+                ...structure,
+                components: tempComponents
+            }
+
+            const data = await addParentComponent({
+                structure: updatedStructure
             });
 
-            const data = await addNewParentAttributeAPI(id, structure);
-            handleApiResponse(data);
+            if (data) {
+                handleApiResponse(data);
+            }
+
         } catch (error) {
             console.error(error);
-            toast.error('Failed to add parent attribute.');
+            toast.error('Failed to add parent component.');
         } finally {
-            setAddAttributeLoading(false);
+            setAddComponentLoading(false);
             closeDialog();
         }
-    }, [id, generateHierarchy, tempcomponents, closeDialog, handleApiResponse]);
+    }, [addParentComponent, structure, tempComponents, closeDialog, handleApiResponse]);
 
-    // Add new attribute with files
-    const addNewAttribute = useCallback(async (): Promise<void> => {
+    // Add new component with files
+    const addComponentOperation = useCallback(async (): Promise<void> => {
         if (!id) {
             toast.error("No design ID found");
             return;
         }
 
         const formData = new FormData();
-        setAddAttributeLoading(true);
+        setAddComponentLoading(true);
 
         try {
-            if (!loading && design) {
-                const structure = generateHierarchy({
-                    updatedComponents: tempcomponents
-                });
+            if (!loading && content) {
+                const updatedStructure: IStructure = {
+                    ...structure,
+                    components: tempComponents
+                }
 
                 // Passing folder, structure, and files in formdata
-                formData.append('folder', design.folder);
-                formData.append('structure', JSON.stringify(structure));
+                formData.append('folder', content.folder);
+                formData.append('structure', JSON.stringify(updatedStructure));
 
-                for (const [folder, file] of Object.entries(newCustomizationFiles)) {
-                    const customName = `${folder}<<&&>>${uniqueFileName}${file.name.slice(-4)}`; // Folder path + filename
+                for (const [pageFolder, file] of Object.entries(newCustomizationFiles)) {
+                    const customName = `${pageFolder}<<&&>>${uniqueFileName}${file.name.slice(-4)}`; // Folder path + filename
                     formData.append('files', file, customName);
                 }
             }
 
-            const data = await addNewAttributeAPI(id, formData);
-            handleApiResponse(data);
+            const data = await addComponent(formData);
+            if (data) {
+                handleApiResponse(data);
+            }
         } catch (error) {
             console.error(error);
-            toast.error('Failed to add a customization attribute.');
+            toast.error('Failed to add a customization component.');
         } finally {
-            setAddAttributeLoading(false);
+            setAddComponentLoading(false);
             closeDialog();
         }
 
-    }, [id, loading, design, generateHierarchy, tempcomponents, uniqueFileName, newCustomizationFiles, closeDialog, handleApiResponse]);
+    }, [id, loading, content, addComponent, structure, tempComponents, uniqueFileName, newCustomizationFiles, closeDialog, handleApiResponse]);
 
 
     // Handle form submission
-    const handleSubmit = useCallback((e: React.FormEvent) => {
+    const handleAddComponentOperation = useCallback((e: React.FormEvent) => {
         e.preventDefault();
         setUndoStack([]);
         setRedoStack([]);
 
-        if (isParentAttributeType) {
-            addNewParentAttribute();
+        if (isParentComponentType) {
+            addParentComponentOperation();
         } else {
             if (!newCustomizationFiles || (selectedPages.length !== Object.keys(newCustomizationFiles).length)) {
                 toast.error(`You need to upload ${selectedPages.length} files, but you've only uploaded ${Object.keys(newCustomizationFiles).length}.`);
                 return;
             }
-            addNewAttribute();
+            addComponentOperation();
         }
-    }, [isParentAttributeType, addNewParentAttribute, addNewAttribute, selectedPages.length, newCustomizationFiles, setUndoStack, setRedoStack]);
+    }, [isParentComponentType, addParentComponentOperation, addComponentOperation, selectedPages.length, newCustomizationFiles, setUndoStack, setRedoStack]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-[715px]">
+        <form onSubmit={handleAddComponentOperation} className="flex flex-col gap-4 min-w-[715px]">
             <div className="flex items-center justify-between">
                 <DialogTitle className="text-xl font-medium">Add New Customization Option</DialogTitle>
                 <DialogTrigger id="closeButton" asChild>
@@ -463,10 +456,10 @@ const AddForm: React.FC<AddFormProps> = ({
             <DialogDescription hidden />
 
             <div className="space-y-6">
-                {/* Attribute Name Input */}
+                {/* Component Name Input */}
                 <div className="space-y-2">
-                    <Label htmlFor="attribute-name" className="text-black font-medium">
-                        Attribute Name
+                    <Label htmlFor="component-name" className="text-black font-medium">
+                        Component Name
                     </Label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -475,37 +468,37 @@ const AddForm: React.FC<AddFormProps> = ({
                             </svg>
                         </div>
                         <Input
-                            id="attribute-name"
+                            id="component-name"
                             required
-                            value={attributeFileName}
+                            value={componentFileName}
                             onChange={(e) => {
-                                setOldAttributeFileName(attributeFileName);
-                                setAttributeFileName(e.target.value);
+                                setOldComponentFileName(componentFileName);
+                                setComponentFileName(e.target.value);
                             }}
                             className="pl-10"
-                            placeholder="Attribute name"
+                            placeholder="Component name"
                         />
                     </div>
                 </div>
 
-                {/* Attribute Type Selection */}
-                <AttributeTypeSection
-                    attributeType={attributeType}
-                    setAttributeType={setAttributeType}
-                    attributeTypes={newAttributeTypes}
+                {/* Component Type Selection */}
+                <ComponentTypeSection
+                    componentType={componentType}
+                    setComponentType={setComponentType}
+                    componentTypes={newComponentTypes}
                 />
 
-                {/* Nested Attribute Selection */}
-                {attributeType === "nestedChildLevel1" && (
-                    <ParentAttributeSection
+                {/* Nested Component Selection */}
+                {componentType === "nestedChildLevel1" && (
+                    <ParentComponentSection
                         level={1}
                         levelOneNest={levelOneNest}
                         setLevelOneNest={setLevelOneNest}
                     />
                 )}
 
-                {attributeType === "nestedChildLevel2" && (
-                    <ParentAttributeSection
+                {componentType === "nestedChildLevel2" && (
+                    <ParentComponentSection
                         level={2}
                         levelOneNest={levelOneNest}
                         setLevelOneNest={setLevelOneNest}
@@ -515,8 +508,8 @@ const AddForm: React.FC<AddFormProps> = ({
                     />
                 )}
 
-                {attributeType === "nestedParentLevel1" && (
-                    <ParentAttributeSection
+                {componentType === "nestedParentLevel1" && (
+                    <ParentComponentSection
                         level={1}
                         levelOneNest={levelOneNest}
                         setLevelOneNest={setLevelOneNest}
@@ -525,17 +518,17 @@ const AddForm: React.FC<AddFormProps> = ({
 
                 <Separator />
 
-                {/* Parent Attribute Note or File Upload Section */}
-                {isParentAttributeType ? (
+                {/* Parent Component Note or File Upload Section */}
+                {isParentComponentType ? (
                     <div className="bg-blue-50 p-4 rounded-md">
                         <p className="text-blue-800">
-                            * No need for any file uploads, add the options inside this attribute.
+                            * No need for any file uploads, add the options inside this component.
                         </p>
                     </div>
                 ) : (
                     <>
                         <PageSelectionSection
-                            pages={pages}
+                            pages={structure.pages}
                             selectedPages={selectedPages}
                             setSelectedPages={setSelectedPages}
                             newCustomizationFiles={newCustomizationFiles}
@@ -547,7 +540,7 @@ const AddForm: React.FC<AddFormProps> = ({
                                 <FileUploadSection
                                     key={page}
                                     page={page}
-                                    pages={pages}
+                                    pages={structure.pages}
                                     newCustomizationFiles={newCustomizationFiles}
                                     setNewCustomizationFiles={setNewCustomizationFiles}
                                 />
@@ -559,10 +552,10 @@ const AddForm: React.FC<AddFormProps> = ({
 
             <Button
                 type="submit"
-                disabled={(attributeType !== "nestedParentLevel0" && attributeType !== "nestedParentLevel1") && selectedPages.length === 0}
+                disabled={(componentType !== "nestedParentLevel0" && componentType !== "nestedParentLevel1") && selectedPages.length === 0}
                 className="mt-4 self-end"
             >
-                {addAttributeLoading ? (
+                {addComponentLoading ? (
                     <>
                         <span className="mr-2">Creating...</span>
                         <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

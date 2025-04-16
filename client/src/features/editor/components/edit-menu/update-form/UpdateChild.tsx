@@ -1,7 +1,7 @@
 
 import { memo } from 'react';
 import AddChild from './AddChild';
-import { IAttribute, IAttributeOption } from '../../../../../types/request.types';
+import { IComponent, IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from '@/types/project.types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
@@ -18,11 +18,11 @@ interface UpdateChildProps {
     nestedIn?: string;
     setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
     fileCounts: Record<string, { fileUploads: number; selectedPagesCount: number }>;
-    setUpdatedValue: (value: any) => void;
-    updatedValue: any;
-    path: string[];
+    setUpdatedValue: (value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null) => void;
+    updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+    // path: string[];
     option: string;
-    value: IAttribute | IAttributeOption;
+    value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
 }
 
 // Main UpdateChild component
@@ -35,7 +35,7 @@ const UpdateChild = memo(({
     updatedValue,
     option,
     value,
-    path
+    // path
 }: UpdateChildProps) => {
     // Use the custom hook to handle all the logic
     const {
@@ -43,6 +43,9 @@ const UpdateChild = memo(({
         operation,
         fileExistenceStatus,
         selectedPages,
+        baseContentPath,
+        pages,
+        newFiles,
         handleFileChange,
         handleDrop,
         handleDelete,
@@ -50,24 +53,25 @@ const UpdateChild = memo(({
         togglePageSelection,
         removeFile,
         setOperation,
-        baseFilePath,
-        pages,
-        newFiles,
         shouldRender
     } = useUpdateChild({
         parentOption,
         nestedIn,
         option,
         value,
+        updatedValue,
         setFileCounts,
         setUpdatedValue,
-        updatedValue
     });
 
     // Don't render if this option doesn't exist in the updated value
     if (!shouldRender()) {
         return null;
     }
+
+
+    console.log(value);
+    
 
     return (
         <div className="w-full mb-3">
@@ -79,16 +83,15 @@ const UpdateChild = memo(({
                         className='w-[90%] font-medium uppercase text-green-700 cursor-pointer'
                     >
                         {renamedOption}
-
                     </h1>
                     <div className='flex items-center gap-3'>
-                        {value?.selected && (
+                        {(value as IComponent)?.selected && (
                             <Button
                                 type='button'
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setOperation(op => op === "add" ? "" : "add")}
-                                title="Add child attribute"
+                                title="Add child component"
                                 className={`h-8 w-8 ${operation === "add" ? "bg-green-100" : ""}`}
                             >
                                 <PlusIcon className="h-5 w-5 text-green-600" />
@@ -100,7 +103,7 @@ const UpdateChild = memo(({
                             variant="ghost"
                             size="icon"
                             onClick={() => setOperation(op => op === "update" ? "" : "update")}
-                            title="Edit attribute"
+                            title="Edit component"
                             className={`h-8 w-8 ${operation === "update" ? "bg-blue-100" : ""}`}
                         >
                             <PencilIcon className="h-5 w-5 text-blue-600" />
@@ -111,7 +114,7 @@ const UpdateChild = memo(({
                             variant="ghost"
                             size="icon"
                             onClick={() => setOperation(op => op === "delete" ? "" : "delete")}
-                            title="Delete attribute"
+                            title="Delete component"
                             className={`h-8 w-8 ${operation === "delete" ? "bg-red-100" : ""}`}
                         >
                             <Trash2Icon className="h-5 w-5 text-red-600" />
@@ -126,9 +129,9 @@ const UpdateChild = memo(({
                             <Card className="overflow-hidden">
                                 <CardContent className="p-4">
                                     <RenameSection renamedOption={renamedOption} handleRename={handleRename} />
-
                                     {/* File upload section - only shown for options with a path */}
-                                    {(value?.fileId && option !== "none") && (
+                                    {/* <p>{(value as IFileInfo)?.fileId ? "Sdf": "SDf2"}</p> */}
+                                    {((value as IFileInfo)?.fileId && option !== "none") && (
                                         <div className="mt-4">
                                             <PageSelector
                                                 pages={pages}
@@ -138,7 +141,7 @@ const UpdateChild = memo(({
 
                                             <div className='flex flex-col gap-4'>
                                                 {selectedPages.map(page => {
-                                                    const valuePath = value.fileId|| "";
+                                                    const valuePath = (value as IFileInfo).fileId || "";
                                                     const pagePath = pages[page];
                                                     const selectedFile = valuePath && newFiles?.[valuePath]?.[pagePath]
                                                         ? newFiles[valuePath][pagePath]
@@ -153,7 +156,7 @@ const UpdateChild = memo(({
                                                             handleDrop={handleDrop}
                                                             selectedFile={selectedFile}
                                                             fileExists={fileExistenceStatus[page]}
-                                                            baseFilePath={baseFilePath}
+                                                            baseContentPath={baseContentPath}
                                                             valuePath={valuePath}
                                                             removeFile={removeFile}
                                                         />
@@ -166,7 +169,7 @@ const UpdateChild = memo(({
                             </Card>
 
                             {/* Nested children section */}
-                            {value?.options && (
+                            {(value as IComponent)?.options && (
                                 <NestedChildrenSection
                                     value={value}
                                     option={option}
@@ -175,7 +178,6 @@ const UpdateChild = memo(({
                                     setUpdatedValue={setUpdatedValue}
                                     fileCounts={fileCounts}
                                     setFileCounts={setFileCounts}
-                                    path={value.fileId|| ''}
                                 />
                             )}
                         </div>
@@ -194,7 +196,7 @@ const UpdateChild = memo(({
                         <Card className="bg-white/40">
                             <CardContent className="py-4 px-4 flex flex-col gap-3">
                                 <h1>
-                                    Add child attribute in <span className='text-red-500'>{renamedOption}</span>
+                                    Add child component in <span className='text-red-500'>{renamedOption}</span>
                                 </h1>
                                 <AddChild
                                     updatedValue={updatedValue}

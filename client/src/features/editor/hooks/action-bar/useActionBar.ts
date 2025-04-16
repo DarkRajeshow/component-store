@@ -1,44 +1,51 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import useAppStore from '../../../../store/useAppStore';
-import { shiftToSelectedCategoryAPI } from '../../lib/designAPI';
+import { useModel } from '@/contexts/ModelContext';
+import { IComponent, IComponents, INestedParentLevel1 } from '@/types/project.types';
 
 export const ATTRIBUTE_TYPES = [
-    { value: "normal", Description: "A standard attribute with no nested options." },
-    { value: "nestedChildLevel1", Description: "Nested inside a parent attribute (Level 1)." },
-    { value: "nestedChildLevel2", Description: "Nested inside a Level 1 nested attribute (Level 2)." },
-    { value: "nestedParentLevel0", Description: "A parent attribute with nested options (Level 1)." },
-    { value: "nestedParentLevel1", Description: "A Level 1 nested attribute with further nested options (Level 2)." }
+    { value: "normal", Description: "A standard component with no nested options." },
+    { value: "nestedChildLevel1", Description: "Nested inside a parent component (Level 1)." },
+    { value: "nestedChildLevel2", Description: "Nested inside a Level 1 nested component (Level 2)." },
+    { value: "nestedParentLevel0", Description: "A parent component with nested options (Level 1)." },
+    { value: "nestedParentLevel1", Description: "A Level 1 nested component with further nested options (Level 2)." }
 ];
 
 export function useActionBar() {
-    const { id } = useParams();
     const {
         loading,
-        components,
+        structure,
         uniqueFileName,
-        setUniqueFileName,
-        design,
-        fetchProject,
         selectedCategory,
+
+        setUniqueFileName,
         toggleComponentValue,
+
+        //for undo redo 
         pushToUndoStack,
         handleUndo,
         handleRedo
     } = useAppStore();
 
+
+    const {
+        modelType,
+        refreshContent,
+        shiftCategory
+    } = useModel()
+
     const [openDropdown, setOpenDropdown] = useState("");
-    const [attributeFileName, setAttributeFileName] = useState('');
+    const [componentFileName, setComponentFileName] = useState('');
     const [dialogType, setDialogType] = useState("");
     const [levelOneNest, setLevelOneNest] = useState("");
     const [levelTwoNest, setLevelTwoNest] = useState("");
-    const [oldAttributeFileName, setOldAttributeFileName] = useState('');
+    const [oldComponentFileName, setOldComponentFileName] = useState('');
     const [menuVisible, setMenuVisible] = useState("");
-    const [attributeType, setAttributeType] = useState("normal");
+    const [componentType, setComponentType] = useState("normal");
     const [infoOpen, setInfoOpen] = useState(false);
     const [tempSelectedCategory, setTempSelectedCategory] = useState(selectedCategory);
-    const [tempcomponents, setTempcomponents] = useState(components);
+    const [tempComponents, setTempComponents] = useState(structure.components);
 
     const contextMenuRef = useRef<HTMLDivElement>(null);
     const infoContext = useRef<HTMLDivElement>(null);
@@ -60,21 +67,21 @@ export function useActionBar() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleUndo, handleRedo]);
 
-    // Update tempcomponents when components change
+    // Update tempComponents when components change
     useEffect(() => {
-        setTempcomponents(components);
-    }, [attributeType, components]);
+        setTempComponents(structure.components);
+    }, [componentType, structure.components]);
 
     // Update tempSelectedCategory when selectedCategory changes
     useEffect(() => {
         setTempSelectedCategory(selectedCategory);
     }, [selectedCategory]);
 
-    // Reset nesting levels when attribute type changes
+    // Reset nesting levels when component type changes
     useEffect(() => {
         setLevelOneNest("");
         setLevelTwoNest("");
-    }, [attributeType]);
+    }, [componentType]);
 
     // Close context menu when clicking outside
     useEffect(() => {
@@ -93,22 +100,25 @@ export function useActionBar() {
 
     const handleToggle = useCallback((key: string) => {
         pushToUndoStack(); // Push the current state before the change
+        console.log("called");
+        
         toggleComponentValue(key);
+
     }, [pushToUndoStack, toggleComponentValue]);
 
-    const toggleDropdown = useCallback((attribute: string) => {
-        setOpenDropdown(prevDropdown => prevDropdown === attribute ? "" : attribute);
+    const toggleDropdown = useCallback((component: string) => {
+        setOpenDropdown(prevDropdown => prevDropdown === component ? "" : component);
     }, []);
 
-    const handleToggleContextMenu = useCallback((attribute: string, subOption?: string, subSubOption?: string) => {
+    const handleToggleContextMenu = useCallback((component: string, subOption?: string, subSubOption?: string) => {
         let toggleOption;
 
-        if (subSubOption && subOption && attribute) {
-            toggleOption = `${attribute}>$>${subOption}>$>${subSubOption}`;
-        } else if (subOption && attribute) {
-            toggleOption = `${attribute}>$>${subOption}`;
-        } else if (attribute) {
-            toggleOption = attribute;
+        if (subSubOption && subOption && component) {
+            toggleOption = `${component}>$>${subOption}>$>${subSubOption}`;
+        } else if (subOption && component) {
+            toggleOption = `${component}>$>${subOption}`;
+        } else if (component) {
+            toggleOption = component;
         } else {
             return;
         }
@@ -120,36 +130,36 @@ export function useActionBar() {
         }
     }, []);
 
-    const handleAttributeFileNameChange = useCallback(() => {
-        const newInput = attributeFileName;
-        const updatedcomponents = JSON.parse(JSON.stringify(components));
+    const handleComponentFileNameChange = useCallback(() => {
+        const newInput = componentFileName;
+        const updatedcomponents: IComponents = structure.components ? JSON.parse(JSON.stringify(structure.components)) : {};
 
-        switch (attributeType) {
+        switch (componentType) {
             case 'normal':
-                updatedcomponents[newInput] = { value: true, path: uniqueFileName };
+                updatedcomponents[newInput] = { value: true, fileId: uniqueFileName };
                 break;
             case 'nestedChildLevel1':
                 if (levelOneNest) {
                     updatedcomponents[levelOneNest] = {
                         ...updatedcomponents[levelOneNest],
                         options: {
-                            ...updatedcomponents[levelOneNest]?.options,
-                            [newInput]: { path: uniqueFileName }
+                            ...(updatedcomponents[levelOneNest] as INestedParentLevel1)?.options,
+                            [newInput]: { fileId: uniqueFileName }
                         }
                     };
                 }
                 break;
             case 'nestedChildLevel2':
                 if (levelOneNest && levelTwoNest) {
-                    const parentOptions = updatedcomponents[levelOneNest]?.options || {};
+                    const parentOptions = (updatedcomponents[levelOneNest] as IComponent)?.options || {};
                     const nestedLevelOneOption = parentOptions[levelTwoNest];
-                    const nestedLevelTwoOptions = nestedLevelOneOption?.options || {};
+                    const nestedLevelTwoOptions = (nestedLevelOneOption as INestedParentLevel1)?.options || {};
 
-                    if (nestedLevelTwoOptions[oldAttributeFileName]) {
-                        delete nestedLevelTwoOptions[oldAttributeFileName];
+                    if (nestedLevelTwoOptions[oldComponentFileName]) {
+                        delete nestedLevelTwoOptions[oldComponentFileName];
                     }
 
-                    nestedLevelTwoOptions[newInput] = { path: uniqueFileName };
+                    nestedLevelTwoOptions[newInput] = { fileId: uniqueFileName };
 
                     updatedcomponents[levelOneNest] = {
                         ...updatedcomponents[levelOneNest],
@@ -168,17 +178,17 @@ export function useActionBar() {
                     selected: "none",
                     options: {
                         none: {
-                            path: "none"
+                            fileId: "none"
                         }
                     },
                 };
                 break;
             case 'nestedParentLevel1':
                 if (levelOneNest) {
-                    const newNestedOptions = updatedcomponents[levelOneNest]?.options || {};
+                    const newNestedOptions = (updatedcomponents[levelOneNest] as IComponent)?.options || {};
 
-                    if (newNestedOptions[oldAttributeFileName]) {
-                        delete newNestedOptions[oldAttributeFileName];
+                    if (newNestedOptions[oldComponentFileName]) {
+                        delete newNestedOptions[oldComponentFileName];
                     }
 
                     newNestedOptions[newInput] = {
@@ -187,32 +197,36 @@ export function useActionBar() {
                     };
 
                     updatedcomponents[levelOneNest] = {
-                        selected: updatedcomponents[levelOneNest]?.selected,
+                        selected: (updatedcomponents[levelOneNest] as IComponent)?.selected,
                         options: newNestedOptions,
                     };
                 }
                 break;
         }
 
-        setTempcomponents(updatedcomponents);
-    }, [attributeFileName, attributeType, levelOneNest, levelTwoNest, components, oldAttributeFileName, uniqueFileName]);
+        setTempComponents(updatedcomponents);
+    }, [componentFileName, componentType, levelOneNest, levelTwoNest, structure.components, oldComponentFileName, uniqueFileName]);
 
-    // Update attributes when any dependencies change
+    // Update components when any dependencies change
     useEffect(() => {
-        handleAttributeFileNameChange();
-    }, [handleAttributeFileNameChange]);
+        handleComponentFileNameChange();
+    }, [handleComponentFileNameChange]);
 
-    const shiftCategory = async () => {
+    const shiftToSelectedCategory = async () => {
         try {
-            const data = await shiftToSelectedCategoryAPI(id, {
+            if (!shiftCategory) {
+                toast.error("ShiftCategory Function is missing");
+                return;
+            }
+            const data = await shiftCategory({
                 selectedCategory: tempSelectedCategory,
             });
 
-            if (data.success) {
+            if (data && data.success) {
                 toast.success(data.status);
-                fetchProject(id as string);
+                refreshContent();
             } else {
-                toast.error(data.status);
+                toast.error(data ? data.status : "Error while shifting category.");
             }
         } catch (error) {
             console.log(error);
@@ -223,31 +237,31 @@ export function useActionBar() {
     return {
         // State
         loading,
-        components,
-        design,
+        components: structure.components,
         openDropdown,
-        attributeFileName,
+        componentFileName,
         dialogType,
         levelOneNest,
         levelTwoNest,
-        oldAttributeFileName,
+        oldComponentFileName,
         menuVisible,
-        attributeType,
+        componentType,
         infoOpen,
         tempSelectedCategory,
-        tempcomponents,
+        tempComponents,
         contextMenuRef,
         infoContext,
+        modelType,
 
         // Actions
         setOpenDropdown,
-        setAttributeFileName,
+        setComponentFileName,
         setDialogType,
         setLevelOneNest,
         setLevelTwoNest,
-        setOldAttributeFileName,
+        setOldComponentFileName,
         setMenuVisible,
-        setAttributeType,
+        setComponentType,
         setInfoOpen,
         setTempSelectedCategory,
         setUniqueFileName,
@@ -256,7 +270,7 @@ export function useActionBar() {
         handleToggle,
         toggleDropdown,
         handleToggleContextMenu,
-        shiftCategory,
+        shiftToSelectedCategory,
         pushToUndoStack
     };
 }

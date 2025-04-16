@@ -159,7 +159,7 @@ const View: React.FC<ViewProps> = ({
 
     // Get base drawing path
     const baseDrawingPath = typedBaseDrawing?.fileId
-        ? `${baseContentPath}/${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`
+        ? `${baseContentPath}//${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`
         : null;
 
     return (

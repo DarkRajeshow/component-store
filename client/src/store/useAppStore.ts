@@ -11,7 +11,8 @@ import createEditorSlice from './slices/editorSlice';
 import { toast } from 'sonner';
 import { getDesignByIdAPI, getProjectByIdAPI } from "@/lib/globalAPI";
 import { StoreState } from '@/types/store.types';
-import { IComponent, IComponents, IFileInfo, IHierarchy, INormalComponent } from '@/types/project.types';
+import { IComponent, IComponents, IFileInfo, IHierarchy, INormalComponent, IPages } from '@/types/project.types';
+import { IBaseDrawing } from '@/types/design.types';
 
 const useAppStore = create<StoreState>()(
   devtools(
@@ -69,6 +70,25 @@ const useAppStore = create<StoreState>()(
           }
         },
 
+
+        setStructureElements: ({
+          updatedBaseDrawing,
+          updatedPages,
+          updatedComponents,
+        }: {
+          updatedBaseDrawing?: IBaseDrawing;
+          updatedPages?: IPages;
+          updatedComponents?: IComponents
+        }) => set((state) => ({
+          structure: {
+            ...state.structure,
+            baseDrawing: updatedBaseDrawing || state.structure.baseDrawing,
+            pages: updatedPages || state.structure.pages,
+            components: updatedComponents || state.structure.components
+          }
+        })),
+
+
         fetchDesign: async (id) => {
           set({ loading: true });
           try {
@@ -116,7 +136,7 @@ const useAppStore = create<StoreState>()(
 
               return needsUpdate ? {
                 project: project,
-                selectedCategory, 
+                selectedCategory,
                 structure: structure,
                 selectedPage: Object.keys(structure.pages)[0],
                 components: structure?.components || {},
@@ -175,54 +195,66 @@ const useAppStore = create<StoreState>()(
           return hierarchy;
         },
 
-        // Toggle attribute value (simplified from toggle function)
+        // Toggle component value (simplified from toggle function)
         toggleComponentValue: (key: string) => set((state) => ({
-          components: {
-            ...state.components,
-            [key]: {
-              ...(state.components as IComponents)[key],
-              value: !((state.components)[key] as INormalComponent)?.value,
+          structure: {
+            ...state.structure,
+            components: {
+              ...state.structure.components,
+              [key]: {
+                ...(state.structure.components as IComponents)[key],
+                value: !((state.structure.components)[key] as INormalComponent)?.value,
+              },
             },
-          },
+          }
         })),
 
         // Update selected option within a specific component and push to undo stack
         updateselected: (component, option) => {
           get().pushToUndoStack();
+
+          console.log(option);
+
           set((state) => ({
-            components: {
-              ...state.components,
-              [component]: {
-                ...(state.components[component] as IComponent),
-                selected: option,
+            structure: {
+              ...state.structure,
+              components: {
+                ...state.structure.components,
+                [component]: {
+                  ...(state.structure.components[component] as IComponent),
+                  selected: option,
+                },
               },
-            },
+            }
           }));
         },
 
         updateSelectedSubOption: (component, option, subOption) => {
           get().pushToUndoStack(); // Push current state before making changes
           set((state) => ({
-            components: {
-              ...state.components,
-              [component]: {
-                ...state.components[component],
-                options: {
-                  ...(state.components[component] as IComponent).options,
-                  [option]: {
-                    ...(state.components[component] as IComponent).options[option],
-                    selected: subOption,
+            structure: {
+              ...state.structure,
+              components: {
+                ...state.structure.components,
+                [component]: {
+                  ...state.structure.components[component],
+                  options: {
+                    ...(state.structure.components[component] as IComponent).options,
+                    [option]: {
+                      ...(state.structure.components[component] as IComponent).options[option],
+                      selected: subOption,
+                    },
                   },
+                  selected: option, // Ensure the parent option is also selected
                 },
-                selected: option, // Ensure the parent option is also selected
               },
-            },
+            }
           }));
         },
 
         // Undo/redo functions with simplified stack management
         pushToUndoStack: () => set((state) => ({
-          undoStack: [...state.undoStack, state.components],
+          undoStack: [...state.undoStack, state.structure.components],
           redoStack: [], // Clear redo stack on new action
         })),
 
@@ -233,9 +265,12 @@ const useAppStore = create<StoreState>()(
           const updatedUndoStack = state.undoStack.slice(0, -1);
 
           return {
-            components: previousState,
+            structure: {
+              ...state.structure,
+              components: previousState
+            },
             undoStack: updatedUndoStack,
-            redoStack: [...state.redoStack, state.components],
+            redoStack: [...state.redoStack, state.structure.components],
           };
         }),
 
@@ -246,9 +281,12 @@ const useAppStore = create<StoreState>()(
           const updatedRedoStack = state.redoStack.slice(0, -1);
 
           return {
-            components: nextState,
+            structure: {
+              ...state.structure,
+              components: nextState
+            },
             redoStack: updatedRedoStack,
-            undoStack: [...state.undoStack, state.components],
+            undoStack: [...state.undoStack, state.structure.components],
           };
         }),
 
@@ -260,10 +298,11 @@ const useAppStore = create<StoreState>()(
       {
         name: "app-storage",
         partialize: (state: StoreState) => ({
-          user: state.user,
-          design: state.design,
+          // user: state.user,
+          // design: state.design,
           undoStack: state.undoStack,
           redoStack: state.redoStack,
+          rotation: state.rotation
         }),
       }
     )

@@ -8,9 +8,9 @@
 // import {
 //     IDesign,
 //     CreateDesignDTO,
-//     UpdateAttributeDTO,
-//     DeleteAttributeDTO,
-//     UpdateUnParsedAttributesDTO
+//     UpdateComponentDTO,
+//     DeleteComponentDTO,
+//     UpdateUnParsedComponentsDTO
 // } from '../types/design.types';
 
 // export class DesignService {
@@ -34,13 +34,13 @@
 //         return design;
 //     }
 
-//     async addNewAttribute(designId: string, userId: string, updateDTO: UpdateAttributeDTO): Promise<IDesign> {
+//     async addNewComponent(designId: string, userId: string, updateDTO: UpdateComponentDTO): Promise<IDesign> {
 //         const design = await this.validateDesignOwnership(designId, userId);
 //         design.structure = updateDTO.structure;
 //         return await design.save();
 //     }
 
-//     async deleteAttributes(designId: string, userId: string, deleteDTO: DeleteAttributeDTO): Promise<IDesign> {
+//     async deleteComponents(designId: string, userId: string, deleteDTO: DeleteComponentDTO): Promise<IDesign> {
 //         const design = await this.validateDesignOwnership(designId, userId);
 //         const folderPath = path.join(this.__dirname, 'public', 'uploads', design.folder);
 

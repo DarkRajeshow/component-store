@@ -200,6 +200,8 @@ export class ProjectService {
             return { success: false, message: 'Project not found or unauthorized' };
         }
 
+        console.log(categoryStructure);
+        
         if (!categoryStructure) {
             return { success: false, message: errorMessage };
         }
@@ -207,6 +209,7 @@ export class ProjectService {
         const parsedStructure = parseIfUnparsed(categoryStructure) as ICategoryData;
         project.hierarchy.categories[categoryId] = parsedStructure;
 
+        project.markModified("hierarchy")
         await project.save();
         return { success: true, project };
     }

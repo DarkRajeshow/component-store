@@ -46,9 +46,9 @@ const ProjectContent = (): JSX.Element => {
             const selectionHeight = zoomFactor(Math.abs(endY - startY), svgHeight, viewBoxHeight);
             aspectRatio = selectionWidth / selectionHeight;
 
-            clonedSvgElement.setAttribute('viewBox', `${selectionX} ${selectionY} ${selectionWidth} ${selectionHeight}`);
+            clonedSvgElement.setComponent('viewBox', `${selectionX} ${selectionY} ${selectionWidth} ${selectionHeight}`);
         } else {
-            clonedSvgElement.setAttribute(
+            clonedSvgElement.setComponent(
                 'viewBox',
                 `${(((viewBoxWidth - 520) / 2) + offset.x) * zoom} ${(offset.y) * zoom} ${520 * zoom} ${window.innerHeight * zoom}`
             );
@@ -78,7 +78,7 @@ const ProjectContent = (): JSX.Element => {
     return (
         <main className="h-screen fixed w-screen">
             <SideMenu />
-            {/* <ActionBar generatePDF={generatePDF} /> */}
+            <ActionBar generatePDF={generatePDF} />
             <View
                 generatePDF={generatePDF}
                 zoom={zoom}

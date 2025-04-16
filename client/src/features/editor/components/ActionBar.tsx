@@ -6,9 +6,7 @@ import { UpdateForm, RenameForm, DeleteForm } from './edit-menu';
 
 import { ATTRIBUTE_TYPES, useActionBar } from '../hooks/action-bar/useActionBar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { popUpQuestions } from '@/constants';
-
-import { DesignInfoPanel, AttributesList, ExportForm } from './action-bar'
+import { DesignInfoPanel, ComponentsList, ExportForm } from './action-bar'
 import AddForm from './add-form';
 import { Button } from '@/components/ui/button';
 
@@ -22,28 +20,27 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         // State
         loading,
         components,
-        design,
         openDropdown,
-        attributeFileName,
+        componentFileName,
         dialogType,
         levelOneNest,
         levelTwoNest,
         menuVisible,
-        attributeType,
+        componentType,
         infoOpen,
         tempSelectedCategory,
-        tempcomponents,
+        tempComponents,
         contextMenuRef,
         infoContext,
-
+        modelType,
         // Actions
         setOpenDropdown,
-        setAttributeFileName,
+        setComponentFileName,
         setDialogType,
         setLevelOneNest,
         setLevelTwoNest,
-        setOldAttributeFileName,
-        setAttributeType,
+        setOldComponentFileName,
+        setComponentType,
         setInfoOpen,
         setTempSelectedCategory,
         setUniqueFileName,
@@ -52,7 +49,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         handleToggle,
         toggleDropdown,
         handleToggleContextMenu,
-        shiftCategory,
+        shiftToSelectedCategory,
         pushToUndoStack
     } = useActionBar();
 
@@ -62,17 +59,17 @@ function ActionBar({ generatePDF }: ActionBarProps) {
             case 'add':
                 return (
                     <AddForm
-                        attributeFileName={attributeFileName}
-                        attributeType={attributeType}
+                        componentFileName={componentFileName}
+                        componentType={componentType}
                         levelOneNest={levelOneNest}
                         levelTwoNest={levelTwoNest}
                         setLevelOneNest={setLevelOneNest}
                         setLevelTwoNest={setLevelTwoNest}
-                        setOldAttributeFileName={setOldAttributeFileName}
-                        setAttributeFileName={setAttributeFileName}
-                        newAttributeTypes={ATTRIBUTE_TYPES}
-                        setAttributeType={setAttributeType}
-                        tempcomponents={tempcomponents}
+                        setOldComponentFileName={setOldComponentFileName}
+                        setComponentFileName={setComponentFileName}
+                        newComponentTypes={ATTRIBUTE_TYPES}
+                        setComponentType={setComponentType}
+                        tempComponents={tempComponents}
                     />
                 );
             case 'update':
@@ -108,7 +105,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
 
                     <div className="flex items-center gap-1 relative" ref={infoContext}>
                         <p className="logo font-medium text-center text-purple-700 capitalize">
-                            {design?.designType || 'Design'}
+                            {modelType}
                         </p>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -129,11 +126,9 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                         {/* Design info panel */}
                         {infoOpen && (
                             <DesignInfoPanel
-                                design={design}
-                                popUpQuestions={popUpQuestions}
                                 tempSelectedCategory={tempSelectedCategory}
                                 setTempSelectedCategory={setTempSelectedCategory}
-                                shiftCategory={shiftCategory}
+                                shiftToSelectedCategory={shiftToSelectedCategory}
                             />
                         )}
                     </div>
@@ -144,10 +139,10 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                     {renderDialogContent()}
                 </DialogContent>
 
-                {/* Main attributes list */}
+                {/* Main components list */}
                 <div className="flex gap-1 rounded-md h-[88%] justify-center" ref={contextMenuRef}>
                     {!loading && components && (
-                        <AttributesList
+                        <ComponentsList
                             components={components}
                             openDropdown={openDropdown}
                             menuVisible={menuVisible}

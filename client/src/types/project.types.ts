@@ -174,10 +174,6 @@ export interface IGetRecentProjectsResponse {
 }
 
 
-
-
-
-
 // project request types:
 export interface ICreateProjectRequest {
     name: string;
@@ -186,21 +182,21 @@ export interface ICreateProjectRequest {
 }
 
 export interface IAddComponentRequest {
-    categoryStructure: ICategoryData;
+    structure: ICategoryData;
 }
 
 export interface IRenameComponentRequest {
-    categoryStructure: ICategoryData;
+    structure: ICategoryData;
 }
 
 export interface IUpdateComponentRequest {
-    categoryStructure: ICategoryData;
+    structure: ICategoryData;
     deleteFilesOfPages: string; // JSON string
     filesToDelete: string; // JSON string
 }
 
 export interface IDeleteComponentRequest {
-    categoryStructure: ICategoryData;
+    structure: ICategoryData;
 }
 
 export interface IAddPageRequest {
@@ -225,9 +221,9 @@ export interface IAddCategoryRequest {
 }
 
 export interface IShiftCategoryRequest {
-    hierarchy: IHierarchy;
+    hierarchy?: IHierarchy;
     selectedCategory: string;
-    folderNames: string[];
+    folderNames?: string[];
 }
 
 export interface IRenameCategoryRequest {

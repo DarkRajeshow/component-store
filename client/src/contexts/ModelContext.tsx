@@ -19,6 +19,7 @@ interface ModelContextType {
     id: string;
     categoryId?: string;
     baseContentPath: string;
+    contentFolder: string;
     loading: boolean;
     error: Error | null;
     refreshContent: () => Promise<void>;
@@ -57,8 +58,8 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
     children,
 }) => {
     const { setContent, setDesignStates, setProjectStates } = useAppStore()
-    const [baseContentPath, setBaseContentPath] = useState("")
-
+    const [baseContentPath, setBaseContentPath] = useState<string>("")
+    const [contentFolder, setContentFolder] = useState<string>("")
     const isProject = modelType === 'project';
 
     // // Initialize API
@@ -67,22 +68,24 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
     // // Load data
     const fetchContent = useCallback(async () => {
         const response = await api.getById();
-        
+
         if (response?.success) {
             if (isProject && 'project' in response) {
                 const project = response.project as IProject;
                 setContent(project)
                 setProjectStates(project);
                 const currentCategoryId = project?.hierarchy.categoryMapping[project?.selectedCategory as string];
-                const completeFilePath = `${filePath}projects/${project.folder}/${currentCategoryId}/`
+                const completeFilePath = `${filePath}/projects/${project.folder}/${currentCategoryId}`
                 setBaseContentPath(completeFilePath)
+                setContentFolder(project.folder)
             }
             else if ('design' in response) {
                 const design = response.design as IDesign;
                 setContent(design);
                 setDesignStates(design);
-                const completeFilePath = `${filePath}designs/${design.folder}/`
+                const completeFilePath = `${filePath}/designs/${design.folder}`
                 setBaseContentPath(completeFilePath)
+                setContentFolder(design.folder)
             }
             else {
                 setContent(null);
@@ -100,6 +103,7 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
         id,
         categoryId,
         baseContentPath,
+        contentFolder,
         loading: api.loading,
         error: api.error,
         // Common operations

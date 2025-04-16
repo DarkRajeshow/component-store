@@ -1,8 +1,8 @@
 // import express from "express";
 // import {
-//     addNewAttribute,
+//     addNewComponent,
 //     addNewPage,
-//     addNewParentAttribute,
+//     addNewParentComponent,
 //     createEmptyDesign,
 //     deleteconponents,
 //     deleteDesignById,
@@ -27,11 +27,11 @@
 
 // // --- >>>> put requests
 
-// //attribute operations 
+// //component operations 
 // //1. add conponents
 // //optimized 2
-// router.put("/:id/conponents/add", upload.array('files'), handlePDFConversion, optimizeSVG, addNewAttribute);
-// router.put("/:id/conponents/add-parent", addNewParentAttribute);
+// router.put("/:id/conponents/add", upload.array('files'), handlePDFConversion, optimizeSVG, addNewComponent);
+// router.put("/:id/conponents/add-parent", addNewParentComponent);
 
 
 // router.put("/:id/conponents/base", upload.array('files'), handlePDFConversion, optimizeSVG, uploadBaseDrawing);

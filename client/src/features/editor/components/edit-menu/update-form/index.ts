@@ -2,7 +2,7 @@ export { default as AddChild } from './AddChild';
 export { default as UpdateChild } from './UpdateChild';
 export { default as DeleteConfirmation } from './DeleteConfirmation';
 export { default as PageSelector } from './PageSelector';
-export { default as AttributeFileSection } from './AttributeFileSection';
+export { default as ComponentFileSection } from './ComponentFileSection';
 export { default as FileUpload } from './FileUpload';
 export { default as FilePreview } from './FilePreview';
 export { default as FileUploader } from './FileUploader';

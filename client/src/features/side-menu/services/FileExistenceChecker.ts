@@ -18,10 +18,8 @@ export const FileExistenceChecker = {
 
             const results = await Promise.all(
                 Object.entries(tempPages).map(async ([pageFolder]) => {
-                    console.log(`${baseContentPath}/${tempPages[pageFolder]}/${tempBaseDrawing?.fileId}.svg?version=${fileVersion}`);
-
                     const exists = await SideMenuService.checkFileExists(
-                        `${baseContentPath}/${tempPages[pageFolder]}/${tempBaseDrawing?.fileId}.svg`
+                        `${baseContentPath}//${tempPages[pageFolder]}/${tempBaseDrawing?.fileId}.svg?version=${fileVersion}`
                     );
                     return { [pageFolder]: exists };
                 })
@@ -65,9 +63,6 @@ export const FileExistenceChecker = {
         baseDrawing: IFileInfo | null,
         pages: IPages
     ): boolean {
-
-        console.log(pages);
-
         return (
             // tempBaseDrawing?.fileId !== " " &&
             baseDrawing?.fileId !== " " &&

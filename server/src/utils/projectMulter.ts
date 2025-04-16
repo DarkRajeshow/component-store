@@ -8,7 +8,6 @@ const server_dirname = path.resolve();
 interface MulterRequestBody extends Request {
   body: {
     folder: string;
-    categoryId: string;
     title?: string;
   };
 }

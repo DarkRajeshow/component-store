@@ -5,7 +5,7 @@ import { RecentDesignSlice } from '@/store/slices/recentDesignSlice'; // Fixed r
 import { UISlice } from '@/store/slices/uiSlice';          // Fixed relative path
 import { UserSlice } from '@/store/slices/userSlice';      // Fixed relative path
 import { EditorSlice } from '@/store/slices/editorSlice';
-import { IComponents, IDesign, IFileInfo, IPages } from './design.types';
+import { IBaseDrawing, IComponents, IDesign, IFileInfo, IPages } from './design.types';
 import { IHierarchy, IProject } from './project.types';
 
 // Additional types for the store
@@ -14,6 +14,16 @@ interface StoreActions {
     fetchDesign: (id: string) => Promise<void>;
     setProjectStates: (project: IProject) => void;
     setDesignStates: (design: IDesign) => void;
+    setStructureElements: ({
+        updatedBaseDrawing,
+        updatedPages,
+        updatedComponents,
+    }: {
+        updatedBaseDrawing?: IBaseDrawing;
+        updatedPages?: IPages;
+        updatedComponents?: IComponents
+    }) => void;
+    
     generateHierarchy: (params?: {
         updatedComponents?: IComponents | null;
         updatedBaseDrawing?: IFileInfo | null;
@@ -21,8 +31,8 @@ interface StoreActions {
         updatedPages?: IPages | null;
     }) => IHierarchy;
     toggleComponentValue: (key: string) => void;
-    updateselected: (attribute: string, option: string) => void;
-    updateSelectedSubOption: (attribute: string, option: string, subOption: string) => void;
+    updateselected: (component: string, option: string) => void;
+    updateSelectedSubOption: (component: string, option: string, subOption: string) => void;
     pushToUndoStack: () => void;
     handleUndo: () => void;
     handleRedo: () => void;

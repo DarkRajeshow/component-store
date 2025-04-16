@@ -157,7 +157,7 @@ export class FileService {
         const deletePromises = deleteFilesOfPages.map((filePath) => {
             const [folderName, fileName] = filePath.split('<<&&>>');
             if (!folderName || !fileName) {
-                console.warn(`Invalid file structure: ${filePath}`);
+                console.warn(`Invalid file structure: ${filePath}/`);
                 return Promise.resolve();
             }
 

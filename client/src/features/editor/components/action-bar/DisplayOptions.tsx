@@ -1,4 +1,4 @@
-import { IAttribute, IAttributeOption } from '../../../../types/request.types';
+import { IComponent, IComponentOption } from '../../../../types/request.types';
 import useAppStore from '../../../../store/useAppStore';
 import {
     SelectContent,
@@ -14,7 +14,7 @@ interface DisplayOptionsProps {
 }
 
 interface DesignStore {
-    components: Record<string, IAttribute>;
+    components: Record<string, IComponent>;
 }
 
 const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 = false, levelOneNest }) => {
@@ -24,23 +24,23 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
         return null;
     }
 
-    const hasselected = (attribute: IAttribute): boolean => {
-        if (!attribute.options) return false;
+    const hasselected = (component: IComponent): boolean => {
+        if (!component.options) return false;
 
-        // Check if the current attribute has a selected option that meets the condition
-        if (attribute.selected && attribute.options[attribute.selected]?.selected) {
+        // Check if the current component has a selected option that meets the condition
+        if (component.selected && component.options[component.selected]?.selected) {
             return true;
         }
 
         // Check all nested options
-        for (const key in attribute.options) {
-            const option = attribute.options[key] as IAttributeOption;
+        for (const key in component.options) {
+            const option = component.options[key] as IComponentOption;
             if (typeof option === 'object' && option.selected) {
                 if (option.selected) {
                     return true;
                 }
-            } else if (Array.isArray(attribute.options)) {
-                for (const opt of attribute.options as IAttributeOption[]) {
+            } else if (Array.isArray(component.options)) {
+                for (const opt of component.options as IComponentOption[]) {
                     if (opt.selected) {
                         return true;
                     }
@@ -57,11 +57,11 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
             return (
                 <SelectContent>
                     <SelectGroup>
-                        {Object.entries(components).map(([attribute, value]) => {
+                        {Object.entries(components).map(([component, value]) => {
                             if (hasselected(value)) {
                                 return (
-                                    <SelectItem key={attribute} value={attribute}>
-                                        {attribute}
+                                    <SelectItem key={component} value={component}>
+                                        {component}
                                     </SelectItem>
                                 );
                             }
@@ -75,11 +75,11 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
         return (
             <SelectContent>
                 <SelectGroup>
-                    {Object.entries(components).map(([attribute, value]) => {
+                    {Object.entries(components).map(([component, value]) => {
                         if (value.selected) {
                             return (
-                                <SelectItem key={attribute} value={attribute}>
-                                    {attribute}
+                                <SelectItem key={component} value={component}>
+                                    {component}
                                 </SelectItem>
                             );
                         }
@@ -97,12 +97,12 @@ const DisplayOptions: React.FC<DisplayOptionsProps> = ({ level, isNestedLevel2 =
                 <SelectContent>
                     <SelectGroup>
                         <SelectLabel>{levelOneNest} Options</SelectLabel>
-                        {Object.entries(parent.options).map(([attribute, value]) => {
-                            const optionValue = value as IAttributeOption;
+                        {Object.entries(parent.options).map(([component, value]) => {
+                            const optionValue = value as IComponentOption;
                             if (optionValue?.selected) {
                                 return (
-                                    <SelectItem key={attribute} value={attribute}>
-                                        {attribute}
+                                    <SelectItem key={component} value={component}>
+                                        {component}
                                     </SelectItem>
                                 );
                             }

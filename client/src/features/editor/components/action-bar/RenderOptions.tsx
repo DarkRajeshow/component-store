@@ -1,37 +1,39 @@
 import { useEffect, useRef, useState } from "react";
 import EditMenu from "./EditMenu";
 import useAppStore from "../../../../store/useAppStore";
-import { IAttributeOption } from "../../../../types/request.types";
 import OptionItem from "./OptionItem";
 import { cn } from "@/lib/utils";
+import { IComponent, IComponentOptions, IFileInfo, INestedParentLevel1 } from "@/types/project.types";
 
 interface RenderOptionsProps {
     pushToUndoStack: () => void;
-    attribute: string;
-    options: Record<string, IAttributeOption>;
-    handleToggleContextMenu: (attribute: string, option: string, subOption?: string) => void;
+    component: string;
+    options: IComponentOptions;
+    handleToggleContextMenu: (component: string, option: string, subOption?: string) => void;
     setDialogType: (type: string) => void;
     menuVisible: string | boolean;
 }
 
-const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContextMenu, setDialogType, menuVisible }: RenderOptionsProps) => {
-    const { components, updateSelectedSubOption, updateselected } = useAppStore();
+const RenderOptions = ({ pushToUndoStack, component, options, handleToggleContextMenu, setDialogType, menuVisible }: RenderOptionsProps) => {
+    const { structure, updateSelectedSubOption, updateselected } = useAppStore();
     const [openSubSubOptions, setOpenSubSubOptions] = useState<string[]>([]);
     const [scrollPosition, setScrollPosition] = useState(0);
     const divRef = useRef<HTMLDivElement>(null);
 
+    const components = structure.components
+
     const handleOptionChange = (option: string) => {
         pushToUndoStack(); // Push the current state before the change
-        updateselected(attribute, option);
+        updateselected(component, option);
     };
 
     const handleSubOptionChange = (option: string, subOption: string) => {
         pushToUndoStack(); // Push the current state before the change
-        updateSelectedSubOption(attribute, option, subOption);
+        updateSelectedSubOption(component, option, subOption);
     };
 
-    const handleToggleSubOptions = (subOption: string, subValue: IAttributeOption) => {
-        if (subValue?.options) {
+    const handleToggleSubOptions = (subOption: string, subValue: IFileInfo | INestedParentLevel1) => {
+        if ((subValue as INestedParentLevel1)?.options) {
             if (openSubSubOptions.includes(subOption)) {
                 setOpenSubSubOptions(openSubSubOptions.filter(option => option !== subOption));
             } else {
@@ -64,42 +66,42 @@ const RenderOptions = ({ pushToUndoStack, attribute, options, handleToggleContex
             <div key={subOption}>
                 <OptionItem
                     option={subOption}
-                    isSelected={components[attribute].selected === subOption}
-                    showDropdownIcon={!!subValue.selected}
+                    isSelected={(components[component] as IComponent).selected === subOption}
+                    showDropdownIcon={!!(subValue as INestedParentLevel1).selected}
                     isOpen={openSubSubOptions.includes(subOption)}
                     isNone={subOption === "none"}
                     menuVisible={menuVisible}
-                    menuPath={`${attribute}>$>${subOption}`}
+                    menuPath={`${component}>$>${subOption}`}
                     onOptionClick={() => {
                         handleOptionChange(subOption);
                         handleToggleSubOptions(subOption, subValue);
                     }}
-                    onMenuClick={() => handleToggleContextMenu(attribute, subOption)}
+                    onMenuClick={() => handleToggleContextMenu(component, subOption)}
                 />
 
-                {(menuVisible === `${attribute}>$>${subOption}`) && (
+                {(menuVisible === `${component}>$>${subOption}`) && (
                     <div className={cn("absolute -right-[112px] border -top-0 border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max", { [`-top-[${scrollPosition - 50}px]`]: true })}>
-                        <EditMenu setDialogType={setDialogType} attributeOption={menuVisible} />
+                        <EditMenu setDialogType={setDialogType} componentOption={menuVisible} />
                     </div>
                 )}
 
-                {subValue.selected && subValue.options && (
-                    <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-0 overflow-hidden"}`}>
-                        {Object.entries(subValue.options).map(([subSubOption]) => (
+                {(subValue as IComponent).selected && (subValue as IComponent).options && (
+                    <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-full overflow-hidden"}`}>
+                        {Object.entries((subValue as IComponent).options).map(([subSubOption]) => (
                             <div key={subSubOption}>
                                 <OptionItem
                                     option={subSubOption}
-                                    isSelected={subValue.selected === subSubOption}
+                                    isSelected={(subValue as IComponent).selected === subSubOption}
                                     menuVisible={menuVisible}
-                                    menuPath={`${attribute}>$>${subOption}>$>${subSubOption}`}
+                                    menuPath={`${component}>$>${subOption}>$>${subSubOption}`}
                                     onOptionClick={() => handleSubOptionChange(subOption, subSubOption)}
-                                    onMenuClick={() => handleToggleContextMenu(attribute, subOption, subSubOption)}
+                                    onMenuClick={() => handleToggleContextMenu(component, subOption, subSubOption)}
                                     className="group/subsubOption"
                                 />
 
-                                {(menuVisible === `${attribute}>$>${subOption}>$>${subSubOption}`) && (
+                                {(menuVisible === `${component}>$>${subOption}>$>${subSubOption}`) && (
                                     <div className={cn("absolute -right-[112px] border border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max", { [`-top-[${scrollPosition}px]`]: true })}>
-                                        <EditMenu setDialogType={setDialogType} attributeOption={menuVisible} />
+                                        <EditMenu setDialogType={setDialogType} componentOption={menuVisible} />
                                     </div>
                                 )}
                             </div>

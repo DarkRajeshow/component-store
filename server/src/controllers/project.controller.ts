@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import projectService from '../services/project.service';
 import Project from '../models/Project';
-import { IHierarchy, IProject } from '../types/project.types';
+import { ICategoryData, IHierarchy, IProject } from '../types/project.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Types } from 'mongoose';
 import path from 'path';
@@ -83,13 +83,13 @@ export class ProjectController {
 
             const userId = await projectService.verifyUser(req.cookies.jwt);
             const { id, categoryId } = req.params;
-            const { categoryStructure } = req.body;
+            const { structure } = req.body;
 
             // if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             //     return sendResponse(res, false, 'Component file required');
             // }
 
-            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure);
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, structure as ICategoryData);
             if (!result.success && result.message) {
                 return sendResponse(res, false, result.message);
             }
@@ -110,9 +110,9 @@ export class ProjectController {
 
             const userId = await projectService.verifyUser(req.cookies.jwt);
             const { id, categoryId } = req.params;
-            const { categoryStructure } = req.body;
+            const { structure } = req.body;
 
-            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure);
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, structure);
             if (!result.success && result.message) {
                 return sendResponse(res, false, result.message);
             }
@@ -132,11 +132,33 @@ export class ProjectController {
 
             const userId = await projectService.verifyUser(req.cookies.jwt);
             const { id, categoryId } = req.params;
-            const { categoryStructure } = req.body;
+            const { structure, filesToDelete } = req.body;
 
-            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure);
+            if (!structure || !filesToDelete) {
+                return sendResponse(res, false, 'Data is missing.');
+            }
+
+            console.log(structure);
+            
+            const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, structure);
             if (!result.success && result.message) {
                 return sendResponse(res, false, result.message);
+            }
+
+            if (!result.success && result.message) {
+                return sendResponse(res, false, result.message);
+            }
+
+            if (!result.project?.folder) {
+                return sendResponse(res, false, 'Project folder not found');
+            }
+
+            const folderPath = path.join(__dirname, 'public', 'uploads', 'projects', result.project.folder, categoryId);
+
+            
+            // Handle file deletions
+            if (filesToDelete && filesToDelete.length > 0) {
+                await projectService.fileService.deleteFilesRecursively(folderPath, filesToDelete);
             }
 
             return sendResponse(res, true, 'Component deleted successfully');
@@ -154,13 +176,13 @@ export class ProjectController {
 
             const userId = await projectService.verifyUser(req.cookies.jwt);
             const { id, categoryId } = req.params;
-            const { categoryStructure, deleteFilesOfPages, filesToDelete } = req.body;
+            const { structure, deleteFilesOfPages, filesToDelete } = req.body;
 
-            if (!categoryStructure || !deleteFilesOfPages || !filesToDelete) {
+            if (!structure || !deleteFilesOfPages || !filesToDelete) {
                 return sendResponse(res, false, 'Data is missing.');
             }
 
-            const result: IUpdateDesignStructure = await projectService.handleHierarchyUpdate(id, userId, categoryId, categoryStructure,);
+            const result: IUpdateDesignStructure = await projectService.handleHierarchyUpdate(id, userId, categoryId, structure,);
 
             if (!result.success && result.message) {
                 return sendResponse(res, false, result.message);
@@ -170,7 +192,7 @@ export class ProjectController {
                 return sendResponse(res, false, 'Some error occurred while retriving the design.');
             }
 
-            const folderPath = path.join(__dirname, 'public', 'uploads', result.project.folder);
+            const folderPath = path.join(__dirname, 'public', 'uploads', 'projects', result.project.folder, categoryId);
 
             const parsedDeleteFilesOfPages = JSON.parse(deleteFilesOfPages);
             const parsedFilesToDelete = JSON.parse(filesToDelete);

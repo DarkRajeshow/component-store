@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
 import {
     DialogTitle,
     DialogFooter,
@@ -10,36 +9,36 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useUpdateForm } from '../../../hooks/edit-menu/useUpdateForm';
-import { IAttribute } from '@/types/request.types';
+import { IComponent } from '@/types/design.types';
 import {
     AddChild,
     UpdateChild,
     DeleteConfirmation,
     PageSelector,
-    AttributeFileSection
+    ComponentFileSection
 } from '.';
+import { IFileInfo } from '@/types/project.types';
 
 
 const UpdateForm: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-
     const {
         updateLoading,
         operation,
-        setOperation,
-        newAttributeName,
-        setNewAttributeName, 
+        newComponentName,
         updatedValue,
-        setUpdatedValue,
-        selectedAttributeValue,
+        selectedComponentValue,
         fileExistenceStatus,
         selectedPages,
-        baseFilePath,
+        baseContentPath,
         pages,
         newFiles,
         fileCounts,
-        setFileCounts,
         menuOf,
+
+        setOperation,
+        setNewComponentName,
+        setFileCounts,
+        setUpdatedValue,
         handleFileChange,
         handleDrop,
         handleUpdate,
@@ -47,13 +46,13 @@ const UpdateForm: React.FC = () => {
         handlePageSelection,
         removeSelectedFile,
         resetStates
-    } = useUpdateForm({ id });
+    } = useUpdateForm();
 
     // Memoize child components for better performance
     const childComponents = useMemo(() => {
-        if (!selectedAttributeValue?.options) return null;
+        if (!(selectedComponentValue as IComponent)?.options) return null;
 
-        return Object.entries(selectedAttributeValue.options).map(([option, value]) => {
+        return Object.entries((selectedComponentValue as IComponent).options).map(([option, value]) => {
             if (option !== "none") {
                 return (
                     <UpdateChild
@@ -70,7 +69,7 @@ const UpdateForm: React.FC = () => {
             }
             return null;
         });
-    }, [selectedAttributeValue?.options, menuOf, updatedValue, fileCounts, setFileCounts, setUpdatedValue]);
+    }, [selectedComponentValue, menuOf, updatedValue, fileCounts, setFileCounts, setUpdatedValue]);
 
     // Handle close dialog with reset
     const handleCloseDialog = () => {
@@ -84,7 +83,7 @@ const UpdateForm: React.FC = () => {
     return (
         <form onSubmit={handleUpdate} className='flex flex-col gap-4 w-[60vw] p-6 pb-0 bg-slate-50'>
             <div className='flex items-center justify-between'>
-                <DialogTitle className="text-gray-700 font-medium py-2">Update Attribute</DialogTitle>
+                <DialogTitle className="text-gray-700 font-medium py-2">Update Component</DialogTitle>
                 <DialogTrigger id='close' hidden></DialogTrigger>
                 <Button
                     type='button'
@@ -97,18 +96,18 @@ const UpdateForm: React.FC = () => {
                 </Button>
             </div>
 
-            {/* Attribute Header with Operations */}
+            {/* Component Header with Operations */}
             <Card className="border-2 border-gray-100">
                 <CardContent className="px-4 flex items-center justify-between">
-                    <h1 className='font-medium text-xl uppercase text-blue-700'>{newAttributeName}</h1>
+                    <h1 className='font-medium text-xl uppercase text-blue-700'>{newComponentName}</h1>
                     <div className='flex items-center gap-3'>
-                        {updatedValue?.selected && (
+                        {(updatedValue as IComponent)?.selected && (
                             <Button
                                 type='button'
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setOperation(operation === "add" ? "" : "add")}
-                                title="Add child attribute"
+                                title="Add child component"
                                 className={`${operation === "add" ? "bg-green-100" : ""}`}
                             >
                                 <Plus className="h-5 w-5 text-green-600" />
@@ -120,7 +119,7 @@ const UpdateForm: React.FC = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => setOperation("update")}
-                            title="Edit attribute"
+                            title="Edit component"
                             className={`${operation === "update" ? "bg-blue-100" : ""}`}
                         >
                             <Pencil className="h-5 w-5 text-blue-600" />
@@ -131,7 +130,7 @@ const UpdateForm: React.FC = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => setOperation(operation === "delete" ? "" : "delete")}
-                            title="Delete attribute"
+                            title="Delete component"
                             className={`${operation === "delete" ? "bg-red-100" : ""}`}
                         >
                             <Trash2 className="h-5 w-5 text-red-600" />
@@ -146,17 +145,17 @@ const UpdateForm: React.FC = () => {
                     <Card className="border-2 border-gray-100">
                         <CardContent className="px-6">
                             <div className="mb-6">
-                                <h2 className='pb-2 font-medium text-lg'>Rename Attribute</h2>
+                                <h2 className='pb-2 font-medium text-lg'>Rename Component</h2>
                                 <div className="flex gap-2">
                                     <div className="p-2 bg-slate-200 rounded-md">
                                         <Pencil className="h-5 w-5 text-gray-700" />
                                     </div>
                                     <Input
-                                        id='newAttributeName'
+                                        id='newComponentName'
                                         required
                                         type="text"
-                                        value={newAttributeName}
-                                        onChange={(e) => setNewAttributeName(e.target.value)}
+                                        value={newComponentName}
+                                        onChange={(e) => setNewComponentName(e.target.value)}
                                         placeholder="e.g my-design"
                                         className="flex-1"
                                     />
@@ -164,7 +163,7 @@ const UpdateForm: React.FC = () => {
                             </div>
 
                             {/* File Upload Section */}
-                            {selectedAttributeValue?.fileId && (
+                            {(selectedComponentValue as IFileInfo)?.fileId && (
                                 <div className="mt-6">
                                     <PageSelector
                                         pages={pages}
@@ -174,17 +173,17 @@ const UpdateForm: React.FC = () => {
 
                                     <div className='flex flex-col gap-4'>
                                         {selectedPages.map((page) => {
-                                            const selectedFile = newFiles?.[selectedAttributeValue?.path]?.[pages[page]] || null;
+                                            const selectedFile = newFiles?.[(selectedComponentValue as IFileInfo)?.fileId]?.[pages[page]] || null;
                                             const fileExists = fileExistenceStatus[page];
 
                                             return (
-                                                <AttributeFileSection
+                                                <ComponentFileSection
                                                     key={page}
                                                     page={page}
                                                     pages={pages}
                                                     selectedFile={selectedFile}
-                                                    baseFilePath={baseFilePath}
-                                                    attributePath={selectedAttributeValue.path}
+                                                    baseContentPath={baseContentPath}
+                                                    componentPath={(selectedComponentValue as IFileInfo).fileId}
                                                     fileExists={fileExists}
                                                     onFileChange={(e) => handleFileChange(e, page)}
                                                     onDrop={(e) => handleDrop(e, page)}
@@ -203,10 +202,10 @@ const UpdateForm: React.FC = () => {
                     <Card className="border-2 border-gray-100">
                         <CardContent className="p-6">
                             <h2 className='text-lg font-medium mb-4'>
-                                Add attribute in <span className='text-blue-600'>{menuOf[menuOf.length - 1]}</span>
+                                Add component in <span className='text-blue-600'>{menuOf[menuOf.length - 1]}</span>
                             </h2>
-                            <AddChild 
-                                updatedValue={updatedValue as { options?: { [key: string]: IAttribute } }} 
+                            <AddChild
+                                updatedValue={updatedValue as { options?: { [key: string]: IComponent } }}
                                 setOperation={setOperation}
                             />
                         </CardContent>
@@ -221,11 +220,11 @@ const UpdateForm: React.FC = () => {
                 )}
             </div>
 
-            {/* Child Attributes Section */}
-            {selectedAttributeValue?.options && (
+            {/* Child Components Section */}
+            {(selectedComponentValue as IComponent)?.options && (
                 <Card className="border-2 border-gray-100">
                     <CardContent className="p-6">
-                        <h2 className='text-lg font-medium mb-4'>Child Attributes</h2>
+                        <h2 className='text-lg font-medium mb-4'>Child Components</h2>
                         <div className="space-y-4">
                             {childComponents}
                             {!childComponents?.length && (
@@ -255,7 +254,7 @@ const UpdateForm: React.FC = () => {
                     >
                         Cancel
                     </Button>
-                    <Button 
+                    <Button
                         type="submit"
                         disabled={updateLoading}
                         className="min-w-[120px]"

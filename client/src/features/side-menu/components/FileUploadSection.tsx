@@ -51,7 +51,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             <img
                 src={newBaseDrawingFiles?.[tempPages[choosenPage]]
                     ? URL.createObjectURL(newBaseDrawingFiles[tempPages[choosenPage]])
-                    : `${baseContentPath}/${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
+                    : `${baseContentPath}//${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
                 alt="base drawing"
                 className="w-full rounded-xl"
             />

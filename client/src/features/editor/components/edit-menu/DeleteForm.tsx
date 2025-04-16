@@ -1,16 +1,15 @@
-import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import useAppStore from '../../../../store/useAppStore';
 import { DialogDescription, DialogTrigger, DialogTitle } from '../../../../components/ui/dialog';
-import { deletecomponentsAPI } from '../../lib/designAPI';
+import { IStructure } from '@/types/design.types';
+import { useModel } from '@/contexts/ModelContext';
 
 
 function DeleteForm() {
 
-    const { menuOf, components, setComponents, generateHierarchy, setUndoStack, setRedoStack } = useAppStore();
-    const { id } = useParams();
-
-    const tempcomponents = JSON.parse(JSON.stringify(components));
+    const { menuOf, structure, setStructureElements, setUndoStack, setRedoStack } = useAppStore();
+    const { deleteComponent } = useModel()
+    const tempcomponents = JSON.parse(JSON.stringify(structure.components));
 
     const updatedValue = menuOf.length === 3 ? tempcomponents[menuOf[0]].options[menuOf[1]].options[menuOf[2]] : menuOf.length === 2 ? tempcomponents[menuOf[0]].options[menuOf[1]] : tempcomponents[menuOf[0]];
 
@@ -38,8 +37,8 @@ function DeleteForm() {
 
         function traverse(current) {
             if (typeof current === 'object' && current !== null) {
-                if (current.fileId&& current.fileId!== "none") {
-                    paths.push(current.path);
+                if (current.fileId && current.fileId !== "none") {
+                    paths.push(current.fileId);
                 }
                 for (let key in current) {
                     if (current[key]) {
@@ -55,32 +54,34 @@ function DeleteForm() {
 
     const handleDelete = async () => {
 
-        let attributes = deleteValue()
-        let structure = generateHierarchy({
-            updatedComponents: attributes
-        })
-        
-        
+        const updatedComponents = deleteValue()
+
+        const updatedStructure: IStructure = {
+            ...structure,
+            components: updatedComponents
+        }
+
         const body = {
-            structure: structure,
+            structure: updatedStructure,
             filesToDelete: extractPaths()
         }
 
         try {
             setUndoStack([]);
             setRedoStack([]);
-            const data = await deletecomponentsAPI(id, body);
-            if (data.success) {
-                setComponents(tempcomponents)
+            const data = await deleteComponent(body);
+
+            if (data && data.success) {
+                setStructureElements({ updatedComponents: tempcomponents })
                 toast.success(data.status);
-                document.querySelector("#close").click();
+                (document.querySelector("#close") as HTMLElement)?.click();
             }
             else {
-                toast.error(data.status);
+                toast.error(data ? data.status : "Error deleting and component.");
             }
         } catch (error) {
             console.log(error);
-            toast.error("Something went wrong. F");
+            toast.error("Something went wrong.");
         }
     }
 
@@ -92,7 +93,7 @@ function DeleteForm() {
             <div className='flex items-center justify-start gap-2 text-sm'>
                 <button onClick={handleDelete} type='button' className='font-medium hover:bg-red-400/75 hover:border-dark border bg-red-300 py-1.5 px-4 rounded-md'>Yes</button>
                 <button onClick={() => {
-                    document.getElementById("close").click();
+                    document.getElementById("close")?.click();
                 }} type='button' className='bg-white hover:border-dark border hover:bg-white/60 font-normal py-1.5 px-4 rounded-md'>Cancel</button>
             </div>
             <DialogTrigger id='close' className='absolute top-3 right-3 shadow-none'>

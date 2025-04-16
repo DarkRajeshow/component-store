@@ -1,50 +1,46 @@
 // hooks/useAddChild.tsx
 import useAppStore from "@/store/useAppStore";
-import { IAttribute } from "@/types/request.types";
+import { IComponent, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from "@/types/project.types";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
 interface UseAddChildProps {
     nestedIn?: string;
-    setOperation: (operation: string) => void;
-    updatedValue: {
-        options?: {
-            [key: string]: IAttribute;
-        };
-    };
+    setOperation: (operation: "" | "update" | "delete" | "add") => void;
+    updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null
 }
 
 export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAddChildProps) => {
     const {
         menuOf,
         newFiles,
-        setNewFiles,
-        setUpdatedComponents,
         updatedComponents,
+        structure,
         uniqueFileName,
         setUniqueFileName,
-        pages
+        setNewFiles,
+        setUpdatedComponents,
     } = useAppStore();
 
     const [optionName, setOptionName] = useState("");
     const [isParent, setIsParent] = useState(false);
-    const [isAttributeAlreadyExist, setIsAttributeAlreadyExist] = useState(false);
+    const [isComponentAlreadyExist, setIsComponentAlreadyExist] = useState(false);
     const [selectedPages, setSelectedPages] = useState(['gad']);
 
     // Memoized handlers
     const handleOptionNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const newOptionName = e.target.value;
-        const optionsToCheck = updatedValue?.options;
+        const optionsToCheck = (updatedValue as IComponent)?.options;
 
         if (optionsToCheck && optionsToCheck[newOptionName]) {
             toast.error(`Option name "${newOptionName}" already exists! Please choose a different name.`);
-            setIsAttributeAlreadyExist(true);
+            setIsComponentAlreadyExist(true);
         } else {
-            setIsAttributeAlreadyExist(false);
+            setIsComponentAlreadyExist(false);
         }
 
         setOptionName(newOptionName);
-    }, [updatedValue?.options]);
+    }, [updatedValue]);
 
     const handleSetIsParent = useCallback((value: boolean) => {
         setIsParent(value);
@@ -53,14 +49,14 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
     const handlePageSelection = useCallback((pageName: string) => {
         if (selectedPages.includes(pageName)) {
             const updatedNewFiles = { ...newFiles };
-            delete updatedNewFiles[pages[pageName]];
+            delete updatedNewFiles[structure.pages[pageName]];
             setNewFiles(updatedNewFiles);
 
             setSelectedPages((prev) => prev.filter((page) => page !== pageName));
             return;
         }
         setSelectedPages((prev) => [pageName, ...prev]);
-    }, [selectedPages, newFiles, pages, setNewFiles]);
+    }, [selectedPages, newFiles, structure.pages, setNewFiles]);
 
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, page: string) => {
         if (e.target.files && e.target.files[0]) {
@@ -70,14 +66,14 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
                     ...newFiles,
                     [uniqueFileName]: {
                         ...newFiles?.[uniqueFileName],
-                        [pages[page]]: file
+                        [structure.pages[page]]: file
                     },
                 });
             } else {
                 toast.error('Please choose a svg or pdf file.');
             }
         }
-    }, [newFiles, setNewFiles, uniqueFileName, pages]);
+    }, [newFiles, setNewFiles, uniqueFileName, structure.pages]);
 
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, page: string) => {
         e.preventDefault();
@@ -88,14 +84,14 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
                     ...newFiles,
                     [uniqueFileName]: {
                         ...newFiles?.[uniqueFileName],
-                        [pages[page]]: file
+                        [structure.pages[page]]: file
                     },
                 });
             } else {
                 toast.error('Please choose a svg or pdf file.');
             }
         }
-    }, [newFiles, setNewFiles, uniqueFileName, pages]);
+    }, [newFiles, setNewFiles, uniqueFileName, structure.pages]);
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -103,26 +99,26 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
 
     // Core logic functions
     const updateValue = useCallback((prev: any) => {
-        const tempAttributes = { ...prev };
+        const tempComponents = { ...prev };
 
         if (menuOf.length === 3) {
-            tempAttributes[menuOf[0]].options[menuOf[1]].options[menuOf[menuOf.length - 1]] = updatedValue;
+            tempComponents[menuOf[0]].options[menuOf[1]].options[menuOf[menuOf.length - 1]] = updatedValue;
         } else if (menuOf.length === 2) {
-            tempAttributes[menuOf[0]].options[menuOf[menuOf.length - 1]] = updatedValue;
+            tempComponents[menuOf[0]].options[menuOf[menuOf.length - 1]] = updatedValue;
         } else if (menuOf.length === 1) {
-            tempAttributes[menuOf[menuOf.length - 1]] = updatedValue;
+            tempComponents[menuOf[menuOf.length - 1]] = updatedValue;
         }
 
-        return tempAttributes;
+        return tempComponents;
     }, [menuOf, updatedValue]);
 
     const removeFile = useCallback((page: string) => {
         const updatedFiles = { ...newFiles };
         if (uniqueFileName && updatedFiles[uniqueFileName]) {
-            delete updatedFiles[uniqueFileName][pages[page]];
+            delete updatedFiles[uniqueFileName][structure.pages[page]];
         }
         setNewFiles(updatedFiles);
-    }, [newFiles, pages, setNewFiles, uniqueFileName]);
+    }, [newFiles, structure.pages, setNewFiles, uniqueFileName]);
 
     const handleAdd = useCallback(() => {
         // Validation
@@ -146,60 +142,60 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
             return;
         }
 
-        // Update attributes
-        const tempAttributes = updateValue(updatedComponents);
+        // Update components
+        const tempComponents = updateValue(updatedComponents);
 
         const tempUpdateFunc = () => {
             if (nestedIn) {
                 if (menuOf.length === 2) {
-                    if (!tempAttributes[menuOf[0]]?.options[menuOf[1]]?.options) {
-                        tempAttributes[menuOf[0]].options[menuOf[1]].options = {};
+                    if (!tempComponents[menuOf[0]]?.options[menuOf[1]]?.options) {
+                        tempComponents[menuOf[0]].options[menuOf[1]].options = {};
                     }
-                    tempAttributes[menuOf[0]].options[menuOf[1]].options[nestedIn].options[optionName] = {
-                        path: uniqueFileName
+                    tempComponents[menuOf[0]].options[menuOf[1]].options[nestedIn].options[optionName] = {
+                        fileId: uniqueFileName
                     };
                 } else if (menuOf.length === 1) {
-                    if (!tempAttributes[menuOf[0]].options[nestedIn].options) {
-                        tempAttributes[menuOf[0]].options[nestedIn].options = {};
+                    if (!tempComponents[menuOf[0]].options[nestedIn].options) {
+                        tempComponents[menuOf[0]].options[nestedIn].options = {};
                     }
-                    tempAttributes[menuOf[0]].options[nestedIn].options[optionName] = {
-                        path: uniqueFileName
+                    tempComponents[menuOf[0]].options[nestedIn].options[optionName] = {
+                        fileId: uniqueFileName
                     };
                 }
             } else {
                 if (isParent) {
                     if (menuOf.length === 2) {
-                        tempAttributes[menuOf[0]].options[menuOf[1]].options[optionName] = {
+                        tempComponents[menuOf[0]].options[menuOf[1]].options[optionName] = {
                             selected: " ",
                             options: {},
                         };
                     } else if (menuOf.length === 1) {
-                        tempAttributes[menuOf[0]].options[optionName] = {
+                        tempComponents[menuOf[0]].options[optionName] = {
                             selected: " ",
                             options: {},
                         };
                     }
                 } else {
                     if (menuOf.length === 2) {
-                        if (!tempAttributes[menuOf[0]]?.options[menuOf[1]]?.options) {
-                            tempAttributes[menuOf[0]].options[menuOf[1]].options = {};
+                        if (!tempComponents[menuOf[0]]?.options[menuOf[1]]?.options) {
+                            tempComponents[menuOf[0]].options[menuOf[1]].options = {};
                         }
 
-                        tempAttributes[menuOf[0]].options[menuOf[1]].options[optionName] = {
-                            path: uniqueFileName
+                        tempComponents[menuOf[0]].options[menuOf[1]].options[optionName] = {
+                            fileId: uniqueFileName
                         };
                     } else if (menuOf.length === 1) {
-                        if (!tempAttributes[menuOf[0]]?.options) {
-                            tempAttributes[menuOf[0]].options = {};
+                        if (!tempComponents[menuOf[0]]?.options) {
+                            tempComponents[menuOf[0]].options = {};
                         }
-                        tempAttributes[menuOf[0]].options[optionName] = {
-                            path: uniqueFileName
+                        tempComponents[menuOf[0]].options[optionName] = {
+                            fileId: uniqueFileName
                         };
                     }
                 }
             }
 
-            return tempAttributes;
+            return tempComponents;
         };
 
         const newupdatedComponents = tempUpdateFunc();
@@ -231,7 +227,7 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
     return {
         optionName,
         isParent,
-        isAttributeAlreadyExist,
+        isComponentAlreadyExist,
         selectedPages,
         menuOf,
         uniqueFileName,
@@ -244,7 +240,7 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
         handleDragOver,
         handleAdd,
         handleCancel,
-        pages,
+        pages: structure.pages,
         removeFile
     };
 };

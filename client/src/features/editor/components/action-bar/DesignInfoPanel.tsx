@@ -6,103 +6,93 @@ import {
     CardTitle,
     CardFooter
 } from '@/components/ui/card';
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { IDesign } from '@/types/request.types';
-
-interface Question {
-    label: string;
-    options: Array<{
-        label: string;
-        value: string;
-    }>;
-}
-
-// interface Design {
-//     designType: string;
-//     selectedCategory: string;
-//     designInfo?: Record<string, string>;
-// }
-
-interface PopUpQuestions {
-    [key: string]: {
-        questions: Question[];
-    };
-}
+import useAppStore from '@/store/useAppStore';
+import { useModel } from '@/contexts/ModelContext';
+import { IDesign } from '@/types/design.types';
+import { IProject } from '@/types/project.types';
 
 interface DesignInfoPanelProps {
-    design: IDesign;
-    popUpQuestions: PopUpQuestions;
     tempSelectedCategory: string;
     setTempSelectedCategory: (value: string) => void;
-    shiftCategory: () => void;
+    shiftToSelectedCategory: () => void;
 }
 
 const DesignInfoPanel = memo(({
-    design,
-    popUpQuestions,
     tempSelectedCategory,
     setTempSelectedCategory,
-    shiftCategory
+    shiftToSelectedCategory
 }: DesignInfoPanelProps) => {
-    if (!design || !popUpQuestions[design.designType]) {
-        return null;
-    }
-    const selectedCategory = design.selectedCategory; // Assuming designType is the selected category
+    const { content } = useAppStore();
+    const { modelType } = useModel();
+
+    if (!content) return null;
+
+    const selectedCategory = modelType === "design" ? (content as IDesign).category : (content as IProject).selectedCategory;
 
     return (
         <Card className="absolute text-md top-full left-[90%] gap-3 z-40 min-w-[280px] py-2 border-2 border-dark/20 bg-white">
             <CardHeader className="pb-1 pt-3">
-                <CardTitle className="text-sm font-medium">Design Details</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                    {modelType === "design" ? "Design Details" : "Project Details"}
+                </CardTitle>
             </CardHeader>
 
             <CardContent className="pb-1 pt-0">
-                {design?.designInfo &&
-                    Object.entries(design.designInfo).map(([key, value]) => (
-                        <div key={key} className="capitalize text-sm font-medium text-gray-600 mb-1">
-                            {key.replace(/([A-Z])/g, ' $1').trim()} : {value}
-                        </div>
-                    ))
-                }
+                <div className="space-y-2">
+                    {modelType === "design" ? (
+                        <>
+                            <InfoItem label="Type" value={(content as IDesign).type} />
+                            <InfoItem label="Category" value={(content as IDesign).category} />
+                            <InfoItem label="Code" value={(content as IDesign).code} />
+                            {(content as IDesign).description && <InfoItem label="Description" value={(content as IDesign)?.description ?? ''} />}
+                        </>
+                    ) : (
+                        <>
+                            <InfoItem label="Name" value={(content as IProject).name} />
+                            <InfoItem label="Type" value={(content as IProject).type} />
+                            <InfoItem label="Category" value={(content as IProject).selectedCategory} />
 
-                <div className="capitalize mt-4 text-sm font-medium">
-                    <div className="text-sm font-medium mb-2">Change Variety</div>
-
-                    {popUpQuestions[design.designType].questions.map((question, index) => (
-                        <div key={index} className="pb-2 text-sm">
-                            <label className="text-gray-600 text-xs block mb-1">{question.label}</label>
-                            <select
-                                value={tempSelectedCategory}
-                                onChange={(e) => setTempSelectedCategory(e.target.value)}
-                                className="w-full h-auto py-1.5 px-1.5 text-xs text-gray-600 rounded-md border border-input bg-white ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {question.options.map((option, idx) => (
-                                    <option
-                                        key={idx}
-                                        value={option.value}
-                                        className="text-xs text-gray-600"
-                                    >
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    ))}
+                            {(content as IProject)?.description && <InfoItem label="Description" value={(content as IProject).description ?? ''} />}
+                        </>
+                    )}
                 </div>
+
+                {modelType === "project" && <div className="mt-4">
+                    <label className="text-sm font-medium mb-2 block">Change Category</label>
+                    <select
+                        value={tempSelectedCategory}
+                        onChange={(e) => setTempSelectedCategory(e.target.value)}
+                        className="w-full h-auto py-1.5 px-1.5 text-xs text-gray-600 rounded-md border border-input bg-white ring-offset-background focus:outline-none"
+                    >
+                        {Object.keys(((content as IProject).hierarchy.categoryMapping)).map((category) => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
+                </div>}
             </CardContent>
 
             <CardFooter className="pt-1 pb-3">
-                <Button
-                    disabled={selectedCategory == tempSelectedCategory}
-                    onClick={shiftCategory}
+                {modelType === 'project' && <Button
+                    disabled={selectedCategory === tempSelectedCategory}
+                    onClick={shiftToSelectedCategory}
                     className="w-full text-sm bg-green-200 hover:bg-green-300 text-dark font-medium py-1 h-auto"
                 >
-                    Shift
-                </Button>
+                    Shift Category
+                </Button>}
             </CardFooter>
         </Card>
     );
 });
+
+const InfoItem = ({ label, value }: { label: string; value: string }) => (
+    <div className="text-sm">
+        <span className="font-medium text-gray-700">{label}: </span>
+        <span className="text-gray-600">{value}</span>
+    </div>
+);
 
 DesignInfoPanel.displayName = 'DesignInfoPanel';
 

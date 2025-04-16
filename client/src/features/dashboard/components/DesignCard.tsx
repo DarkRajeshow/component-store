@@ -52,39 +52,39 @@ function DesignCard({ design }: DesignCardProps) {
     const getSVGPath = useCallback((value: any, page: string): string | null => {
         if (!value || typeof value !== 'object' || !customizationOptions.pages?.[page]) return null;
 
-        const baseFilePath = `${filePath}${design.folder}/${customizationOptions.pages[page]}`;
+        const baseFilePath = `${filePath}/${design.folder}/${customizationOptions.pages[page]}`;
 
-        if (value.value && value.path) {
-            return `${baseFilePath}/${value.path}.svg?v=${fileVersion}`;
+        if (value.value && value.fileId) {
+            return `${baseFilePath}/${value.fileId}.svg?v=${fileVersion}`;
         }
 
         const subOption = value.selected;
         const subSubOption = value.options?.[subOption]?.selected;
 
         if (subSubOption && subSubOption.trim() !== "") {
-            return `${baseFilePath}/${value.options[subOption]?.options?.[subSubOption]?.path}.svg?v=${fileVersion}`;
+            return `${baseFilePath}/${value.options[subOption]?.options?.[subSubOption]?.fileId}.svg?v=${fileVersion}`;
         }
 
-        if (subOption && value.options?.[subOption]?.path) {
-            return `${baseFilePath}/${value.options[subOption]?.path}.svg?v=${fileVersion}`;
+        if (subOption && value.options?.[subOption]?.fileId) {
+            return `${baseFilePath}/${value.options[subOption]?.fileId}.svg?v=${fileVersion}`;
         }
 
         return null;
     }, [design.folder, fileVersion, customizationOptions.pages]);
 
     const filePaths = useMemo<string[]>(() => {
-        if (!customizationOptions?.pages || !customizationOptions?.attributes) {
+        if (!customizationOptions?.pages || !customizationOptions?.components) {
             return [];
         }
 
         const allPaths: string[] = [];
 
         Object.keys(customizationOptions.pages).forEach((page) => {
-            const paths = Object.values(customizationOptions.attributes || {})
+            const paths = Object.values(customizationOptions.components || {})
                 .map((value) => getSVGPath(value, page))
                 .filter((path): path is string => Boolean(path));
 
-            allPaths.push(...paths);
+            allPaths.push(...fileIds);
         });
 
         return allPaths;
@@ -143,17 +143,17 @@ function DesignCard({ design }: DesignCardProps) {
                                     y="0"
                                     width="340"
                                     height="340"
-                                    href={`${filePath}${design.folder}/${customizationOptions.pages[page]}/${customizationOptions.baseDrawing.path}.svg?v=${fileVersion}`}
+                                    href={`${filePath}/${design.folder}/${customizationOptions.pages[page]}/${customizationOptions.baseDrawing.fileId}.svg?v=${fileVersion}`}
                                 />
                             )}
 
-                            {customizationOptions.attributes &&
-                                Object.entries(customizationOptions.attributes).map(([attribute, value]) => {
+                            {customizationOptions.components &&
+                                Object.entries(customizationOptions.components).map(([component, value]) => {
                                     const svgPath = getSVGPath(value, page);
                                     return (
                                         (svgPath && existingFiles[svgPath]) && (
                                             <image
-                                                key={attribute}
+                                                key={component}
                                                 href={svgPath}
                                                 x="0"
                                                 y="0"

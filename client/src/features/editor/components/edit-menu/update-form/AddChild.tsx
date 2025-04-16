@@ -4,26 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageSelector from "./PageSelector";
-import { IAttribute } from "../../../../../types/request.types";
 import OptionTypeSelector from "./OptionTypeSelector";
 import FileUploader from "./FileUploader";
 import { useAddChild } from "@/features/editor/hooks/edit-menu/useAddChild";
+import { IComponent, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from "@/types/project.types";
 
 interface AddChildProps {
     nestedIn?: string;
-    setOperation: React.Dispatch<React.SetStateAction<"" | "update" | "delete" | "add">>;
-    updatedValue: {
-        options?: {
-            [key: string]: IAttribute;
-        };
-    };
+    setOperation: (operation: "" | "update" | "delete" | "add") => void
+    updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
 }
 
 const AddChild = React.memo(({ nestedIn = "", setOperation, updatedValue }: AddChildProps) => {
     const {
         optionName,
         isParent,
-        isAttributeAlreadyExist,
+        isComponentAlreadyExist,
         selectedPages,
         menuOf,
         handleOptionNameChange,
@@ -41,7 +37,7 @@ const AddChild = React.memo(({ nestedIn = "", setOperation, updatedValue }: AddC
 
     const isMenuOfLengthOne = menuOf.length === 1;
     const shouldShowParentSelector = !nestedIn && isMenuOfLengthOne;
-    const isAddButtonDisabled = isAttributeAlreadyExist || !optionName;
+    const isAddButtonDisabled = isComponentAlreadyExist || !optionName;
     const addButtonClassName = isAddButtonDisabled ? 'bg-gray-300' : 'bg-green-300/90 hover:bg-green-300';
 
     return (
@@ -70,13 +66,13 @@ const AddChild = React.memo(({ nestedIn = "", setOperation, updatedValue }: AddC
                         <div>
                             <p className="pb-2 font-medium">Name</p>
                             <div className="group border-dark/5 focus-within:border-dark/10 border-2 py-0.5 rounded-md flex items-center justify-center px-1">
-                                <label htmlFor="newAttributeName" className="p-2 bg-dark/5 rounded-md">
+                                <label htmlFor="newComponentName" className="p-2 bg-dark/5 rounded-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 text-dark/60 group-hover:text-dark h-full">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
                                     </svg>
                                 </label>
                                 <Input
-                                    id="newAttributeName"
+                                    id="newComponentName"
                                     required
                                     type="text"
                                     value={optionName}
