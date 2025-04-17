@@ -210,7 +210,7 @@ const useAppStore = create<StoreState>()(
         })),
 
         // Update selected option within a specific component and push to undo stack
-        updateselected: (component, option) => {
+        updateSelected: (component, option) => {
           get().pushToUndoStack();
 
           console.log(option);

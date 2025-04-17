@@ -91,7 +91,11 @@ export function useActionBar() {
             }
             if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
                 setMenuVisible("");
+                setOpenDropdown("");
             }
+            // if (actionBarRef.current && !actionBarRef.current.contains(event.target as Node)) {
+            //     setOpenDropdown("");
+            // }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
@@ -101,12 +105,15 @@ export function useActionBar() {
     const handleToggle = useCallback((key: string) => {
         pushToUndoStack(); // Push the current state before the change
         console.log("called");
-        
+
         toggleComponentValue(key);
 
     }, [pushToUndoStack, toggleComponentValue]);
 
     const toggleDropdown = useCallback((component: string) => {
+        console.log("component");
+        console.log(component);
+
         setOpenDropdown(prevDropdown => prevDropdown === component ? "" : component);
     }, []);
 
@@ -252,7 +259,6 @@ export function useActionBar() {
         contextMenuRef,
         infoContext,
         modelType,
-
         // Actions
         setOpenDropdown,
         setComponentFileName,

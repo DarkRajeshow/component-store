@@ -31,7 +31,7 @@ interface StoreActions {
         updatedPages?: IPages | null;
     }) => IHierarchy;
     toggleComponentValue: (key: string) => void;
-    updateselected: (component: string, option: string) => void;
+    updateSelected: (component: string, option: string) => void;
     updateSelectedSubOption: (component: string, option: string, subOption: string) => void;
     pushToUndoStack: () => void;
     handleUndo: () => void;

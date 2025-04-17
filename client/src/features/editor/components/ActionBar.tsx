@@ -34,7 +34,6 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         infoContext,
         modelType,
         // Actions
-        setOpenDropdown,
         setComponentFileName,
         setDialogType,
         setLevelOneNest,
@@ -89,11 +88,11 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         <Dialog className="rounded-lg col-span-3 overflow-hidden">
             <div
                 className="pt-3 flex items-center justify-between px-6 select-none"
-                onMouseLeave={() => {
-                    if (!menuVisible) {
-                        setOpenDropdown("");
-                    }
-                }}
+                // onClick={() => {
+                //     if (!menuVisible) {
+                //         setOpenDropdown("");
+                //     }
+                // }}
             >
                 {/* Left section - Home and Design Info */}
                 <div className="w-40 flex justify-center items-center gap-2">

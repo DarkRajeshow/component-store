@@ -15,7 +15,7 @@ interface RenderOptionsProps {
 }
 
 const RenderOptions = ({ pushToUndoStack, component, options, handleToggleContextMenu, setDialogType, menuVisible }: RenderOptionsProps) => {
-    const { structure, updateSelectedSubOption, updateselected } = useAppStore();
+    const { structure, updateSelectedSubOption, updateSelected } = useAppStore();
     const [openSubSubOptions, setOpenSubSubOptions] = useState<string[]>([]);
     const [scrollPosition, setScrollPosition] = useState(0);
     const divRef = useRef<HTMLDivElement>(null);
@@ -24,7 +24,7 @@ const RenderOptions = ({ pushToUndoStack, component, options, handleToggleContex
 
     const handleOptionChange = (option: string) => {
         pushToUndoStack(); // Push the current state before the change
-        updateselected(component, option);
+        updateSelected(component, option);
     };
 
     const handleSubOptionChange = (option: string, subOption: string) => {
@@ -86,12 +86,13 @@ const RenderOptions = ({ pushToUndoStack, component, options, handleToggleContex
                 )}
 
                 {(subValue as IComponent).selected && (subValue as IComponent).options && (
-                    <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-full overflow-hidden"}`}>
+                    <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-0 overflow-hidden"}`}>
                         {Object.entries((subValue as IComponent).options).map(([subSubOption]) => (
                             <div key={subSubOption}>
                                 <OptionItem
                                     option={subSubOption}
                                     isSelected={(subValue as IComponent).selected === subSubOption}
+                                    isParentSelected={(components[component] as IComponent).selected === subOption}
                                     menuVisible={menuVisible}
                                     menuPath={`${component}>$>${subOption}>$>${subSubOption}`}
                                     onOptionClick={() => handleSubOptionChange(subOption, subSubOption)}
