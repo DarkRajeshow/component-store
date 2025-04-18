@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { IComponents, IFileInfo, IHierarchy, IPages } from "@/types/project.types";
-import { IBaseDrawing, IDesign, IStructure } from "@/types/design.types";
+import { IBaseDrawing, IStructure } from "@/types/design.types";
 
 // Types for the side menu feature
 
@@ -60,7 +60,7 @@ export interface FileExistenceStatus {
   [key: string]: boolean;
 }
 
-export interface SideMenuProps {
+export interface UsePageManagerProps {
   folder: string;
   modelType: "project" | "design";
   selectedCategory: string;
@@ -71,6 +71,9 @@ export interface SideMenuProps {
   loading: boolean;
   generateHierarchy: (params: generateHierarchyParams) => IHierarchy;
   structure: IStructure;
+  setSideMenuType: (updatedMenuType: string) => void;
+  isPopUpOpen: boolean;
+  setIsPopUpOpen: (value: boolean) => void;
 }
 
 export interface generateHierarchyParams {

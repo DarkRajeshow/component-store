@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import ComponentOption from './ComponentOption';
 import RenderOptions from './RenderOptions';
 import EditMenu from './EditMenu';
@@ -44,11 +44,6 @@ const ComponentsList = memo(({
                 value
             }));
     }, [components]);
-
-
-    useEffect(() => {
-        console.log(openDropdown);
-    }, [openDropdown])
     
     if (!components || sortedComponents.length === 0) {
         return <div className="flex items-center justify-center p-4">No components found</div>;

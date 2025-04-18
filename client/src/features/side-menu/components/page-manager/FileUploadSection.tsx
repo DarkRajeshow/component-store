@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileUploadService } from "../services/FileUploadService";
+import { FileUploadService } from "../../services/FileUploadService";
 
 interface FileUploadSectionProps {
     choosenPage: string;
@@ -29,7 +29,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
 }) => {
     // Memoize file preview rendering logic
     const filePreview = useMemo(() => {
-        console.log("Rendering file preview for page:", choosenPage, "with fileId:", tempBaseDrawing?.fileId, "and file existence status:", fileExistenceStatus);
+        // console.log("Rendering file preview for page:", choosenPage, "with fileId:", tempBaseDrawing?.fileId, "and file existence status:", fileExistenceStatus);
         
         if (!(tempBaseDrawing?.fileId && fileExistenceStatus[choosenPage]) && !newBaseDrawingFiles?.[tempPages[choosenPage]]) {
             return null;
@@ -51,7 +51,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             <img
                 src={newBaseDrawingFiles?.[tempPages[choosenPage]]
                     ? URL.createObjectURL(newBaseDrawingFiles[tempPages[choosenPage]])
-                    : `${baseContentPath}//${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
+                    : `${baseContentPath}/${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
                 alt="base drawing"
                 className="w-full rounded-xl"
             />

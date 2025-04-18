@@ -78,7 +78,6 @@ export const useSVGPaths = ({
 
   // Generate all file paths
   const filePaths = useMemo(() => {
-    console.log("working");
     if (!components) {
       return []
     }
@@ -99,7 +98,6 @@ export const useSVGPaths = ({
       setExistingFiles((prev) => ({ ...prev, ...results }));
     };
 
-    console.log(filePaths);
     if (filePaths.length > 0) {
       fetchFileExistence();
     }

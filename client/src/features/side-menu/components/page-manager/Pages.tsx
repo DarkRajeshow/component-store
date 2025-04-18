@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import PageList from "./PageList";
 import DeletePageConfirmation from "./DeletePageConfirmation";
+import { IPages } from "@/types/project.types";
 
-interface PageManagementProps {
+interface PagesProps {
     newPageName: string;
     setNewPageName: (name: string) => void;
     addNewPage: () => void;
@@ -13,13 +14,13 @@ interface PageManagementProps {
     fileExistenceStatus: Record<string, boolean>;
     openDeleteConfirmation: (pageName: string) => void;
     setChoosenPage: (pageName: string) => void;
-    tempPages: Record<string, any>;
+    setOpenPageDeleteWarning: (pageName: string) => void;
+    tempPages: IPages;
     openPageDeleteWarning: string;
-    setOpenPageDeleteWarning: (open: string) => void;
     handleDelete: () => void;
 }
 
-const PageManagement: React.FC<PageManagementProps> = ({
+const Pages: React.FC<PagesProps> = ({
     newPageName,
     setNewPageName,
     addNewPage,
@@ -77,4 +78,4 @@ const PageManagement: React.FC<PageManagementProps> = ({
     );
 };
 
-export default React.memo(PageManagement);
+export default React.memo(Pages);

@@ -138,8 +138,6 @@ export class ProjectController {
                 return sendResponse(res, false, 'Data is missing.');
             }
 
-            console.log(structure);
-            
             const result = await projectService.handleHierarchyUpdate(id, userId, categoryId, structure);
             if (!result.success && result.message) {
                 return sendResponse(res, false, result.message);

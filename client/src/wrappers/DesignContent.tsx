@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, JSX } from 'react';
+import { useEffect, useRef, useState, useCallback, JSX, RefObject } from 'react';
 import { useParams } from 'react-router-dom';
 import { svg2pdf } from 'svg2pdf.js';
 import jsPDF from 'jspdf';
@@ -57,9 +57,9 @@ const DesignContent = (): JSX.Element => {
             const selectionHeight = zoomFactor(Math.abs(endY - startY), svgHeight, viewBoxHeight);
             aspectRatio = selectionWidth / selectionHeight;
 
-            clonedSvgElement.setComponent('viewBox', `${selectionX} ${selectionY} ${selectionWidth} ${selectionHeight}`);
+            clonedSvgElement.setAttribute('viewBox', `${selectionX} ${selectionY} ${selectionWidth} ${selectionHeight}`);
         } else {
-            clonedSvgElement.setComponent(
+            clonedSvgElement.setAttribute(
                 'viewBox',
                 `${(((viewBoxWidth - 520) / 2) + offset.x) * zoom} ${(offset.y) * zoom} ${520 * zoom} ${window.innerHeight * zoom}`
             );
@@ -96,10 +96,10 @@ const DesignContent = (): JSX.Element => {
                 setZoom={setZoom}
                 offset={offset}
                 setOffset={setOffset}
-                reference={designRef}
+                reference={designRef as RefObject<SVGSVGElement>}
                 selectionBox={selectionBox}
             />
-        </main>
+        </main >
     );
 };
 

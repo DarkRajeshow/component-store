@@ -26,16 +26,16 @@ const PageList: React.FC<PageListProps> = ({
                 {Object.keys(tempPages).map((page, i) => (
                     <div
                         key={i}
-                        className={`flex cursor-pointer justify-between items-center p-3 rounded-md border ${
-                            choosenPage === page ? "bg-blue-50 border-blue-200" : "bg-gray-50"
-                        }`}
-                        onClick={() => setChoosenPage(page)}
+                        className={`flex cursor-pointer justify-between items-center rounded-md border ${choosenPage === page ? "bg-blue-50 border-blue-200" : "bg-gray-50"
+                            }`}
                     >
-                        <div className="flex-1 cursor-pointer uppercase">
-                            <span className="font-medium">{page}</span>
-                        </div>
+                        <div className="flex items-center gap-2 justify-between w-full p-3"
+                            onClick={() => setChoosenPage(page)}
+                        >
+                            <div className="flex-1 cursor-pointer uppercase">
+                                <span className="font-medium">{page}</span>
+                            </div>
 
-                        <div className="flex items-center gap-2">
                             {fileExistenceStatus[page] ? (
                                 <Badge className="bg-green-100 text-green-800 flex gap-1 items-center">
                                     <CheckCircle className="h-3 w-3" />
@@ -47,18 +47,17 @@ const PageList: React.FC<PageListProps> = ({
                                     <span>No File</span>
                                 </Badge>
                             )}
-
-                            {Object.keys(tempPages).length > 1 && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => openDeleteConfirmation(page)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                >
-                                    <TrashIcon className="h-4 w-4" />
-                                </Button>
-                            )}
                         </div>
+                        {Object.keys(tempPages).length > 1 && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openDeleteConfirmation(page)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 mr-3"
+                            >
+                                <TrashIcon className="h-4 w-4" />
+                            </Button>
+                        )}
                     </div>
                 ))}
             </div>

@@ -10,7 +10,7 @@ export const FileExistenceChecker = {
         tempBaseDrawing: IFileInfo | null,
         fileVersion: number
     ): Promise<FileExistenceStatus> {
-        if (Object.keys(tempPages).length === 0) {
+        if (!tempPages || Object.keys(tempPages).length === 0) {
             return {};
         }
 

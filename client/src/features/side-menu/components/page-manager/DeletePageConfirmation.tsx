@@ -12,8 +12,8 @@ import {
 
 interface DeletePageConfirmationProps {
     handleDelete: () => void;
-    openPageDeleteWarning: boolean;
-    setOpenPageDeleteWarning: (open: boolean) => void;
+    openPageDeleteWarning: string;
+    setOpenPageDeleteWarning: (pageName: string) => void;
 }
 
 const DeletePageConfirmation: React.FC<DeletePageConfirmationProps> = ({
@@ -22,7 +22,7 @@ const DeletePageConfirmation: React.FC<DeletePageConfirmationProps> = ({
     setOpenPageDeleteWarning
 }) => {
     return (
-        <AlertDialog open={openPageDeleteWarning} onOpenChange={setOpenPageDeleteWarning}>
+        <AlertDialog open={Boolean(openPageDeleteWarning)} onOpenChange={() => setOpenPageDeleteWarning("")}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure you want to delete this page?</AlertDialogTitle>

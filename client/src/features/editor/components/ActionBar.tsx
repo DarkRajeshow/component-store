@@ -88,11 +88,11 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         <Dialog className="rounded-lg col-span-3 overflow-hidden">
             <div
                 className="pt-3 flex items-center justify-between px-6 select-none"
-                // onClick={() => {
-                //     if (!menuVisible) {
-                //         setOpenDropdown("");
-                //     }
-                // }}
+            // onClick={() => {
+            //     if (!menuVisible) {
+            //         setOpenDropdown("");
+            //     }
+            // }}
             >
                 {/* Left section - Home and Design Info */}
                 <div className="w-40 flex justify-center items-center gap-2">
@@ -168,6 +168,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
 
                     <DialogTrigger
                         onClick={() => setDialogType("export")}
+                        id='exportBtn'
                         className="bg-blue-200 hover:bg-green-300 py-2 rounded-full px-6 text-dark font-medium"
                     >
                         Export
