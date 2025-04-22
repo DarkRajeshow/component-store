@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUploadService } from "../../services/FileUploadService";
+import { IProject } from "@/types/project.types";
+import { IDesign } from "@/types/design.types";
 
 interface FileUploadSectionProps {
     choosenPage: string;
@@ -12,8 +14,10 @@ interface FileUploadSectionProps {
     tempPages: Record<string, string>;
     fileExistenceStatus: Record<string, boolean>;
     newBaseDrawingFiles: Record<string, File>;
-    baseContentPath: string;
+    tempSelectedCategory: string;
     fileVersion: string | number;
+    baseFolderPath: string;
+    content: IProject | IDesign | null
 }
 
 const FileUploadSection: React.FC<FileUploadSectionProps> = ({
@@ -24,17 +28,18 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
     tempPages,
     fileExistenceStatus,
     newBaseDrawingFiles,
-    baseContentPath,
-    fileVersion
+    tempSelectedCategory,
+    fileVersion,
+    baseFolderPath,
+    content
 }) => {
     // Memoize file preview rendering logic
     const filePreview = useMemo(() => {
         // console.log("Rendering file preview for page:", choosenPage, "with fileId:", tempBaseDrawing?.fileId, "and file existence status:", fileExistenceStatus);
-        
-        if (!(tempBaseDrawing?.fileId && fileExistenceStatus[choosenPage]) && !newBaseDrawingFiles?.[tempPages[choosenPage]]) {
+
+        if (!(tempBaseDrawing?.fileId && fileExistenceStatus[choosenPage]) && !newBaseDrawingFiles?.[tempPages[choosenPage]] || !content) {
             return null;
         }
-
 
         if (newBaseDrawingFiles?.[tempPages[choosenPage]]?.type === "application/pdf") {
             return (
@@ -46,17 +51,21 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
                 />
             );
         }
-
+        const project = content as IProject;
+        const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
+        const completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
         return (
             <img
                 src={newBaseDrawingFiles?.[tempPages[choosenPage]]
                     ? URL.createObjectURL(newBaseDrawingFiles[tempPages[choosenPage]])
-                    : `${baseContentPath}/${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
+                    : `${completeCategoryPath}/${tempPages[choosenPage]}/${tempBaseDrawing?.fileId}.svg?v=${fileVersion}`}
                 alt="base drawing"
                 className="w-full rounded-xl"
             />
         );
-    }, [tempBaseDrawing?.fileId, choosenPage, newBaseDrawingFiles, tempPages, fileExistenceStatus, baseContentPath, fileVersion]);
+    }, [tempBaseDrawing?.fileId, choosenPage, newBaseDrawingFiles, tempPages, content, fileExistenceStatus, tempSelectedCategory, baseFolderPath, fileVersion]);
+    console.log(tempBaseDrawing?.fileId );
+    
 
     return (
         <Card className="bg-blue-50 border-none">

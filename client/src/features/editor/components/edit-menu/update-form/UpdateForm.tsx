@@ -17,7 +17,7 @@ import {
     PageSelector,
     ComponentFileSection
 } from '.';
-import { IFileInfo } from '@/types/project.types';
+import { IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from '@/types/project.types';
 
 
 const UpdateForm: React.FC = () => {
@@ -59,7 +59,7 @@ const UpdateForm: React.FC = () => {
                         key={option}
                         fileCounts={fileCounts}
                         setFileCounts={setFileCounts}
-                        path={[...menuOf, option]}
+                        // path={[...menuOf, option]}
                         updatedValue={updatedValue}
                         setUpdatedValue={setUpdatedValue}
                         option={option}
@@ -69,7 +69,7 @@ const UpdateForm: React.FC = () => {
             }
             return null;
         });
-    }, [selectedComponentValue, menuOf, updatedValue, fileCounts, setFileCounts, setUpdatedValue]);
+    }, [selectedComponentValue, updatedValue, fileCounts, setFileCounts, setUpdatedValue]);
 
     // Handle close dialog with reset
     const handleCloseDialog = () => {
@@ -205,7 +205,7 @@ const UpdateForm: React.FC = () => {
                                 Add component in <span className='text-blue-600'>{menuOf[menuOf.length - 1]}</span>
                             </h2>
                             <AddChild
-                                updatedValue={updatedValue as { options?: { [key: string]: IComponent } }}
+                                updatedValue={updatedValue as IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null}
                                 setOperation={setOperation}
                             />
                         </CardContent>

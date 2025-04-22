@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IBaseDrawing, IComponent, INormalComponent } from '@/types/design.types';
 import { checkFileExists } from '@/utils/checkFileExists';
 import { IComponents, IPages } from '@/types/project.types';
+import useAppStore from '@/store/useAppStore';
 
 interface ExistingFiles {
   [path: string]: boolean;
@@ -26,7 +27,7 @@ interface UseSVGPathsProps {
 
 export const useSVGPaths = ({
   fileVersion,
-  selectedPage,
+  // selectedPage,
   pages,
   components,
   baseDrawing,
@@ -35,6 +36,7 @@ export const useSVGPaths = ({
   const [existingFiles, setExistingFiles] = useState<ExistingFiles>({});
   const [isBaseDrawingExists, setIsBaseDrawingExists] = useState(false);
 
+  const { selectedPage } = useAppStore()
   // Get SVG path for a specific component
   const getSVGPath = useCallback((value: IComponent | INormalComponent | null): string | null => {
     if (!value) return null;

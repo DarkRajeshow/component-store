@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -141,7 +141,7 @@ const FileUploadSection: React.FC<{
                             className="w-full aspect-square p-4 border-2 border-dashed border-gray-400 cursor-pointer flex items-center justify-center min-h-72 rounded-md hover:bg-gray-50 transition-colors"
                         >
                             <span className='text-sm w-60 mx-auto text-center'>
-                                Drag and drop the customization option in SVG format.
+                                Drag and drop the component in SVG format.
                             </span>
                         </div>
                     </div>
@@ -324,8 +324,9 @@ const AddForm: React.FC<AddFormProps> = ({
 
     // Local state
     const [addComponentLoading, setAddComponentLoading] = useState<boolean>(false);
-    const [selectedPages, setSelectedPages] = useState<string[]>(['gad']);
+    const [selectedPages, setSelectedPages] = useState<string[]>([]);
     const [newCustomizationFiles, setNewCustomizationFiles] = useState<CustomizationFiles>({});
+
 
     // Determine if this is a parent component type
     const isParentComponentType = useMemo(() => {
@@ -441,10 +442,17 @@ const AddForm: React.FC<AddFormProps> = ({
         }
     }, [isParentComponentType, addParentComponentOperation, addComponentOperation, selectedPages.length, newCustomizationFiles, setUndoStack, setRedoStack]);
 
+    useEffect(() => {
+        const firstPage = structure?.pages ? Object.keys(structure?.pages)[0] : undefined
+        if (firstPage) {
+            setSelectedPages([firstPage])
+        }
+    }, [structure.pages])
+
     return (
         <form onSubmit={handleAddComponentOperation} className="flex flex-col gap-4 min-w-[715px]">
             <div className="flex items-center justify-between">
-                <DialogTitle className="text-xl font-medium">Add New Customization Option</DialogTitle>
+                <DialogTitle className="text-xl font-medium">Add New Component</DialogTitle>
                 <DialogTrigger id="closeButton" asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">

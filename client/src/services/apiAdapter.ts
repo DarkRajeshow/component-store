@@ -9,7 +9,9 @@ import {
     IRenameCategoryRequest, IRenameCategoryResponse, IDeleteCategoryResponse,
     IGetProjectResponse, IGetProjectsResponse, IGetRecentProjectsResponse,
     IShiftCategoryResponse,
-    IShiftCategoryRequest
+    IShiftCategoryRequest,
+    IReorderPagesRequest,
+    IReorderPagesResponse
 } from "../types/project.types";
 import {
     IDesignResponse, ICreateDesignRequest, ICreateDesignResponse,
@@ -129,6 +131,14 @@ export class ApiAdapter {
         const endpoint = this.modelType === 'project'
             ? `${this.getBasePath()}/pages/${pageId}/rename`
             : `${this.getBasePath()}/pages/${pageId}/rename`;
+
+        return apiRequest('put', endpoint, data);
+    }
+
+    async reorderPages(data: IReorderPagesRequest): Promise<IReorderPagesResponse> {
+        const endpoint = this.modelType === 'project'
+            ? `${this.getBasePath()}/pages/reorder`
+            : `${this.getBasePath()}/pages/reorder`;
 
         return apiRequest('put', endpoint, data);
     }

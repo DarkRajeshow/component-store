@@ -1,4 +1,4 @@
-import { ReactEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import filePath from '../../utils/filePath.js';
@@ -166,37 +166,6 @@ const Navbar = () => {
                             />
                         </div>
 
-                        {/* {emptyProjectData.type && designTypes[emptyProjectData.type]?.questions && (
-                            <div className="space-y-4 pt-2">
-                                <h3 className="text-sm font-medium">Design Specifications</h3>
-                                {designTypes[emptyProjectData.type].questions.map((question, index) => (
-                                    <div key={index} className="space-y-2">
-                                        <Label htmlFor={question.name}>{question.label}</Label>
-                                        <Select
-                                            value={designInfo[question.name]}
-                                            onValueChange={(value) => {
-                                                setDesignInfo(prev => ({
-                                                    ...prev,
-                                                    [question.name]: value
-                                                }));
-                                            }}
-                                        >
-                                            <SelectTrigger id={question.name}>
-                                                <SelectValue placeholder={`Select ${question.label.toLowerCase()}`} />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {question.options.map((option, optIndex) => (
-                                                    <SelectItem key={optIndex} value={option}>
-                                                        {option}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                ))}
-                            </div>
-                        )} */}
-
                         <DialogFooter>
                             <Button type="submit" className="w-full">Create Project</Button>
                         </DialogFooter>
@@ -207,7 +176,7 @@ const Navbar = () => {
                     <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                         <div className="w-40">
                             <Link to={"/"} className="text-lg font-medium text-purple-700">
-                                Flexy Draft
+                                GAD Builder
                             </Link>
                         </div>
 
@@ -228,7 +197,7 @@ const Navbar = () => {
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="rounded-full h-10 w-10 p-0">
                                                 <img
-                                                    src={filePath + user.dp}
+                                                    src={`${filePath}/${user.dp}`}
                                                     alt={user.username}
                                                     className="h-full w-full rounded-full"
                                                 />

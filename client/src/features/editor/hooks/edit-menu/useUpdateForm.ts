@@ -46,17 +46,21 @@ export const useUpdateForm = () => {
   const [updatedValue, setUpdatedValue] = useState<IComponent | INestedParentLevel1 | INestedChildLevel1 | INestedChildLevel2 | null>(null);
   const [selectedComponentValue, setSelectedComponentValue] = useState<IComponent | INestedParentLevel1 | INestedChildLevel1 | INestedChildLevel2 | null>(null);
   const [fileExistenceStatus, setFileExistenceStatus] = useState<FileExistenceStatus>({});
-  const [selectedPages, setSelectedPages] = useState<string[]>(['gad']);
+  const [selectedPages, setSelectedPages] = useState<string[]>([]);
   const [fileCounts, setFileCounts] = useState<FileCounts>({});
 
   // Initialize updated components
   useEffect(() => {
-    console.log(structure.components);
-    
     const deepCopyValue = JSON.parse(JSON.stringify(structure.components));
     setUpdatedComponents(deepCopyValue);
   }, [structure.components, setUpdatedComponents]);
 
+  useEffect(() => {
+    const firstPage = structure?.pages ? Object.keys(structure?.pages)[0] : undefined
+    if (firstPage) {
+      setSelectedPages([firstPage])
+    }
+  }, [structure.pages])
   // Set the current values for the selected component
   useEffect(() => {
     const value = (menuOf.length === 3)
@@ -103,7 +107,7 @@ export const useUpdateForm = () => {
     if (!loading) {
       checkFilesExistence();
     }
-  }, [loading, structure.pages, baseContentPath, (selectedComponentValue as IFileInfo)?.fileId]);
+  }, [loading, structure.pages, baseContentPath, selectedComponentValue]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, page: string) => {
     if (e.target.files && (e.target.files[0].type === 'image/svg+xml' || e.target.files[0].type === 'application/pdf')) {

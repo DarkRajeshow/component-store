@@ -136,7 +136,7 @@ const AddChild = React.memo(({ nestedIn = "", setOperation, updatedValue }: AddC
                                 type="button"
                                 disabled={isAddButtonDisabled}
                                 onClick={handleAdd}
-                                className={`${addButtonClassName}`}
+                                className={`${addButtonClassName} text-black`}
                             >
                                 Add {isParent ? "Parent" : ""} Option
                             </Button>

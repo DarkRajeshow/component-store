@@ -1,7 +1,7 @@
 // hooks/useAddChild.tsx
 import useAppStore from "@/store/useAppStore";
 import { IComponent, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from "@/types/project.types";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 interface UseAddChildProps {
@@ -25,7 +25,7 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
     const [optionName, setOptionName] = useState("");
     const [isParent, setIsParent] = useState(false);
     const [isComponentAlreadyExist, setIsComponentAlreadyExist] = useState(false);
-    const [selectedPages, setSelectedPages] = useState(['gad']);
+    const [selectedPages, setSelectedPages] = useState<string[]>([]);
 
     // Memoized handlers
     const handleOptionNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,8 +198,8 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
             return tempComponents;
         };
 
-        const newupdatedComponents = tempUpdateFunc();
-        setUpdatedComponents(newupdatedComponents);
+        const newUpdatedComponents = tempUpdateFunc();
+        setUpdatedComponents(newUpdatedComponents);
         setUniqueFileName();
         setOperation("");
     }, [
@@ -217,6 +217,7 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
         setOperation
     ]);
 
+
     const handleCancel = useCallback(() => {
         setOperation("");
         const updatedNewFiles = { ...newFiles };
@@ -224,6 +225,14 @@ export const useAddChild = ({ nestedIn = "", setOperation, updatedValue }: UseAd
         setNewFiles(updatedNewFiles);
     }, [setOperation, newFiles, uniqueFileName, setNewFiles]);
 
+    useEffect(() => {
+        const firstPage = structure?.pages ? Object.keys(structure?.pages)[0] : undefined
+        if (firstPage) {
+            setSelectedPages([firstPage])
+        }
+    }, [structure.pages])
+
+    
     return {
         optionName,
         isParent,

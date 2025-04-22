@@ -274,18 +274,56 @@ class DesignController {
                 return sendResponse(res, false, 'Design not found');
             }
 
-            // Store the page ID and update the mapping
-            const pageIdValue = design.structure.pages[pageId];
-            design.structure.pages[newName] = pageIdValue;
-            delete design.structure.pages[pageId];
+            // Get the entries in their original order
+            const pageEntries = Object.entries(design.structure.pages);
+
+            // Create new ordered pages object
+            const orderedPages: { [key: string]: string } = {};
+
+            // Rebuild the pages object with the new name while maintaining order
+            pageEntries.forEach(([key, value]) => {
+                if (value === pageId) {
+                    orderedPages[newName] = value;
+                } else {
+                    orderedPages[key] = value;
+                }
+            });
+
+            // Update the pages object with the ordered version
+            design.structure.pages = orderedPages;
 
             // Update selected page if it was the renamed one
-            if (design.selectedPage === pageIdValue) {
+            if (design.selectedPage === pageId) {
                 design.selectedPage = newName;
             }
 
             await design.save();
+            return sendResponse(res, true, 'Page renamed successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error renaming page');
+        }
+    }
 
+    async reorderPages(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await designService.verifyUser(req.cookies.jwt);
+            const { id } = req.params;
+            const { pages } = req.body;
+
+            const design = await designService.findDesignAndVerifyUser(id, userId);
+            if (!design) {
+                return sendResponse(res, false, 'Design not found');
+            }
+
+            // Update the pages object with the ordered version
+            design.structure.pages = pages;
+            design.markModified('structure.pages');
+            await design.save();
             return sendResponse(res, true, 'Page renamed successfully');
         } catch (error) {
             console.error(error);

@@ -35,20 +35,6 @@ Project.hierarchy = {
                         "4,6,8P DE Standard Bearing": { "fileId": "af531397-e723-4982-951f
 f08b0fac446d" }, 
                         "DE NU Bearing": { "fileId": "41e4b923-2683-4116-973b-7d43ae4bf2b9" }, 
- 
-                        // This below option is "nestedParentLevel1" type 
-                        "NDE C3 Bearing": { 
-                            "selected": "NDE Insulated Bearing", 
-                            "options": { 
-                                // does not contain none option 
-                                "NDE Insulated Bearing": { "fileId": "5a37fbf8-c29a-4def-afd8
-9b481178e368" }, 
-                                // This below option is "nestedChildLevel2" 
-                                "NDE Standard Bearing": { "fileId": "0833596d-1c9d-46f5-afce
-c4a456ba0961" } 
-                            } 
-                        }, 
- 
                     } 
                 } 
             } 

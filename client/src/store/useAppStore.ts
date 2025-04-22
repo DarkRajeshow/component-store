@@ -138,7 +138,7 @@ const useAppStore = create<StoreState>()(
                 project: project,
                 selectedCategory,
                 structure: structure,
-                selectedPage: Object.keys(structure.pages)[0],
+                selectedPage: structure?.pages ? Object.keys(structure.pages)[0] : "",
                 components: structure?.components || {},
                 baseDrawing: structure?.baseDrawing || null,
                 pages: structure?.pages || {}

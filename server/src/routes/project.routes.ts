@@ -75,6 +75,10 @@ router.put('/:id/categories/:categoryId/pages',
   projectController.addPage
 );
 
+router.put('/:id/categories/:categoryId/pages/reorder',
+  projectController.reorderPages
+);
+
 router.put('/:id/categories/:categoryId/pages/:pageId/rename',
   projectController.renamePage
 );

@@ -10,7 +10,9 @@ import {
     IGetProjectsResponse, ICreateProjectRequest,
     ICreateProjectResponse, IProjectResponse,
     IRenameComponentRequest,
-    IDeleteComponentRequest
+    IDeleteComponentRequest,
+    IReorderPagesRequest,
+    IReorderPagesResponse
 } from '../types/project.types';
 import {
     IGetDesignsResponse,
@@ -127,6 +129,15 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
         [apiAdapter, apiCall]
     );
 
+    const reorderPages = useCallback(
+        (data: IReorderPagesRequest) => {
+            const adapter = apiAdapter();
+            if (!adapter) return Promise.resolve(null);
+            return apiCall<IReorderPagesResponse>(() => adapter.reorderPages(data));
+        },
+        [apiAdapter, apiCall]
+    );
+
     const deletePage = useCallback(
         (pageId: string) => {
             const adapter = apiAdapter();
@@ -195,6 +206,7 @@ export const useModelApi = ({ modelType, id, categoryId }: UseModelApiOptions) =
         deleteComponent,
         addPage,
         renamePage,
+        reorderPages,
         deletePage,
         getById,
         // Project-specific operations

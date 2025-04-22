@@ -4,23 +4,29 @@ import { FileExistenceChecker } from "../services/FileExistenceChecker";
 import { FileExistenceStatus } from "../types/sideMenuTypes";
 import useAppStore from "@/store/useAppStore";
 import { useModel } from "@/contexts/ModelContext";
+import { toast } from "sonner";
 
 export function useSideMenu() {
     const { structure, fileVersion } = useAppStore();
     const { baseContentPath } = useModel();
 
     // State variables
-    const [sideMenuType, setSideMenuType] = useState("");
+    const [sideMenuType, setSideMenuType] = useState<"" | "pageManager" | "categoryManager">("");
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
     const [currentBaseDrawingFileExistanceStatus, setCurrentBaseDrawingFileExistanceStatus] = useState<FileExistenceStatus>({});
 
     // Derived values with useMemo
     const allowedToClose = useMemo(() => {
-        if (structure.baseDrawing && structure.pages) {
-            return FileExistenceChecker.allowedToClose(currentBaseDrawingFileExistanceStatus, structure.baseDrawing, structure.pages)
+        if (structure.baseDrawing && structure.pages && Object.keys(currentBaseDrawingFileExistanceStatus).length > 0) {
+            const resultStatus = FileExistenceChecker.allowedToClose(currentBaseDrawingFileExistanceStatus, structure.baseDrawing, structure.pages)
+            if (!resultStatus) {
+                // setSideMenuType("pageManager");
+                return false;
+            }
+            return true;
         }
     },
-        [currentBaseDrawingFileExistanceStatus, structure.pages, structure.baseDrawing]
+        [currentBaseDrawingFileExistanceStatus, structure?.pages, structure?.baseDrawing]
     );
 
     // // Reset states when design changes
@@ -62,9 +68,13 @@ export function useSideMenu() {
 
                 // Only open popup if files are missing and not already open
                 const missingFiles = FileExistenceChecker.shouldShowPopup(currentBaseDrawingFileExistanceStatusObject);
-                if (missingFiles && !isPopUpOpen) { // Add condition to check if popup is not already open
+                console.log("missingFiles");
+                console.log(missingFiles);
+                
+                if (missingFiles && sideMenuType !== "pageManager") { // Add condition to check if popup is not already open
                     setIsPopUpOpen(true);
-                    setSideMenuType("pageManager")
+                    setSideMenuType("pageManager");
+                    toast.warning("One or more pages in this category are missing a base drawing.");
                 }
             } catch (error) {
                 console.error('Error checking file existence:', error);
@@ -77,7 +87,7 @@ export function useSideMenu() {
 
         return () => clearTimeout(timeoutId);
         // Add isPopUpOpen to dependencies array to prevent unnecessary checks when popup is open
-    }, [baseContentPath, structure.baseDrawing, structure.pages, isPopUpOpen, fileVersion]);
+    }, [baseContentPath, structure?.baseDrawing, structure?.pages, isPopUpOpen, fileVersion]);
 
     // Return all state and handlers
     return {

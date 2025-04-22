@@ -81,6 +81,11 @@ router.put('/:id/pages',
     designController.addPage
 );
 
+router.put('/:id/reorder',
+    designController.reorderPages
+  );
+  
+
 router.put('/:id/pages/:pageId/rename',
     designController.renamePage
 );

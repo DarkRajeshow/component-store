@@ -1,4 +1,4 @@
-import { IComponent, IFileInfo } from "@/types/project.types";
+import { IComponent, IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from "@/types/project.types";
 import UpdateChild from "./UpdateChild";
 import { memo } from "react";
 
@@ -12,22 +12,22 @@ const NestedChildrenSection = memo(({
     fileCounts,
     setFileCounts,
 }: {
-    value: IComponent | IFileInfo;
+    value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
     option: string;
     renamedOption: string;
-    updatedValue: any;
-    setUpdatedValue: (value: any) => void;
+    updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+    setUpdatedValue: (value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null) => void;
     fileCounts: Record<string, { fileUploads: number; selectedPagesCount: number }>;
     setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
     // fileId: string;
 }) => {
-    if (!value?.options) return null;
+    if (!(value as IComponent)?.options) return null;
 
     return (
         <div className="pl-2 py-3">
             <p className='pb-2 font-medium text-lg'>Nested Childs</p>
             <div className='pl-3 ml-3 border-l-2 border-dark/10 my-2'>
-                {Object.entries(value.options).map(([subOption, subValue]) => (
+                {Object.entries((value as IComponent).options).map(([subOption, subValue]) => (
                     <UpdateChild
                         key={subOption}
                         setFileCounts={setFileCounts}
@@ -38,7 +38,7 @@ const NestedChildrenSection = memo(({
                         setUpdatedValue={setUpdatedValue}
                         option={subOption}
                         value={subValue as IComponent | IFileInfo}
-                        // fileId={fileId}
+                    // fileId={fileId}
                     />
                 ))}
             </div>

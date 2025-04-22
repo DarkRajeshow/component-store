@@ -158,9 +158,13 @@ const View: React.FC<ViewProps> = ({
     }, [structure.components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation]);
 
     // Get base drawing path
-    const baseDrawingPath = typedBaseDrawing?.fileId
-        ? `${baseContentPath}//${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`
-        : null;
+    const baseDrawingPath = React.useMemo(() => {
+        if (!typedBaseDrawing?.fileId) return null;
+        return `${baseContentPath}/${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`;
+    }, [baseContentPath, selectedPage, typedBaseDrawing?.fileId, fileVersion, structure.pages]);
+
+    console.log(baseDrawingPath, 'baseDrawingPath');
+    console.log(typedBaseDrawing);
 
     return (
         <TooltipProvider>

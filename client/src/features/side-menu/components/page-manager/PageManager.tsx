@@ -13,10 +13,11 @@ import useAppStore from "@/store/useAppStore";
 import { useModel } from "@/contexts/ModelContext";
 import Pages from "./Pages";
 import { usePageManager } from "../../hooks/page-manager/usePageManager";
+import { IProject } from "@/types/project.types";
 
 
 interface IPageManagerProps {
-    setSideMenuType: (updatedMenuType: string) => void;
+    setSideMenuType: (updatedMenuType: "" | "pageManager" | "categoryManager") => void;
     isPopUpOpen: boolean;
     setIsPopUpOpen: (value: boolean) => void;
     allowedToClose: boolean | undefined
@@ -30,10 +31,14 @@ function PageManager({
     allowedToClose
 }: IPageManagerProps) {
     // Get params and store values
-    const { modelType, baseContentPath, contentFolder } = useModel()
+    const {
+        modelType,
+        contentFolder,
+        baseFolderPath
+    } = useModel()
 
     const {
-        project,
+        content,
         fileVersion,
     } = useAppStore();
 
@@ -94,15 +99,15 @@ function PageManager({
 
             <DialogDescription hidden />
 
-            {modelType && (project) && (
+            {modelType && (content) && (
                 <div className='group flex flex-col gap-4 w-full'>
                     <DialogTitle className="text-xl font-semibold text-dark/70 text-center py-2">
                         Upload / Change Base Drawing
                     </DialogTitle>
 
-                    {modelType === "project" && project && (
+                    {modelType === "project" && (content as IProject) && (
                         <CategorySelection
-                            categoryMapping={project.hierarchy && project.hierarchy.categoryMapping}
+                            categoryMapping={(content as IProject).hierarchy && (content as IProject).hierarchy.categoryMapping}
                             tempSelectedCategory={tempSelectedCategory}
                             handleCategoryChange={handleCategoryChange}
                         />
@@ -128,9 +133,11 @@ function PageManager({
                         handleFileChange={handleFileChange}
                         handleDrop={handleDrop}
                         tempPages={tempPages}
+                        content={content}
                         fileExistenceStatus={fileExistenceStatus}
                         newBaseDrawingFiles={newBaseDrawingFiles}
-                        baseContentPath={baseContentPath}
+                        baseFolderPath={baseFolderPath}
+                        tempSelectedCategory={tempSelectedCategory}
                         fileVersion={fileVersion}
                     />
 

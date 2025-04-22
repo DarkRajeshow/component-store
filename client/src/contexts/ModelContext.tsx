@@ -9,7 +9,9 @@ import {
     IRenameCategoryRequest, IRenameCategoryResponse, IDeleteCategoryResponse,
     IShiftCategoryRequest, IShiftCategoryResponse,
     IRenameComponentRequest,
-    IDeleteComponentRequest
+    IDeleteComponentRequest,
+    IReorderPagesRequest,
+    IReorderPagesResponse
 } from '@/types/project.types';
 import { IDesign } from '@/types/design.types';
 import filePath from '@/utils/filePath';
@@ -19,11 +21,13 @@ interface ModelContextType {
     id: string;
     categoryId?: string;
     baseContentPath: string;
+    baseFolderPath: string;
     contentFolder: string;
     loading: boolean;
     error: Error | null;
-    refreshContent: () => Promise<void>;
     // Common operations
+    updateContentPath: (categoryId: string) => void;
+    refreshContent: () => Promise<void>;
     addComponent: (formData: FormData) => Promise<IComponentOperationResponse | null>;
     addParentComponent: (data: IAddComponentRequest) => Promise<IComponentOperationResponse | null>;
     updateBaseDrawing: (formData: FormData) => Promise<IComponentOperationResponse | null>;
@@ -32,6 +36,7 @@ interface ModelContextType {
     deleteComponent: (data: IDeleteComponentRequest) => Promise<IComponentOperationResponse | null>;
     addPage: (data: IAddPageRequest) => Promise<IAddPageResponse | null>;
     renamePage: (pageId: string, data: IRenamePageRequest) => Promise<IRenamePageResponse | null>;
+    reorderPages: (data: IReorderPagesRequest) => Promise<IReorderPagesResponse | null>;
     deletePage: (pageId: string) => Promise<IDeletePageResponse | null>;
     // Project-specific operations
     shiftCategory?: (data: IShiftCategoryRequest) => Promise<IShiftCategoryResponse | null>;
@@ -58,8 +63,9 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
     children,
 }) => {
     const { setContent, setDesignStates, setProjectStates } = useAppStore()
-    const [baseContentPath, setBaseContentPath] = useState<string>("")
     const [contentFolder, setContentFolder] = useState<string>("")
+    const [baseContentPath, setBaseContentPath] = useState<string>("")
+    const [baseFolderPath, setBaseFolderPath] = useState<string>("")
     const isProject = modelType === 'project';
 
     // // Initialize API
@@ -76,7 +82,9 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
                 setProjectStates(project);
                 const currentCategoryId = project?.hierarchy.categoryMapping[project?.selectedCategory as string];
                 const completeFilePath = `${filePath}/projects/${project.folder}/${currentCategoryId}`
+                const completeFolderPath = `${filePath}/projects/${project.folder}`
                 setBaseContentPath(completeFilePath)
+                setBaseFolderPath(completeFolderPath)
                 setContentFolder(project.folder)
             }
             else if ('design' in response) {
@@ -85,6 +93,7 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
                 setDesignStates(design);
                 const completeFilePath = `${filePath}/designs/${design.folder}`
                 setBaseContentPath(completeFilePath)
+                setBaseFolderPath(completeFilePath)
                 setContentFolder(design.folder)
             }
             else {
@@ -93,6 +102,9 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
         }
     }, [isProject, setContent, setDesignStates, setProjectStates]);
 
+    const updateContentPath = (categoryId: string) => {
+        setBaseContentPath(`${baseFolderPath}/${categoryId}`)
+    }
 
     useEffect(() => {
         fetchContent();
@@ -103,10 +115,12 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
         id,
         categoryId,
         baseContentPath,
+        baseFolderPath,
         contentFolder,
         loading: api.loading,
         error: api.error,
         // Common operations
+        updateContentPath: updateContentPath,
         refreshContent: fetchContent,
         addComponent: api.addComponent,
         addParentComponent: api.addParentComponent,
@@ -116,6 +130,7 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
         deleteComponent: api.deleteComponent,
         addPage: api.addPage,
         renamePage: api.renamePage,
+        reorderPages: api.reorderPages,
         deletePage: api.deletePage,
         // Project-specific operations
         ...(isProject ? {

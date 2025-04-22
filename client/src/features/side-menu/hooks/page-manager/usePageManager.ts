@@ -12,7 +12,7 @@ import { useModel } from "@/contexts/ModelContext";
 
 
 interface IUsePageManagerProps {
-    setSideMenuType: (updatedMenuType: string) => void;
+    setSideMenuType: (updatedMenuType: "" | "pageManager" | "categoryManager") => void;
     setIsPopUpOpen: (value: boolean) => void;
 }
 export function usePageManager(props: IUsePageManagerProps) {
@@ -24,7 +24,7 @@ export function usePageManager(props: IUsePageManagerProps) {
         setBaseDrawing,
         loading,
         generateHierarchy } = useAppStore();
-    const { updateBaseDrawing, shiftCategory, refreshContent, contentFolder, baseContentPath } = useModel();
+    const { updateBaseDrawing, shiftCategory, refreshContent, contentFolder, baseFolderPath } = useModel();
 
     // State variables
     const [tempSelectedCategory, setTempSelectedCategory] = useState(selectedCategory);
@@ -82,9 +82,12 @@ export function usePageManager(props: IUsePageManagerProps) {
         const checkFilesExistence = async () => {
             setIsCheckingFiles(true);
             try {
+                const project = content as IProject;
+                const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
+                const completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
                 const tempBaseDrawingFileExistanceStatus = await FileExistenceChecker.checkAllFiles(
                     tempPages,
-                    baseContentPath,
+                    completeCategoryPath,
                     tempBaseDrawing,
                     fileVersion
                 );
@@ -104,7 +107,7 @@ export function usePageManager(props: IUsePageManagerProps) {
         }, 100);
 
         return () => clearTimeout(timeoutId);
-    }, [tempBaseDrawing, tempPages, baseContentPath, fileVersion]);
+    }, [tempBaseDrawing, tempPages, baseFolderPath, fileVersion, tempSelectedCategory, content]);
 
     // Handlers
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,7 +234,7 @@ export function usePageManager(props: IUsePageManagerProps) {
 
                 setNewBaseDrawingFiles({});
                 setIsPopUpOpen(false);
-                
+                setSideMenuType("");
             } else {
                 toast.error(data ? data.status : "Error while shifting category.");
             }
@@ -248,6 +251,7 @@ export function usePageManager(props: IUsePageManagerProps) {
         tempBaseDrawing,
         refreshContent,
         structure.pages,
+        setSideMenuType,
         setIsPopUpOpen
     ]);
 

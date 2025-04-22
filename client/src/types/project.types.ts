@@ -92,9 +92,6 @@ export interface IProjectResponse {
 
 
 
-
-
-
 // Project response types
 export interface ICreateProjectResponse {
     success: boolean;
@@ -113,6 +110,10 @@ export interface IAddPageResponse {
 }
 
 export interface IRenamePageResponse {
+    success: boolean;
+    status: string;
+}
+export interface IReorderPagesResponse {
     success: boolean;
     status: string;
 }
@@ -136,6 +137,7 @@ export interface IAddCategoryResponse {
 export interface IShiftCategoryResponse {
     success: boolean;
     status: string;
+    categoryId: string;
 }
 
 
@@ -205,6 +207,9 @@ export interface IAddPageRequest {
 
 export interface IRenamePageRequest {
     newName: string;
+}
+export interface IReorderPagesRequest {
+    pages: IPages;
 }
 
 export interface IDeletePageRequest {

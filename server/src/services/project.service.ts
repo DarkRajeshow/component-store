@@ -103,15 +103,25 @@ export class ProjectService {
 
     async addCategory(
         hierarchy: IHierarchy,
-        categoryId: string,
-        categoryName: string
+        categoryName: string,
+        categoryId: string
     ): Promise<IHierarchy> {
-        hierarchy.categoryMapping[categoryId] = categoryName;
+        const defaultPageId = uuidv4()
+        const defaultBaseDrawingId = uuidv4();
+
+        hierarchy.categoryMapping[categoryName] = categoryId;
         hierarchy.categories[categoryId] = {
-            pages: {},
-            baseDrawing: { fileId: '' },
+            pages: {
+                "gad": defaultPageId
+            },
+            baseDrawing: {
+                fileId: defaultBaseDrawingId
+            },
             components: {}
         };
+
+        console.log(hierarchy.categories[categoryId]);
+
         return hierarchy;
     }
 
@@ -180,6 +190,10 @@ export class ProjectService {
             // Add new mapping
             hierarchy.categoryMapping[newName] = categoryId;
         }
+        console.log(hierarchy.categoryMapping);
+
+
+
 
         return hierarchy;
     }
@@ -201,7 +215,7 @@ export class ProjectService {
         }
 
         console.log(categoryStructure);
-        
+
         if (!categoryStructure) {
             return { success: false, message: errorMessage };
         }

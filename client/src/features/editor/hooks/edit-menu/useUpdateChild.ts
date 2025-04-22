@@ -55,11 +55,8 @@ export function useUpdateChild({
     const [renamedOption, setRenamedOption] = useState(option);
     const [operation, setOperation] = useState("");
     const [fileExistenceStatus, setFileExistenceStatus] = useState<FileExistenceStatus>({});
-    const [selectedPages, setSelectedPages] = useState(['gad']);
-
+    const [selectedPages, setSelectedPages] = useState<string[]>([]);
     const { baseContentPath } = useModel();
-
-
 
     const handleFileChange = useCallback((e: FileChangeEvent, page: string): void => {
         const file: File = e.target.files[0];
@@ -79,7 +76,7 @@ export function useUpdateChild({
         }
     }, [newFiles, structure.pages, setNewFiles, value]);
 
-    const handleDrop = useCallback((e, page: string) => {
+    const handleDrop = useCallback((e: React.DragEvent, page: string) => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
 
@@ -135,7 +132,7 @@ export function useUpdateChild({
         setUpdatedValue(tempUpdateValue);
     }, [parentOption, renamedOption, setFilesToDelete, setUpdatedValue, updatedValue, value, filesToDelete]);
 
-    const handleRename = useCallback((e) => {
+    const handleRename = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const newOptionName = e.target.value;
         const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue));
 
@@ -240,15 +237,22 @@ export function useUpdateChild({
             // Convert array of objects to a single object with pageFolder as keys
             const statusObject = results.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
+            const fileUploaded = Object.keys(newFiles[(value as IFileInfo)?.fileId] || {});
+            const tempSelectedPages = Object.entries(structure.pages)
+                .filter(([_, pageId]) => fileUploaded.includes(pageId))
+                .map(([page]) => page);
+
+            // setSelectedPages(tempSelectedPages);
+
             // Update state with the full object
             setFileExistenceStatus(statusObject);
-            setSelectedPages(alreadySelectedPages);
+            setSelectedPages([...alreadySelectedPages, ...tempSelectedPages]);
         };
 
         if (!loading) {
             checkFilesExistence();
         }
-    }, [loading, structure.pages, baseContentPath, value]);
+    }, [loading, structure.pages, baseContentPath, value, newFiles]);
 
     // Update file counts for parent component
     const updateFileCount = useCallback(() => {

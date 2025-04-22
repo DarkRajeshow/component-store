@@ -153,7 +153,7 @@ export class ProjectController {
 
             const folderPath = path.join(__dirname, 'public', 'uploads', 'projects', result.project.folder, categoryId);
 
-            
+
             // Handle file deletions
             if (filesToDelete && filesToDelete.length > 0) {
                 await projectService.fileService.deleteFilesRecursively(folderPath, filesToDelete);
@@ -258,18 +258,59 @@ export class ProjectController {
             }
 
             // Store the page ID and update the mapping
-            const pageIdValue = project.hierarchy.categories[categoryId].pages[pageId];
-            project.hierarchy.categories[categoryId].pages[newName] = pageIdValue;
-            delete project.hierarchy.categories[categoryId].pages[pageId];
+            // const pageIdValue = project.hierarchy.categories[categoryId].pages[pageId];
+            // Get the entries in their original order
+            const pageEntries = Object.entries(project.hierarchy.categories[categoryId].pages);
+            
+            // Create new ordered pages object
+            const orderedPages: { [key: string]: string } = {};
+            
+            // Rebuild the pages object with the new name while maintaining order
+            pageEntries.forEach(([key, value]) => {
+                if (value === pageId) {
+                    orderedPages[newName] = value;
+                } else {
+                    orderedPages[key] = value;
+                }
+            });
+
+            // Update the pages object with the ordered version
+            project.hierarchy.categories[categoryId].pages = orderedPages;
 
             // Update selected page if it was the renamed one
-            if (project.selectedPage === pageIdValue) {
+            if (project.selectedPage === pageId) {
                 project.selectedPage = newName;
             }
 
             project.markModified('hierarchy');
             await project.save();
             return sendResponse(res, true, 'Page renamed successfully');
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error renaming page');
+        }
+    }
+
+    async reorderPages(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+
+            const userId = await projectService.verifyUser(req.cookies.jwt);
+            const { id, categoryId } = req.params;
+            const { pages } = req.body;
+
+            const project = await projectService.findProjectAndVerifyUser(id, userId);
+            if (!project) {
+                return sendResponse(res, false, 'Project not found');
+            }
+
+            // Update the pages object with the ordered version
+            project.hierarchy.categories[categoryId].pages = pages;
+            project.markModified('hierarchy');
+            await project.save();
+            return sendResponse(res, true, 'Pages reordered successfully');
         } catch (error) {
             console.error(error);
             return sendResponse(res, false, 'Error renaming page');
@@ -302,6 +343,7 @@ export class ProjectController {
                 project.selectedPage = remainingPages[0] || '';
             }
 
+            project.markModified('hierarchy');
             await project.save();
             return sendResponse(res, true, 'Page deleted successfully');
         } catch (error) {
@@ -445,15 +487,16 @@ export class ProjectController {
                 return sendResponse(res, false, 'Project not found');
             }
 
-            const categoryId = uuidv4();
+            const categoryId = uuidv4()
+
             const updatedHierarchy = await projectService.addCategory(
                 project.hierarchy,
-                categoryId,
-                categoryName
+                categoryName,
+                categoryId
             );
 
-            project.markModified('hierarchy')
             project.hierarchy = updatedHierarchy;
+            project.markModified('hierarchy')
             await project.save();
 
             return sendResponse(res, true, 'Category added successfully', { categoryId });
@@ -485,9 +528,14 @@ export class ProjectController {
                 newName
             );
 
-            project.hierarchy = updatedHierarchy;
-            await project.save();
 
+            if (project.selectedCategory === oldName) {
+                project.selectedCategory = newName
+            }
+
+            project.hierarchy = updatedHierarchy;
+            project.markModified("hierarchy")
+            await project.save();
             return sendResponse(res, true, 'Category renamed successfully');
         } catch (error) {
             console.error(error);
@@ -522,10 +570,11 @@ export class ProjectController {
 
             project.hierarchy.categories = remainingCategories;
 
-            if (project.selectedCategory === categoryId) {
+            if (project.selectedCategory === categoryName) {
                 project.selectedCategory = Object.keys(remainingCategories)[0] || '';
             }
 
+            project.markModified("hierarchy")
             await project.save();
             return sendResponse(res, true, 'Category deleted successfully');
         } catch (error) {
