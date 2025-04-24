@@ -8,6 +8,7 @@ import useAppStore from '../store/useAppStore';
 import SideMenu from '@/features/side-menu';
 import ActionBar from '@/features/editor';
 import View from '@/features/canvas';
+import { useModel } from '@/contexts/ModelContext';
 
 interface Offset {
     x: number;
@@ -16,17 +17,17 @@ interface Offset {
 
 const DesignContent = (): JSX.Element => {
     const { id } = useParams();
-    const { fetchDesign, selectionBox } = useAppStore();
+    const { selectionBox } = useAppStore();
+    const { refreshContent } = useModel()
     const designRef = useRef<SVGSVGElement | null>(null);
     const [zoom, setZoom] = useState<number>(1);
     const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
 
-
     useEffect(() => {
         if (id) {
-            fetchDesign(id);
+            refreshContent();
         }
-    }, [id, fetchDesign]);
+    }, [id, refreshContent]);
 
     const generatePDF = useCallback(async (fileName: string): Promise<void> => {
         const svgElement = designRef.current;
@@ -75,8 +76,6 @@ const DesignContent = (): JSX.Element => {
 
         const x = (pdfWidth - renderWidth) / 2;
         const y = (pdfHeight - renderHeight) / 2;
-
-        console.log(clonedSvgElement);
 
         try {
             await svg2pdf(clonedSvgElement, pdf, { x, y, width: renderWidth, height: renderHeight });

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import User, { IUser } from '../models/User';
+import User, { IUser } from '../models/user.model';
 import { hashPassword, comparePasswords } from '../utils/bcrypt';
 
 // Define interfaces for request bodies

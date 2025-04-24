@@ -9,6 +9,7 @@ import { FileExistenceStatus, NewBaseDrawingFiles } from "../../types/sideMenuTy
 import { IPages, IProject } from "@/types/project.types";
 import useAppStore from "@/store/useAppStore";
 import { useModel } from "@/contexts/ModelContext";
+import { IDesign, IStructure } from "@/types/design.types";
 
 
 interface IUsePageManagerProps {
@@ -24,7 +25,7 @@ export function usePageManager(props: IUsePageManagerProps) {
         setBaseDrawing,
         loading,
         generateHierarchy } = useAppStore();
-    const { updateBaseDrawing, shiftCategory, refreshContent, contentFolder, baseFolderPath } = useModel();
+    const { updateBaseDrawing, shiftCategory, refreshContent, contentFolder, baseFolderPath, baseContentPath, modelType } = useModel();
 
     // State variables
     const [tempSelectedCategory, setTempSelectedCategory] = useState(selectedCategory);
@@ -82,9 +83,14 @@ export function usePageManager(props: IUsePageManagerProps) {
         const checkFilesExistence = async () => {
             setIsCheckingFiles(true);
             try {
-                const project = content as IProject;
-                const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
-                const completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
+                let completeCategoryPath = baseContentPath;
+
+                if (modelType === "project" && (content as IProject).hierarchy) {
+                    const project = content as IProject;
+                    const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
+                    completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
+                }
+
                 const tempBaseDrawingFileExistanceStatus = await FileExistenceChecker.checkAllFiles(
                     tempPages,
                     completeCategoryPath,
@@ -107,7 +113,7 @@ export function usePageManager(props: IUsePageManagerProps) {
         }, 100);
 
         return () => clearTimeout(timeoutId);
-    }, [tempBaseDrawing, tempPages, baseFolderPath, fileVersion, tempSelectedCategory, content]);
+    }, [tempBaseDrawing, tempPages, baseFolderPath, fileVersion, tempSelectedCategory, content, modelType]);
 
     // Handlers
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,8 +220,8 @@ export function usePageManager(props: IUsePageManagerProps) {
                 updatedBaseDrawing: tempBaseDrawing,
             });
 
-            const pagesNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
-            const folderNames = SideMenuService.getMissingFolderNames(pagesNames, structure.pages);
+            const pageNames = SideMenuService.calculateMissingPages(changedPages, tempPages);
+            const folderNames = SideMenuService.getMissingFolderNames(pageNames, structure.pages);
 
             if (!shiftCategory) {
                 toast.error("Error: shifting category due to missing functions.");
@@ -256,14 +262,11 @@ export function usePageManager(props: IUsePageManagerProps) {
     ]);
 
     // Handle uploading and updating base drawing with new files
-    const handleUploadAndUpdateBaseDrawing = useCallback(async () => {
+    const handleUploadAndUpdateBaseDrawingForProject = useCallback(async () => {
         try {
-            console.log("this is calling");
-
             if (!(content as IProject)?.hierarchy) {
-                return toast.error("handleUploadAndUpdateBaseDrawing Error : Project hierarchy not found.");
+                return toast.error("handleUploadAndUpdateBaseDrawingForProject Error : Project hierarchy not found.");
             }
-
             const uniqueFileName = SideMenuService.createUniqueFileName((content as IProject)?.hierarchy, tempSelectedCategory);
             const formData = new FormData();
             formData.append('folder', contentFolder);
@@ -281,10 +284,10 @@ export function usePageManager(props: IUsePageManagerProps) {
                 updatedCategory: tempSelectedCategory,
                 updatedPages: tempPages,
             });
+            formData.append('hierarchy', JSON.stringify(updatedHierarchy));
 
             formData.append('selectedCategory', tempSelectedCategory);
             formData.append('folderNames', folderNames.join(','));
-            formData.append('hierarchy', JSON.stringify(updatedHierarchy));
 
             for (const [folder, file] of Object.entries(newBaseDrawingFiles)) {
                 const customName = `${folder}<<&&>>${uniqueFileName}${file.name.slice(-4)}`;
@@ -329,6 +332,72 @@ export function usePageManager(props: IUsePageManagerProps) {
         setSideMenuType
     ]);
 
+
+    const handleUploadAndUpdateBaseDrawingForDesign = useCallback(async () => {
+        try {
+            if (!(content as IDesign)?.structure) {
+                return toast.error("handleUploadAndUpdateBaseDrawingForDesign Error : Design structure not found.");
+            }
+            const uniqueFileName = structure?.baseDrawing?.fileId || uuidv4();
+            const formData = new FormData();
+
+            const components = structure.components;
+            const originalPages = structure.pages;
+            const pagesNames = SideMenuService.calculateMissingPages(originalPages, tempPages);
+            const folderNames = SideMenuService.getMissingFolderNames(pagesNames, structure.pages);
+
+            const updatedStructure: IStructure = {
+                ...structure,
+                components: components,
+                baseDrawing: {
+                    fileId: uniqueFileName,
+                },
+                pages: tempPages
+            }
+
+            formData.append('folder', contentFolder);
+            formData.append('structure', JSON.stringify(updatedStructure));
+            formData.append('folderNames', folderNames.join(','));
+
+            for (const [folder, file] of Object.entries(newBaseDrawingFiles)) {
+                const customName = `${folder}<<&&>>${uniqueFileName}${file.name.slice(-4)}`;
+                formData.append('files', file, customName);
+            }
+
+            const data = await updateBaseDrawing(formData);
+
+            if (data && data.success) {
+                toast.success(data.status);
+                await refreshContent()
+
+                setNewBaseDrawingFiles({});
+                setSideMenuType("");
+                setBaseDrawing({
+                    fileId: uniqueFileName,
+                });
+                incrementFileVersion();
+                setIsPopUpOpen(false);
+            } else {
+                toast.error(data ? data.status : "Error while updating the base drawing.");
+            }
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }, [
+        contentFolder,
+        content,
+        updateBaseDrawing,
+        tempSelectedCategory,
+        newBaseDrawingFiles,
+        tempPages,
+        refreshContent,
+        setBaseDrawing,
+        incrementFileVersion,
+        setIsPopUpOpen,
+        structure,
+        setSideMenuType
+    ]);
     // Core business logic
     const updateBaseDrawingFunc = useCallback(async () => {
         setSaveLoading(true);
@@ -353,11 +422,17 @@ export function usePageManager(props: IUsePageManagerProps) {
             }
 
             // If no new files, just shift to selected category
-            if (!newBaseDrawingFiles || Object.keys(newBaseDrawingFiles).length === 0) {
-                await handleShiftToCategory();
-            } else {
-                await handleUploadAndUpdateBaseDrawing();
+            if (modelType === "design") {
+                handleUploadAndUpdateBaseDrawingForDesign();
+                return;
             }
+            else if (!newBaseDrawingFiles || Object.keys(newBaseDrawingFiles).length === 0 && modelType === "project") {
+                await handleShiftToCategory();
+            }
+            else if (modelType === "project") {
+                await handleUploadAndUpdateBaseDrawingForProject();
+            }
+
         } catch (error) {
             console.error(error);
             toast.error('Something went wrong, please try again.');
@@ -368,9 +443,11 @@ export function usePageManager(props: IUsePageManagerProps) {
         loading,
         tempPages,
         handleShiftToCategory,
-        handleUploadAndUpdateBaseDrawing,
+        handleUploadAndUpdateBaseDrawingForProject,
+        handleUploadAndUpdateBaseDrawingForDesign,
         fileExistenceStatus,
         newBaseDrawingFiles,
+        modelType
     ]);
 
     const resetSideBarState = useCallback(() => {

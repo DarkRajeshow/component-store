@@ -1,7 +1,7 @@
 // src/services/Design.service.ts
 import mongoose, { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import Design from '../models/Design';
+import Design from '../models/design.model';
 import { IDesign, IStructure } from '../types/design.types';
 import { FileService } from './file.service';
 import { AppError } from '../utils/AppError';
@@ -100,7 +100,7 @@ export class DesignService {
                 throw new AppError('Design not found', 404);
             }
 
-            await this.fileService.deleteDesignFolder(design.folder);
+            // await this.fileService.deleteDesignFolder(design.folder);
             await Design.deleteOne({ _id: designId });
         } catch (error) {
             throw new AppError('Failed to delete design', 500);
@@ -164,6 +164,41 @@ export class DesignService {
             return { success: false, status: 'Internal Server Error' };
         }
     }
+
+    // Add this method inside the DesignService class
+    async copyProjectFolderContents(
+        projectFolder: string,
+        categoryFolder: string,
+        designFolder: string
+    ): Promise<boolean> {
+        try {
+            // Construct full paths
+            const sourcePath = this.fileService.getCategoryPath(projectFolder, categoryFolder);
+            const destinationPath = this.fileService.getDesignPath(designFolder);
+            const response = this.fileService.copyFolderContents(sourcePath, destinationPath);
+            return response;
+        } catch (error) {
+            console.error('Error copying folder contents:', error);
+            throw new AppError('Failed to copy folder contents', 500);
+        }
+    }
+
+    async copyDesignFolderContents(
+        sourceDesignFolder: string,
+        designFolder: string
+    ): Promise<boolean> {
+        try {
+            // Construct full paths
+            const sourcePath = this.fileService.getDesignPath(sourceDesignFolder);
+            const destinationPath = this.fileService.getDesignPath(designFolder);
+            const response = this.fileService.copyFolderContents(sourcePath, destinationPath);
+            return response;
+        } catch (error) {
+            console.error('Error copying folder contents:', error);
+            throw new AppError('Failed to copy folder contents', 500);
+        }
+    }
+
 }
 
 export default new DesignService();

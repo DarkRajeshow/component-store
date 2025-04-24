@@ -10,6 +10,7 @@ interface EditorState {
     components: IComponents;
     baseDrawing: IFileInfo | null;
     updatedComponents: IComponents;
+    componentSelections: IComponents,
     pages: IPages | null;
     selectedPage: string;
     rotation: number;
@@ -20,6 +21,7 @@ interface EditorActions {
     setContent: (content: IDesign | IProject | null) => void;
     setComponents: (components: IComponents) => void;
     setUpdatedComponents: (components: IComponents) => void;
+    setComponentSelections: (components: IComponents) => void;
     setBaseDrawing: (drawing: IFileInfo) => void;
     setPages: (updatedPages: IPages) => void;
     setSelectedPage: (page: string) => void;
@@ -36,8 +38,9 @@ const createEditorSlice: StateCreator<StoreState, [], [], EditorSlice> = (set) =
     components: {} as IComponents,
     baseDrawing: {} as IFileInfo,
     updatedComponents: {} as IComponents,
+    componentSelections: {} as IComponents,
     pages: {} as IPages,
-    selectedPage: 'gad',
+    selectedPage: '',
     rotation: 0,
     structure: {} as IStructure,
     // updatedValue: { value: {}, version: 0 },
@@ -48,6 +51,7 @@ const createEditorSlice: StateCreator<StoreState, [], [], EditorSlice> = (set) =
     setComponents: (components) => set({ components: components }),
     setBaseDrawing: (drawing) => set({ baseDrawing: drawing }),
     setUpdatedComponents: (components) => set({ updatedComponents: components }),
+    setComponentSelections: (components) => set({ componentSelections: components }),
     setPages: (updatedPages) => set({ pages: updatedPages }),
     setSelectedPage: (page) => set({ selectedPage: page }),
     setRotation: (updatedRotation) => set({ rotation: updatedRotation }),

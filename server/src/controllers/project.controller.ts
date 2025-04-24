@@ -1,7 +1,7 @@
 // src/controllers/project.controller.ts
 import { Request, Response } from 'express';
 import projectService from '../services/project.service';
-import Project from '../models/Project';
+import Project from '../models/project.model';
 import { ICategoryData, IHierarchy, IProject } from '../types/project.types';
 import { v4 as uuidv4 } from 'uuid';
 import { Types } from 'mongoose';

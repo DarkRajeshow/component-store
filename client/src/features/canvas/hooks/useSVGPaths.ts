@@ -112,8 +112,8 @@ export const useSVGPaths = ({
       setIsBaseDrawingExists(result);
     };
 
-    if (baseDrawing?.fileId) {
-      checkBaseFileExistence(`${baseContentPath}//${pages[selectedPage]}/${baseDrawing.fileId}.svg`);
+    if (baseDrawing?.fileId && baseContentPath) {
+      checkBaseFileExistence(`${baseContentPath}/${pages[selectedPage]}/${baseDrawing.fileId}.svg`);
     }
   }, [baseDrawing, baseContentPath, pages, selectedPage]);
 

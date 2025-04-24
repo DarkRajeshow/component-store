@@ -11,27 +11,27 @@ export class FileService {
         this.ensureUploadDirExists();
     }
 
-    private async ensureUploadDirExists(): Promise<void> {
+    async ensureUploadDirExists(): Promise<void> {
         await fs.ensureDir(this.uploadDir);
     }
 
-    private getProjectPath(projectFolder: string): string {
+    getProjectPath(projectFolder: string): string {
         return path.join(this.uploadDir, 'projects', projectFolder);
     }
 
-    private getDesignPath(designFolder: string): string {
+    getDesignPath(designFolder: string): string {
         return path.join(this.uploadDir, 'designs', designFolder);
     }
 
-    private getCategoryPath(projectFolder: string, categoryId: string): string {
+    getCategoryPath(projectFolder: string, categoryId: string): string {
         return path.join(this.getProjectPath(projectFolder), categoryId);
     }
 
-    private getDesignPageFolderPath(projectFolder: string, pageId: string): string {
+    getDesignPageFolderPath(projectFolder: string, pageId: string): string {
         return path.join(this.getDesignPath(projectFolder), pageId);
     }
 
-    private getProjectPageFolderPath(projectFolder: string, categoryId: string, pageId: string): string {
+    getProjectPageFolderPath(projectFolder: string, categoryId: string, pageId: string): string {
         return path.join(this.getCategoryPath(projectFolder, categoryId), pageId);
     }
 
@@ -191,6 +191,34 @@ export class FileService {
         } catch (error) {
             if (error instanceof AppError) throw error;
             throw new AppError('Failed to delete design files', 500);
+        }
+    }
+
+    // Add this method inside the DesignService class
+    async copyFolderContents(
+        sourcePath: string,
+        destinationPath: string
+    ): Promise<boolean> {
+        try {
+            // Ensure source directory exists
+            if (!await fs.pathExists(sourcePath)) {
+                throw new AppError('Source category folder does not exist', 404);
+            }
+
+            // Ensure destination directory exists, create if not
+            await fs.ensureDir(destinationPath);
+
+            // Copy contents using fs-extra (preserves file attributes and handles existing files)
+            await fs.copy(sourcePath, destinationPath, {
+                overwrite: true,
+                errorOnExist: false,
+                preserveTimestamps: true
+            });
+
+            return true;
+        } catch (error) {
+            console.error('Error copying folder contents:', error);
+            throw new AppError('Failed to copy folder contents', 500);
         }
     }
 }

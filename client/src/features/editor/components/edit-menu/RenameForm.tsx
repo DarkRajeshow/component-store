@@ -6,6 +6,7 @@ import useAppStore from '../../../../store/useAppStore';
 import { useModel } from '@/contexts/ModelContext';
 import { IStructure } from '@/types/design.types';
 import { IComponents } from '@/types/project.types';
+import { X } from 'lucide-react';
 
 const RenameForm = () => {
     const { menuOf, structure, setStructureElements } = useAppStore();
@@ -100,9 +101,7 @@ const RenameForm = () => {
         <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
             <DialogTitle className="text-dark font-medium py-2">Rename Component</DialogTitle>
             <DialogTrigger id='close' className='absolute top-3 right-3 shadow-none'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
+                <X className='size-6'/>
             </DialogTrigger>
             <RenameInput newComponentName={newComponentName} setNewComponentName={setNewComponentName} />
             <button disabled={renameLoading} type='submit' className={`flex items-center justify-center gap-3 hover:bg-green-300 py-2 px-3 rounded-full text-dark font-medium mt-4 relative ${renameLoading ? "bg-blue-300/60 hover:bg-blue-300/60" : "bg-blue-300"}`}>Rename

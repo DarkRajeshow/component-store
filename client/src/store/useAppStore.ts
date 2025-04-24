@@ -155,7 +155,8 @@ const useAppStore = create<StoreState>()(
             set({
               design: design,
               category: design.category,
-              selectedPage: design.selectedPage,
+              selectedCategory: design.category,
+              selectedPage: structure?.pages ? Object.keys(structure.pages)[0] : "",
               structure: structure,
               components: structure?.components || {},
               baseDrawing: structure?.baseDrawing || null,
@@ -170,15 +171,14 @@ const useAppStore = create<StoreState>()(
           updatedCategory = null,
           updatedPages = null
         } = {}): IHierarchy => {
-          const { components, baseDrawing, category, project, pages } = get();
+          const { structure, category, project } = get();
 
-          const finalComponents = updatedComponents || components;
-          const finalBaseDrawing = updatedBaseDrawing || baseDrawing;
+          const finalComponents = updatedComponents || structure.components;
+          const finalBaseDrawing = updatedBaseDrawing || structure.baseDrawing;
           const finalCategory = updatedCategory || category;
-          const finalPages = updatedPages || pages;
+          const finalPages = updatedPages || structure.pages;
 
           const hierarchy = project?.hierarchy || {} as IHierarchy;
-
 
           const categoryId = hierarchy?.categoryMapping[finalCategory as string];
 
@@ -212,8 +212,6 @@ const useAppStore = create<StoreState>()(
         // Update selected option within a specific component and push to undo stack
         updateSelected: (component, option) => {
           get().pushToUndoStack();
-
-          console.log(option);
 
           set((state) => ({
             structure: {

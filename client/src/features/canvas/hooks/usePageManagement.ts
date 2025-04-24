@@ -51,7 +51,6 @@ export const usePageManagement = ({
         setIsPopUpON(false);
         setNewPageName('');
       } else {
-        console.log(data);
         toast.error(data ? data.status : "Error occured while adding new page.");
       }
     } catch (error) {

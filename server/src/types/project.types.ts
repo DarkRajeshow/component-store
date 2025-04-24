@@ -63,6 +63,7 @@ export interface IProject extends Document {
     name: string;
     folder: string;
     selectedCategory: string;
+    selectedCategoryId: string;
     selectedPage: string;
     type: string;
     description?: string;

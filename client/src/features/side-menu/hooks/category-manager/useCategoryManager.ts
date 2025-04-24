@@ -326,7 +326,6 @@ export function useCategoryManager(props: IuseCategoryManagerProps) {
     // Open rename category modal
     const openRenameCategoryModal = useCallback((id: string, code: string, name: string) => {
         setCategoryToRename({ id, code, name });
-        console.log(name);
         setNewCategoryName(name);
         setIsRenameCategoryModalOpen(true);
     }, []);
@@ -336,12 +335,6 @@ export function useCategoryManager(props: IuseCategoryManagerProps) {
         setCategoryToDelete({ id, code });
         setIsConfirmDeleteOpen(true);
     }, []);
-
-    useEffect(() => {
-        console.log(categoryToDelete);
-    }, [categoryToDelete])
-
-
 
     return {
         // State

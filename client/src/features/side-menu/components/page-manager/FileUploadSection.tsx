@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUploadService } from "../../services/FileUploadService";
 import { IProject } from "@/types/project.types";
 import { IDesign } from "@/types/design.types";
+import { useModel } from "@/contexts/ModelContext";
 
 interface FileUploadSectionProps {
     choosenPage: string;
@@ -33,6 +34,8 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
     baseFolderPath,
     content
 }) => {
+
+    const { modelType } = useModel();
     // Memoize file preview rendering logic
     const filePreview = useMemo(() => {
         // console.log("Rendering file preview for page:", choosenPage, "with fileId:", tempBaseDrawing?.fileId, "and file existence status:", fileExistenceStatus);
@@ -51,9 +54,14 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
                 />
             );
         }
-        const project = content as IProject;
-        const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
-        const completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
+
+        let completeCategoryPath = baseFolderPath;
+
+        if (modelType === "project" && (content as IProject).hierarchy) {
+            const project = content as IProject;
+            const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
+            completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
+        }
         return (
             <img
                 src={newBaseDrawingFiles?.[tempPages[choosenPage]]
@@ -63,9 +71,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
                 className="w-full rounded-xl"
             />
         );
-    }, [tempBaseDrawing?.fileId, choosenPage, newBaseDrawingFiles, tempPages, content, fileExistenceStatus, tempSelectedCategory, baseFolderPath, fileVersion]);
-    console.log(tempBaseDrawing?.fileId );
-    
+    }, [tempBaseDrawing?.fileId, choosenPage, newBaseDrawingFiles, tempPages, content, fileExistenceStatus, tempSelectedCategory, baseFolderPath, fileVersion, modelType]);
 
     return (
         <Card className="bg-blue-50 border-none">

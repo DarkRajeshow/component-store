@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { DesignInfoPanel, ComponentsList, ExportForm } from './action-bar'
 import AddForm from './add-form';
 import { Button } from '@/components/ui/button';
+import useAppStore from '@/store/useAppStore';
 
 
 interface ActionBarProps {
@@ -52,6 +53,9 @@ function ActionBar({ generatePDF }: ActionBarProps) {
         pushToUndoStack
     } = useActionBar();
 
+    const { content } = useAppStore()
+
+
     // Determine which dialog content to show
     const renderDialogContent = () => {
         switch (dialogType) {
@@ -78,7 +82,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
             case 'delete':
                 return <DeleteForm />;
             case 'export':
-                return <ExportForm generatePDF={generatePDF} />;
+                return <ExportForm onExport={generatePDF} />;
             default:
                 return null;
         }
@@ -103,8 +107,8 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                     </Link>
 
                     <div className="flex items-center gap-1 relative" ref={infoContext}>
-                        <p className="logo font-medium text-center text-purple-700 capitalize">
-                            {modelType}
+                        <p className="logo font-medium text-center  text-purple-700 capitalize">
+                             {content && content.name}
                         </p>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -118,7 +122,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Design Information</p>
+                                <p>{modelType} Information</p>
                             </TooltipContent>
                         </Tooltip>
 

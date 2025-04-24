@@ -42,6 +42,7 @@ const DesignInfoPanel = memo(({
                 <div className="space-y-2">
                     {modelType === "design" ? (
                         <>
+                            <InfoItem label="Name" value={(content as IDesign).name} />
                             <InfoItem label="Type" value={(content as IDesign).type} />
                             <InfoItem label="Category" value={(content as IDesign).category} />
                             <InfoItem label="Code" value={(content as IDesign).code} />

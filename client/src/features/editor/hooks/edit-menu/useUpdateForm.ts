@@ -332,9 +332,6 @@ export const useUpdateForm = () => {
 
   // Handle component deletion
   const handleDelete = async () => {
-
-    console.log("callign");
-
     try {
       const updateValueAfterDelete = await deleteValue();
       const updatedStructure = {
@@ -348,8 +345,6 @@ export const useUpdateForm = () => {
       };
 
       const data = await deleteComponent(body);
-
-      console.log(data);
 
       if (data && data.success) {
         setStructureElements({

@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 // import filePath from '@/utils/filePath';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -163,9 +162,10 @@ const View: React.FC<ViewProps> = ({
         return `${baseContentPath}/${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`;
     }, [baseContentPath, selectedPage, typedBaseDrawing?.fileId, fileVersion, structure.pages]);
 
-    console.log(baseDrawingPath, 'baseDrawingPath');
-    console.log(typedBaseDrawing);
 
+    useEffect(()=>{
+        console.log(structure);
+    }, [structure])
     return (
         <TooltipProvider>
             <Dialog open={isPopUpON}>
@@ -248,17 +248,5 @@ const View: React.FC<ViewProps> = ({
         </TooltipProvider>
     );
 }
-
-View.propTypes = {
-    reference: PropTypes.object.isRequired,
-    zoom: PropTypes.number.isRequired,
-    setZoom: PropTypes.func.isRequired,
-    offset: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired
-    }).isRequired,
-    setOffset: PropTypes.func.isRequired,
-    generatePDF: PropTypes.func.isRequired,
-};
 
 export default View;

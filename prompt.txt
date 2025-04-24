@@ -165,3 +165,26 @@ src
 │── components.json
 │── index.html
 │── jsconfig.json
+
+
+
+
+could you create a user experience focused ui for export popup in my design application, in this export popup we need to provide different export options such as export as PDF ro export as DRF or export as SVG etc. and after selecting one of these user should have two more options, export file and create a new Design out, 
+
+and only export file or only Create new Design, 
+
+before all of this we need to have one check that is if the design exist with the hashId that is passed in the props if the exist then we need to show that design navigation button to navigate to that existing desing, basically this hash is a unique id genearated based on the selected component combinations, and if that combination is already exist in the database we should not allow users to create new design, if that hash doesn't match with any other design then we will display the selected combination is unique so you can create a new design out of it, 
+
+but the selected combination exists then we should allow then to download the file but shouldn't allow them to create new design, instead we should display a navigation button to navigate to that existing design. 
+
+to export a file we can use the same design.name or project.name  as a file name, 
+but if user want to create a design then they would need to provide some more information, 
+i.e:
+if (!name || !type || !code) {
+    return sendResponse(res, false, 'Missing required fields');
+}
+These above fields are the required fields could you add inputs for these attributes, only if the user want to create a new design, if not then we shouldn't as these things...
+
+I am bit unclear about my actual ui and needs, but whatever i explianed based on try to assume other curcumstances, and try to create a visually stunning yet highly fouced on user experience design
+
+use shadcn components as man as you want to create a consistent ui design.

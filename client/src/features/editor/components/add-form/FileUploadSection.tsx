@@ -109,7 +109,7 @@ const FileUploadSection: React.FC<{
                             className="w-full aspect-square p-4 border-2 border-dashed border-gray-400 cursor-pointer flex items-center justify-center min-h-72 rounded-md hover:bg-gray-50 transition-colors"
                         >
                             <span className='text-sm w-60 mx-auto text-center'>
-                                Drag and drop the customization option in SVG format.
+                                Drag and drop the component in SVG format.
                             </span>
                         </div>
                     </div>

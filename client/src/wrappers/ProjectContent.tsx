@@ -65,8 +65,6 @@ const ProjectContent = (): JSX.Element => {
         const x = (pdfWidth - renderWidth) / 2;
         const y = (pdfHeight - renderHeight) / 2;
 
-        console.log(clonedSvgElement);
-
         try {
             await svg2pdf(clonedSvgElement, pdf, { x, y, width: renderWidth, height: renderHeight });
             pdf.save(`${fileName}.pdf`);

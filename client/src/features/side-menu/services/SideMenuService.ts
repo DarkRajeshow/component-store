@@ -37,8 +37,9 @@ export const SideMenuService = {
         let uniqueFileName = uuidv4();
         // If the base drawing is previously uploaded, use the existing path
         const categoryId = hierarchy.categoryMapping[tempSelectedCategory];
-        const mountingType = hierarchy?.categories?.[categoryId];
-        uniqueFileName = mountingType?.baseDrawing?.fileId || uniqueFileName;
+        const category = hierarchy?.categories?.[categoryId];
+        
+        uniqueFileName = category?.baseDrawing?.fileId || uniqueFileName;
 
         return uniqueFileName;
     },

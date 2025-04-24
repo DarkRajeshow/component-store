@@ -184,24 +184,27 @@ export const popUpQuestions = {
     }
 }
 
-export const sideMenuTypes = [
+
+export const sideMenuTypesForProject = [
     {
         icon: <Folders className='size-5' />,
         value: "categoryManager",
         label: "Category Management"
     },
+]
+
+export const sideMenuTypes = [
     {
         icon: <Layers className='size-5' />,
         value: "pageManager",
         label: "Page Management"
     },
     {
-        icon: <NotebookPen className='size-5'/>,
+        icon: <NotebookPen className='size-5' />,
         value: "addText",
         label: "Add Text"
     }
 ]
-
 
 export const initialSelectedCategories = {
     motor: {

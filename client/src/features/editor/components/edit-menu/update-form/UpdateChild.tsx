@@ -1,5 +1,5 @@
 
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import AddChild from './AddChild';
 import { IComponent, IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from '@/types/project.types';
 import { Button } from '@/components/ui/button';
@@ -64,19 +64,10 @@ const UpdateChild = memo(({
         setUpdatedValue,
     });
 
-    useEffect(() => {
-        console.log(newFiles);
-        
-    }, [newFiles]);
-
     // Don't render if this option doesn't exist in the updated value
     if (!shouldRender()) {
         return null;
     }
-
-
-    console.log(value);
-    
 
     return (
         <div className="w-full mb-3">

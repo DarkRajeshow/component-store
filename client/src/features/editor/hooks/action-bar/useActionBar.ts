@@ -16,12 +16,13 @@ export function useActionBar() {
     const {
         loading,
         structure,
+        components,
         uniqueFileName,
         selectedCategory,
 
         setUniqueFileName,
         toggleComponentValue,
-
+        setComponentSelections,
         //for undo redo 
         pushToUndoStack,
         handleUndo,
@@ -104,16 +105,12 @@ export function useActionBar() {
 
     const handleToggle = useCallback((key: string) => {
         pushToUndoStack(); // Push the current state before the change
-        console.log("called");
 
         toggleComponentValue(key);
 
     }, [pushToUndoStack, toggleComponentValue]);
 
     const toggleDropdown = useCallback((component: string) => {
-        console.log("component");
-        console.log(component);
-
         setOpenDropdown(prevDropdown => prevDropdown === component ? "" : component);
     }, []);
 
@@ -137,13 +134,14 @@ export function useActionBar() {
         }
     }, []);
 
-    const handleComponentFileNameChange = useCallback(() => {
+    const handleComponentFileNameChange = useCallback((componentsToAlter: IComponents, setComponentsFunction: (updatedComponent: IComponents) => void) => {
         const newInput = componentFileName;
-        const updatedcomponents: IComponents = structure.components ? JSON.parse(JSON.stringify(structure.components)) : {};
+        // const updatedcomponents: IComponents = components ? JSON.parse(JSON.stringify(components)) : {};
+        const updatedcomponents: IComponents = componentsToAlter ? JSON.parse(JSON.stringify(componentsToAlter)) : {};
 
         switch (componentType) {
             case 'normal':
-                updatedcomponents[newInput] = { value: true, fileId: uniqueFileName };
+                updatedcomponents[newInput] = { value: false, fileId: uniqueFileName };
                 break;
             case 'nestedChildLevel1':
                 if (levelOneNest) {
@@ -211,13 +209,17 @@ export function useActionBar() {
                 break;
         }
 
-        setTempComponents(updatedcomponents);
-    }, [componentFileName, componentType, levelOneNest, levelTwoNest, structure.components, oldComponentFileName, uniqueFileName]);
+        setComponentsFunction(updatedcomponents);
+    }, [componentFileName, componentType, levelOneNest, levelTwoNest, oldComponentFileName, uniqueFileName]);
 
     // Update components when any dependencies change
     useEffect(() => {
-        handleComponentFileNameChange();
-    }, [handleComponentFileNameChange]);
+        handleComponentFileNameChange(structure.components, setComponentSelections);
+    }, [handleComponentFileNameChange, setComponentSelections, structure.components]);
+
+    useEffect(() => {
+        handleComponentFileNameChange(components, setTempComponents);
+    }, [handleComponentFileNameChange, setTempComponents, components]);
 
     const shiftToSelectedCategory = async () => {
         try {

@@ -1,7 +1,7 @@
 // src/services/project.service.ts
 import mongoose, { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import Project from '../models/Project';
+import Project from '../models/project.model';
 import { IProject, IHierarchy, ICategories, ICategoryData } from '../types/project.types';
 import { FileService } from './file.service';
 import { AppError } from '../utils/AppError';
@@ -119,9 +119,6 @@ export class ProjectService {
             },
             components: {}
         };
-
-        console.log(hierarchy.categories[categoryId]);
-
         return hierarchy;
     }
 
@@ -190,11 +187,6 @@ export class ProjectService {
             // Add new mapping
             hierarchy.categoryMapping[newName] = categoryId;
         }
-        console.log(hierarchy.categoryMapping);
-
-
-
-
         return hierarchy;
     }
 
@@ -213,8 +205,6 @@ export class ProjectService {
         if (!project) {
             return { success: false, message: 'Project not found or unauthorized' };
         }
-
-        console.log(categoryStructure);
 
         if (!categoryStructure) {
             return { success: false, message: errorMessage };

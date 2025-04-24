@@ -15,7 +15,7 @@ const Project = () => {
         if (!project?.hierarchy) return;
         const currentCategoryId = project?.hierarchy.categoryMapping[project?.selectedCategory as string];
         setCategoryId(currentCategoryId)
-    }, [(content as IProject)?.selectedCategory])
+    }, [content])
 
     if (!id) return <div>No project ID provided</div>;
 

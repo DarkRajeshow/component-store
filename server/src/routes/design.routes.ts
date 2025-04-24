@@ -26,6 +26,14 @@ router.delete('/:id', designController.deleteDesign);
 // router.put('/:id/rename', designController.renameCategory);
 // router.delete('/:id', designController.deleteCategory);
 
+
+// hash related routes
+router.get('/hash/:hash',
+    designController.getDesignByHash
+);
+
+
+
 // base drawing operations
 router.put(
     '/:id/base',
@@ -81,7 +89,7 @@ router.put('/:id/pages',
     designController.addPage
 );
 
-router.put('/:id/reorder',
+router.put('/:id/pages/reorder',
     designController.reorderPages
   );
   
@@ -93,5 +101,8 @@ router.put('/:id/pages/:pageId/rename',
 router.delete('/:id/pages/:pageId',
     designController.deletePage
 );
+
+
+
 
 export default router;

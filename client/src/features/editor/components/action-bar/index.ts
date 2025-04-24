@@ -5,5 +5,5 @@ export { default as DesignInfoPanel } from './DesignInfoPanel';
 export { default as DisplayOptions } from './DisplayOptions';
 export { default as EditMenu } from './EditMenu';
 export { default as ExportForm } from './ExportForm';
-export { default as OptionItem } from './OptionItem';
+export { default as OptionItem } from '../../../dashboard/OptionItem';
 export { default as RenderOptions } from './RenderOptions';

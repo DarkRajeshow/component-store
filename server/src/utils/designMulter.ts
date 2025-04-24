@@ -5,14 +5,16 @@ import { Request } from 'express';
 
 const storage = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb) => {
-    const designFolder = req.body.folder;
+    const projectFolder = req.body.folder;
+    const { categoryId } = req.params;
     const pageName = file.originalname.split('<<&&>>')[0];
     const uploadPath = path.join(
-      process.cwd(), 
-      'public', 
+      process.cwd(),
+      'public',
       'uploads',
       'designs',
-      designFolder,
+      projectFolder,
+      categoryId,
       pageName
     );
 

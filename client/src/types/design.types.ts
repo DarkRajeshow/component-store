@@ -68,10 +68,13 @@ export interface IStructure {
 }
 
 export interface IDesign extends Document {
+  _id: string;
   user: string | IUser;
   project: string;
-  sourceDesign: string;
+  name: string;
   folder: string;
+  categoryId: string;
+  sourceDesign: string;
   category: string;
   code: string;
   hash: string;
@@ -102,14 +105,16 @@ export interface IDesignResponse {
 // design request types:
 export interface ICreateDesignRequest {
   project: string;
-  name?: string;
   type: string;
+  sourceDesign?: string;
+  code: string;
+  hash: string;
+  folder: string;
+  categoryId: string;
+  name?: string;
   description?: string;
   structure?: IStructure;
   category?: string;
-  code: string;
-  hash: string;
-  sourceDesign?: string;
 }
 
 export interface IAddComponentRequest {
@@ -220,6 +225,13 @@ export interface IDeleteDesignResponse {
 export interface IRevokeAccessResponse {
   success: boolean;
   status: string;
+}
+
+export interface IGetDesignByHashResponse {
+  success: boolean;
+  status: string;
+  exists: boolean;
+  design?: IDesign;
 }
 
 export interface IGetDesignResponse {

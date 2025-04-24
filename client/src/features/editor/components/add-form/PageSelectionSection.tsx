@@ -7,6 +7,7 @@ interface CustomizationFiles {
     [key: string]: File;
 }
 
+// Page Selection Component
 const PageSelectionSection: React.FC<{
     pages: Record<string, string>;
     selectedPages: string[];
@@ -26,7 +27,7 @@ const PageSelectionSection: React.FC<{
             setSelectedPages(tempSelectedPages);
         } else {
             // Add page
-            setSelectedPages((prev) => [...prev, pageName]);
+            setSelectedPages((prev) => [pageName, ...prev]);
         }
     }, [pages, selectedPages, setSelectedPages, newCustomizationFiles, setNewCustomizationFiles]);
 
@@ -50,6 +51,5 @@ const PageSelectionSection: React.FC<{
         </div>
     );
 };
-
 
 export default PageSelectionSection;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import EditMenu from "./EditMenu";
 import useAppStore from "../../../../store/useAppStore";
-import OptionItem from "./OptionItem";
+import OptionItem from "../../../dashboard/OptionItem";
 import { cn } from "@/lib/utils";
 import { IComponent, IComponentOptions, IFileInfo, INestedParentLevel1 } from "@/types/project.types";
 

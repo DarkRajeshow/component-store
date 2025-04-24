@@ -26,10 +26,14 @@ const ProjectSchema = new Schema<IProject>({
         type: String,
         required: true,
     },
-    selectedPage: {
+    selectedCategoryId: {
         type: String,
         required: true,
     },
+    // selectedPage: {
+    //     type: String,
+    //     required: true,
+    // },
     hierarchy: {
         type: Schema.Types.Mixed,
         required: true,

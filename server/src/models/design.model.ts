@@ -5,13 +5,13 @@ import { IDesign } from "../types/design.types";
 const DesignSchema = new Schema<IDesign>({
     version: {
         type: Number,
-        required: true,
+        required: [true, 'Version number is required'],
         default: 1,
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId, // Use Schema.Types.ObjectId
-        required: true,
-        ref: 'User', // Corrected reference
+        type: mongoose.Schema.Types.ObjectId,
+        required: [true, 'User ID is required'],
+        ref: 'User',
     },
     project: {
         type: Schema.Types.ObjectId,
@@ -26,9 +26,16 @@ const DesignSchema = new Schema<IDesign>({
     folder: {
         type: String,
         required: true,
-        unique: true,
+    },
+    categoryId: {
+        type: String,
+        required: true,
     },
     category: {
+        type: String,
+        required: true,
+    },
+    name: {
         type: String,
         required: true,
     },
@@ -42,6 +49,7 @@ const DesignSchema = new Schema<IDesign>({
     code: {
         type: String,
         required: true,
+        unique : true,
     },
     hash: {
         type: String,
@@ -53,10 +61,6 @@ const DesignSchema = new Schema<IDesign>({
             ref: "Revision",
         },
     ],
-    selectedPage: {
-        type: String,
-        required: true,
-    },
     accessTo: [
         {
             userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Corrected reference

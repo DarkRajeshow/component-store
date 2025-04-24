@@ -77,8 +77,6 @@ const SignUp: React.FC = () => {
                 toast.success(data.status || 'Registration successful');
                 navigate('/');
             } else {
-                console.log(data.status);
-                
                 toast.error(data.status || 'Registration failed');
             }
         } catch (error) {

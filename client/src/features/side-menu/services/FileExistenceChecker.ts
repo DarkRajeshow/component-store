@@ -15,9 +15,6 @@ export const FileExistenceChecker = {
         }
 
         try {
-
-            console.log(baseDrawing);
-            
             const results = await Promise.all(
                 Object.entries(tempPages).map(async ([pageFolder]) => {
                     const exists = await SideMenuService.checkFileExists(
@@ -29,7 +26,6 @@ export const FileExistenceChecker = {
 
             // http://localhost:8080/api/uploads/projects/7ed67452-9386-42ef-a9cf-a7ad01c60465edd21e7c-ba62-45c4-9949-5428b064a6bb/e96e43a8-3419-40d9-9627-a084cf84ed1d/668ec1dd-bbf2-465b-bb66-0c2494094348.svg
 
-            console.log(results);
             // Convert array of objects to a single object with pageFolder as keys
             return results.reduce((acc, curr) => ({ ...acc, ...curr }), {});
         } catch (error) {

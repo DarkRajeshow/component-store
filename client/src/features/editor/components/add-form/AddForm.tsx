@@ -11,18 +11,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 // API and Utils
-import { handleClick } from '../../../../utils/dragDrop';
 import useAppStore from '../../../../store/useAppStore';
-import DisplayOptions from '../action-bar/DisplayOptions';
 import { useModel } from '@/contexts/ModelContext';
 import { IComponentOperationResponse, IStructure } from '@/types/design.types';
 import { IComponents } from '@/types/project.types';
+import ParentComponentSection from './ParentComponentSection';
+import FileUploadSection from './FileUploadSection';
+import PageSelectionSection from './PageSelectionSection';
+import ComponentTypeSection from './ComponentTypeSection';
 
 interface ComponentType {
     value: string;
@@ -49,249 +48,8 @@ interface CustomizationFiles {
 
 // SOLID: Single Responsibility Principle - Separate components for different parts of the form
 // File Upload Component
-const FileUploadSection: React.FC<{
-    page: string;
-    pages: Record<string, string>;
-    newCustomizationFiles: CustomizationFiles;
-    setNewCustomizationFiles: React.Dispatch<React.SetStateAction<CustomizationFiles>>;
-}> = ({ page, pages, newCustomizationFiles, setNewCustomizationFiles }) => {
-    // Handle file selection
-    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setNewCustomizationFiles((prev) => ({
-                ...prev,
-                [pages[page]]: e.target.files![0]
-            }));
-        }
-    }, [page, pages, setNewCustomizationFiles]);
 
-    // Handle file drop
-    const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        if (e.dataTransfer.files[0].type === 'image/svg+xml' || e.dataTransfer.files[0].type === 'application/pdf') {
-            setNewCustomizationFiles((prev) => ({
-                ...prev,
-                [pages[page]]: e.dataTransfer.files[0]
-            }));
-        } else {
-            toast.error('Please choose a pdf/svg file.');
-        }
-    }, [page, pages, setNewCustomizationFiles]);
 
-    // Handle file removal
-    const handleRemoveFile = useCallback(() => {
-        setNewCustomizationFiles((prev) => {
-            const updatedFiles = { ...prev };
-            delete updatedFiles[pages[page]];
-            return updatedFiles;
-        });
-    }, [page, pages, setNewCustomizationFiles]);
-
-    return (
-        <Card className="border border-zinc-300">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-base font-medium capitalize">
-                    File for <span className="uppercase">{page}</span> Page
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                {newCustomizationFiles?.[pages[page]] && (
-                    <div className="mb-4 p-3 rounded-lg bg-blue-100 flex items-center justify-between">
-                        <p>
-                            Selected file: <Badge variant="outline" className="font-medium text-red-800">{newCustomizationFiles[pages[page]].name}</Badge>
-                        </p>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleRemoveFile}
-                            className="h-8 w-8 hover:text-red-700"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="h-5 w-5"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
-                        </Button>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label className="text-gray-600">Change File</Label>
-                        <input
-                            id={page}
-                            type="file"
-                            accept='.svg,.pdf'
-                            onChange={handleFileChange}
-                            className="hidden"
-                        />
-
-                        <div
-                            onClick={() => handleClick(page)}
-                            onDrop={handleDrop}
-                            onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                            }}
-                            className="w-full aspect-square p-4 border-2 border-dashed border-gray-400 cursor-pointer flex items-center justify-center min-h-72 rounded-md hover:bg-gray-50 transition-colors"
-                        >
-                            <span className='text-sm w-60 mx-auto text-center'>
-                                Drag and drop the component in SVG format.
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-gray-600">File Preview</Label>
-                        <div className='aspect-square p-5 bg-gray-50 border border-gray-300 rounded-md w-full overflow-hidden items-center justify-center flex flex-col'>
-                            {newCustomizationFiles?.[pages[page]] ? (
-                                newCustomizationFiles[pages[page]].type === "application/pdf" ? (
-                                    <embed
-                                        src={URL.createObjectURL(newCustomizationFiles[pages[page]])}
-                                        type="application/pdf"
-                                        width="100%"
-                                        height="500px"
-                                    />
-                                ) : (
-                                    <img
-                                        src={URL.createObjectURL(newCustomizationFiles[pages[page]])}
-                                        alt="base drawing"
-                                        className="w-full rounded-xl"
-                                    />
-                                )
-                            ) : (
-                                <p className="text-gray-500">Upload pdf or svg file to preview</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
-
-// Page Selection Component
-const PageSelectionSection: React.FC<{
-    pages: Record<string, string>;
-    selectedPages: string[];
-    setSelectedPages: React.Dispatch<React.SetStateAction<string[]>>;
-    newCustomizationFiles: CustomizationFiles;
-    setNewCustomizationFiles: React.Dispatch<React.SetStateAction<CustomizationFiles>>;
-}> = ({ pages, selectedPages, setSelectedPages, newCustomizationFiles, setNewCustomizationFiles }) => {
-
-    const handlePageToggle = useCallback((pageName: string) => {
-        if (selectedPages.includes(pageName)) {
-            // Remove page and its associated file
-            const updatedNewFiles = { ...newCustomizationFiles };
-            delete updatedNewFiles[pages[pageName]];
-            setNewCustomizationFiles(updatedNewFiles);
-
-            const tempSelectedPages = selectedPages.filter((page) => page !== pageName);
-            setSelectedPages(tempSelectedPages);
-        } else {
-            // Add page
-            setSelectedPages((prev) => [pageName, ...prev]);
-        }
-    }, [pages, selectedPages, setSelectedPages, newCustomizationFiles, setNewCustomizationFiles]);
-
-    return (
-        <div className="space-y-2">
-            <Label className="text-black font-medium">Select impacted pages</Label>
-            <div className="grid grid-cols-4 gap-1.5">
-                {Object.keys(pages).map((pageName) => (
-                    <Button
-                        key={pageName}
-                        type="button"
-                        variant={selectedPages.includes(pageName) ? "default" : "outline"}
-                        className={`h-12 uppercase text-sm font-medium ${selectedPages.includes(pageName) ? 'bg-green-200 hover:bg-green-300 text-black border-zinc-400' : 'bg-blue-50 hover:bg-blue-100 text-black'
-                            }`}
-                        onClick={() => handlePageToggle(pageName)}
-                    >
-                        {pageName}
-                    </Button>
-                ))}
-            </div>
-        </div>
-    );
-};
-
-// Component Type Selection Component
-const ComponentTypeSection: React.FC<{
-    componentType: string;
-    setComponentType: (type: string) => void;
-    componentTypes: ComponentType[];
-}> = ({ componentType, setComponentType, componentTypes }) => {
-    return (
-        <div className="space-y-2">
-            <Label htmlFor="component-type" className="text-black font-medium">
-                Select Component type
-            </Label>
-            <Select value={componentType} onValueChange={setComponentType}>
-                <SelectTrigger className="w-full bg-white/80">
-                    <SelectValue placeholder="Select component type" />
-                </SelectTrigger>
-                <SelectContent>
-                    {componentTypes.map((attType, index) => (
-                        <SelectItem key={index} value={attType.value}>
-                            {index + 1 + ". " + attType.Description}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
-    );
-};
-
-// Parent Component Selection Component
-const ParentComponentSection: React.FC<{
-    level: number;
-    levelOneNest: string;
-    setLevelOneNest: (nest: string) => void;
-    levelTwoNest?: string;
-    setLevelTwoNest?: (nest: string) => void;
-    isNestedLevel2?: boolean;
-}> = ({ level, levelOneNest, setLevelOneNest, levelTwoNest, setLevelTwoNest, isNestedLevel2 }) => {
-    return (
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="parent-component" className="text-black font-medium">
-                    Select Parent Component
-                </Label>
-                <Select value={levelOneNest} onValueChange={setLevelOneNest}>
-                    <SelectTrigger className="w-full bg-white/80">
-                        <SelectValue placeholder="Select parent component" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value=" " disabled>Select Parent Component</SelectItem>
-                        <DisplayOptions level={0} levelOneNest="" isNestedLevel2={isNestedLevel2} />
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {level === 2 && levelOneNest && setLevelTwoNest && (
-                <div className="space-y-2">
-                    <Label htmlFor="nested-component" className="text-black font-medium">
-                        Select Level 1 Nested Component
-                    </Label>
-                    <Select value={levelTwoNest || ""} onValueChange={setLevelTwoNest}>
-                        <SelectTrigger className="w-full bg-white/80">
-                            <SelectValue placeholder="Select level 1 nested component" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="" disabled>Select Level 1 Nested Component</SelectItem>
-                            <DisplayOptions level={1} levelOneNest={levelOneNest} />
-                        </SelectContent>
-                    </Select>
-                </div>
-            )}
-        </div>
-    );
-};
 
 // SOLID: Main component with dependency injection and separation of concerns
 const AddForm: React.FC<AddFormProps> = ({
@@ -314,12 +72,14 @@ const AddForm: React.FC<AddFormProps> = ({
         content,
         uniqueFileName,
         structure,
+        componentSelections,
         setUndoStack,
         setRedoStack,
+        setStructureElements
     } = store;
 
 
-    const { addComponent, addParentComponent, refreshContent } = useModel()
+    const { addComponent, addParentComponent } = useModel()
     const { id } = useParams<{ id: string }>();
 
     // Local state
@@ -342,11 +102,13 @@ const AddForm: React.FC<AddFormProps> = ({
             toast.success(data.status || 'Operation successful');
             setNewCustomizationFiles({});
             setComponentFileName("");
-            refreshContent();
+            setStructureElements({
+                updatedComponents: componentSelections
+            })
         } else {
             toast.error(data.status || 'Operation failed');
         }
-    }, [refreshContent, setComponentFileName]);
+    }, [setComponentFileName, componentSelections, setStructureElements]);
 
     // Close dialog
     const closeDialog = useCallback(() => {

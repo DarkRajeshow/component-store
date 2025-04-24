@@ -62,7 +62,7 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
     categoryId,
     children,
 }) => {
-    const { setContent, setDesignStates, setProjectStates } = useAppStore()
+    const { setContent, setDesignStates, setProjectStates, setLoading } = useAppStore()
     const [contentFolder, setContentFolder] = useState<string>("")
     const [baseContentPath, setBaseContentPath] = useState<string>("")
     const [baseFolderPath, setBaseFolderPath] = useState<string>("")
@@ -74,9 +74,8 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
     // // Load data
     const fetchContent = useCallback(async () => {
         const response = await api.getById();
-
         if (response?.success) {
-            if (isProject && 'project' in response) {
+            if (isProject && 'project' in response && response.project) {
                 const project = response.project as IProject;
                 setContent(project)
                 setProjectStates(project);
@@ -87,20 +86,22 @@ export const ModelProvider: React.FC<ModelProviderProps> = ({
                 setBaseFolderPath(completeFolderPath)
                 setContentFolder(project.folder)
             }
-            else if ('design' in response) {
+            else if ('design' in response && response.design) {
                 const design = response.design as IDesign;
                 setContent(design);
                 setDesignStates(design);
-                const completeFilePath = `${filePath}/designs/${design.folder}`
+                const completeFilePath = `${filePath}/projects/${design.folder}/${design.categoryId}`
+                const completeFolderPath = `${filePath}/projects/${design.folder}`
                 setBaseContentPath(completeFilePath)
-                setBaseFolderPath(completeFilePath)
+                setBaseFolderPath(completeFolderPath)
                 setContentFolder(design.folder)
             }
             else {
                 setContent(null);
             }
         }
-    }, [isProject, setContent, setDesignStates, setProjectStates]);
+        setLoading(false);
+    }, [isProject, setContent, setDesignStates, setProjectStates, setLoading]);
 
     const updateContentPath = (categoryId: string) => {
         setBaseContentPath(`${baseFolderPath}/${categoryId}`)

@@ -29,26 +29,6 @@ export function useSideMenu() {
         [currentBaseDrawingFileExistanceStatus, structure?.pages, structure?.baseDrawing]
     );
 
-    // // Reset states when design changes
-    // useEffect(() => {
-    //     setFileExistenceStatus({});
-    //     setTempPages(structure.pages || {});
-    //     const firstPage = structure?.pages ? Object.keys(structure?.pages)[0] : "gad"
-    //     setChoosenPage(firstPage);
-    //     setNewBaseDrawingFiles({});
-    // }, [structure.pages]);
-
-    // Reset state when baseDrawing or pages change
-    // useEffect(() => {
-    //     setTempBaseDrawing(structure.baseDrawing);
-    //     setTempPages(structure.pages || {});
-    //     setFileExistenceStatus({});
-    //     setNewBaseDrawingFiles({});
-    //     setChoosenPage('gad');
-    //     setIsPopUpOpen(false);
-    // }, [structure.baseDrawing, structure.pages]);
-
-
     // original selected catggory file existence Check
     useEffect(() => {
         if (structure?.pages && Object.keys(structure?.pages).length === 0) {
@@ -68,9 +48,7 @@ export function useSideMenu() {
 
                 // Only open popup if files are missing and not already open
                 const missingFiles = FileExistenceChecker.shouldShowPopup(currentBaseDrawingFileExistanceStatusObject);
-                console.log("missingFiles");
-                console.log(missingFiles);
-                
+
                 if (missingFiles && sideMenuType !== "pageManager") { // Add condition to check if popup is not already open
                     setIsPopUpOpen(true);
                     setSideMenuType("pageManager");
@@ -87,7 +65,7 @@ export function useSideMenu() {
 
         return () => clearTimeout(timeoutId);
         // Add isPopUpOpen to dependencies array to prevent unnecessary checks when popup is open
-    }, [baseContentPath, structure?.baseDrawing, structure?.pages, isPopUpOpen, fileVersion]);
+    }, [baseContentPath, structure?.baseDrawing, structure?.pages, isPopUpOpen, fileVersion, sideMenuType]);
 
     // Return all state and handlers
     return {

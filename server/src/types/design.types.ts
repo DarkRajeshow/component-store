@@ -56,6 +56,8 @@ export interface IStructure {
 
 export interface IDesign extends Document {
   version: number;
+  name: string;
+  categoryId: string;
   user: mongoose.Types.ObjectId | string | IUser;
   project: mongoose.Types.ObjectId | string;
   sourceDesign: mongoose.Types.ObjectId | string;

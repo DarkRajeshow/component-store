@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import designService from '../services/design.service';
-import Design from '../models/Design';
+import Design from '../models/design.model';
 import { IDesign, IStructure } from '../types/design.types';
 import { v4 as uuidv4 } from 'uuid';
 import parseIfUnparsed from '../utils/parseIfUnparsed';
@@ -31,34 +31,31 @@ class DesignController {
             }
 
             const userId = await designService.verifyUser(req.cookies.jwt);
-            const { project, name, type, description, structure, category, code, hash, sourceDesign } = req.body;
-
-            if (!type || !code || !hash || !project) {
+            const { project, name, type, description, structure, category, code, hash, sourceDesign, folder, categoryId } = req.body;
+            
+            if (!name || !type || !code || !hash || !project || !structure || !category || !folder || !categoryId) {
                 return sendResponse(res, false, 'Missing required fields');
             }
-
 
             // Create initial structure if not provided
             const initialStructure: IStructure = structure || {
                 pages: {
                     gad: uuidv4()
                 },
-                baseDrawing: { fileId: '' },
+                baseDrawing: { fileId: uuidv4() },
                 components: {}
             };
 
-            const defaultPage = initialStructure.pages ? Object.keys(initialStructure.pages)[0] : 'gad';
-            const folder = uuidv4();
-
             const design = await designService.createDesign(userId, {
                 project,
+                name,
                 sourceDesign: sourceDesign ? sourceDesign : null,
                 folder,
                 type,
                 description,
                 structure: initialStructure,
-                category: category || uuidv4(),
-                selectedPage: defaultPage,
+                category: category,
+                categoryId: categoryId,
                 code,
                 hash,
                 revisions: [],
@@ -66,10 +63,33 @@ class DesignController {
                 derivedDesigns: []
             });
 
+            // if (design) {
+            //     let response;
+            //     if (isParentADesign) {
+            //         response = await designService.copyDesignFolderContents(parentFolder, design.folder)
+            //     }
+            //     else {
+            //         response = await designService.copyProjectFolderContents(parentFolder, categoryFolder, design.folder)
+            //     }
+            //     if (response) {
+            //         console.log("Content Copied successfully.");
+            //     }
+            // }
+
             return sendResponse(res, true, 'Design created successfully', { design });
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            return sendResponse(res, false, 'Error creating design');
+            // Handle mongoose validation errors
+            if (error.name === 'ValidationError') {
+                const messages = Object.values(error.errors).map((err: any) => err.message);
+                return sendResponse(res, false, messages.join(', '));
+            }
+            // Handle custom AppError
+            if (error.statusCode) {
+                return sendResponse(res, false, error.message);
+            }
+            // Handle any other errors
+            return sendResponse(res, false, error.message || 'Error creating design');
         }
     }
 
@@ -132,7 +152,7 @@ class DesignController {
             const designId = req.params.id;
             const { structure, deleteFilesOfPages, filesToDelete } = req.body;
 
-            if (!structure || !deleteFilesOfPages || !filesToDelete) {
+            if (!structure) {
                 return sendResponse(res, false, 'Data is missing.');
             }
 
@@ -145,15 +165,15 @@ class DesignController {
                 return sendResponse(res, false, 'Some error occurred while retriving the design.');
             }
 
-            const folderPath = path.join(__dirname, 'public', 'uploads', result.design.folder);
+            // const folderPath = path.join(__dirname, 'public', 'uploads', result.design.folder);
 
-            const parsedDeleteFilesOfPages = JSON.parse(deleteFilesOfPages);
-            const parsedFilesToDelete = JSON.parse(filesToDelete);
-            // Handle file deletions
-            await designService.fileService.deleteFiles(folderPath, parsedDeleteFilesOfPages);
-            if (parsedFilesToDelete && parsedFilesToDelete.length > 0) {
-                await designService.fileService.deleteFilesRecursively(folderPath, parsedFilesToDelete);
-            }
+            // const parsedDeleteFilesOfPages = JSON.parse(deleteFilesOfPages);
+            // const parsedFilesToDelete = JSON.parse(filesToDelete);
+            // // Handle file deletions
+            // await designService.fileService.deleteFiles(folderPath, parsedDeleteFilesOfPages);
+            // if (parsedFilesToDelete && parsedFilesToDelete.length > 0) {
+            //     await designService.fileService.deleteFilesRecursively(folderPath, parsedFilesToDelete);
+            // }
             return sendResponse(res, true, 'Component updated successfully');
 
         } catch (error) {
@@ -182,10 +202,10 @@ class DesignController {
                 return sendResponse(res, false, 'Some error occurred while retriving the design.');
             }
 
-            if (filesToDelete && Array.isArray(filesToDelete) && filesToDelete.length > 0) {
-                const folderPath = path.join(__dirname, 'public', 'uploads', result.design.folder);
-                await fileService.deleteFilesRecursively(folderPath, filesToDelete);
-            }
+            // if (filesToDelete && Array.isArray(filesToDelete) && filesToDelete.length > 0) {
+            //     const folderPath = path.join(__dirname, 'public', 'uploads', result.design.folder);
+            //     await fileService.deleteFilesRecursively(folderPath, filesToDelete);
+            // }
 
             return sendResponse(res, true, 'Component deleted.');
 
@@ -218,6 +238,8 @@ class DesignController {
 
             design.structure = updatedStructure;
             design.selectedPage = pageName;
+
+            design.markModified("structure.pages");
             await design.save();
 
             return sendResponse(res, true, 'Page added successfully');
@@ -354,9 +376,9 @@ class DesignController {
             const pageFolderId = result.design.structure.pages[pageName];
 
             // Only delete if there's a folder ID and file service exists
-            if (pageFolderId && designService.fileService) {
-                await designService.fileService.deleteDesignPageFolder(result.design.folder, pageFolderId);
-            }
+            // if (pageFolderId && designService.fileService) {
+            //     await designService.fileService.deleteDesignPageFolder(result.design.folder, pageFolderId);
+            // }
 
             return sendResponse(res, true, 'Page deleted successfully');
         } catch (error) {
@@ -372,10 +394,6 @@ class DesignController {
                 return sendResponse(res, false, 'Login required');
             }
 
-            if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-                return sendResponse(res, false, 'Base drawing file required');
-            }
-
             const userId = await designService.verifyUser(req.cookies.jwt);
             const designId = req.params.id;
             const { structure, folderNames } = req.body;
@@ -389,11 +407,11 @@ class DesignController {
                 return sendResponse(res, false, 'Some error occurred while retriving the design.');
             }
 
-            if (folderNames && Array.isArray(folderNames) && folderNames.length > 0) {
-                for (const folderName of folderNames) {
-                    fileService.deleteDesignPageFolder(result.design.folder, folderName)
-                }
-            }
+            // if (folderNames && Array.isArray(folderNames) && folderNames.length > 0) {
+            //     for (const folderName of folderNames) {
+            //         fileService.deleteDesignPageFolder(result.design.folder, folderName)
+            //     }
+            // }
 
             // Upload new file and get file info
             return sendResponse(res, true, 'Base drawing updated successfully');
@@ -445,10 +463,10 @@ class DesignController {
                 return sendResponse(res, false, 'Design not found or unauthorized');
             }
 
-            // Delete associated files first
-            const folderPath = path.join(__dirname, 'public', 'uploads', design.folder);
+            // // Delete associated files first
+            // const folderPath = path.join(__dirname, 'public', 'uploads', design.folder);
 
-            await designService.fileService.deleteDesignFiles(folderPath);
+            // await designService.fileService.deleteDesignFiles(folderPath);
 
             // Then delete the design document
             await Design.findByIdAndDelete(id);
@@ -592,9 +610,7 @@ class DesignController {
             // }
 
             return sendResponse(res, true, 'Design retrieved successfully', {
-                ...design,
-                isOwner,
-                hasAccess
+                design: design
             });
         } catch (error) {
             console.error(error);
@@ -650,6 +666,34 @@ class DesignController {
         } catch (error) {
             console.error(error);
             return sendResponse(res, false, 'Error retrieving recent designs');
+        }
+    }
+
+    // Query Operations
+    async getDesignByHash(req: Request, res: Response) {
+        try {
+            if (!req.cookies.jwt) {
+                return sendResponse(res, false, 'Login required');
+            }
+            const { hash } = req.params;
+
+            // Check if design exists with this hash
+            const design = await Design.findOne({ hash });
+
+            if (!design) {
+                return sendResponse(res, true, 'Design not found', {
+                    exists: false,
+                    design: null
+                });
+            }
+
+            return sendResponse(res, true, 'Design found', {
+                exists: true,
+                design
+            });
+        } catch (error) {
+            console.error(error);
+            return sendResponse(res, false, 'Error retrieving design');
         }
     }
 
