@@ -80,16 +80,16 @@ class DesignController {
         } catch (error: any) {
             console.error(error);
             // Handle mongoose validation errors
-            if (error.name === 'ValidationError') {
-                const messages = Object.values(error.errors).map((err: any) => err.message);
-                return sendResponse(res, false, messages.join(', '));
-            }
-            // Handle custom AppError
-            if (error.statusCode) {
-                return sendResponse(res, false, error.message);
-            }
+            // if (error.name === 'ValidationError') {
+            //     const messages = Object.values(error.errors).map((err: any) => err.message);
+            //     return sendResponse(res, false, messages.join(', '));
+            // }
+            // // Handle custom AppError
+            // if (error.statusCode) {
+            //     return sendResponse(res, false, error.message);
+            // }
             // Handle any other errors
-            return sendResponse(res, false, error.message || 'Error creating design');
+            return sendResponse(res, false, "Code for design already exists, try different.");
         }
     }
 
@@ -103,9 +103,6 @@ class DesignController {
             const userId = await designService.verifyUser(req.cookies.jwt);
             const { id } = req.params;
             const { structure } = req.body;
-
-            console.log(structure);
-            
 
             // if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             //     return sendResponse(res, false, 'Component file required');

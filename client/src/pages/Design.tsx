@@ -1,7 +1,7 @@
 import { ModelProvider } from "@/contexts/ModelContext";
 import useAppStore from "@/store/useAppStore";
 import { IDesign } from "@/types/design.types";
-import DesignContent from "@/wrappers/DesignContent";
+import ContentWrapper from "@/wrappers/ContentWrapper";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -21,7 +21,7 @@ const Design = () => {
 
     return (
         <ModelProvider modelType="design" id={id} categoryId={categoryId}>
-            <DesignContent />
+            <ContentWrapper />
         </ModelProvider>
     );
 };

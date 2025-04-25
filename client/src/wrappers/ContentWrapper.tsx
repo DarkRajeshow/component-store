@@ -1,21 +1,17 @@
-import { useEffect, useRef, useState, useCallback, JSX, RefObject } from 'react';
-import { useParams } from 'react-router-dom';
+import { useRef, useState, useCallback, JSX } from 'react';
 import { svg2pdf } from 'svg2pdf.js';
 import jsPDF from 'jspdf';
 import useAppStore from '../store/useAppStore';
-
-
 import SideMenu from '@/features/side-menu';
 import ActionBar from '@/features/editor';
 import View from '@/features/canvas';
-import { useModel } from '@/contexts/ModelContext';
 
 interface Offset {
     x: number;
     y: number;
 }
 
-const DesignContent = (): JSX.Element => {
+const ContentWrapper = (): JSX.Element => {
     const { selectionBox } = useAppStore();
     const designRef = useRef<SVGSVGElement | null>(null);
     const [zoom, setZoom] = useState<number>(1);
@@ -87,11 +83,11 @@ const DesignContent = (): JSX.Element => {
                 setZoom={setZoom}
                 offset={offset}
                 setOffset={setOffset}
-                reference={designRef as RefObject<SVGSVGElement>}
+                reference={designRef as React.RefObject<SVGSVGElement>}
                 selectionBox={selectionBox}
             />
-        </main >
+        </main>
     );
 };
 
-export default DesignContent;
+export default ContentWrapper;

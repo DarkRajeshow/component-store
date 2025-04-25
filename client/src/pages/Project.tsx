@@ -1,7 +1,7 @@
 import { ModelProvider } from "@/contexts/ModelContext";
 import useAppStore from "@/store/useAppStore";
 import { IProject } from "@/types/project.types";
-import ProjectContent from "@/wrappers/ProjectContent";
+import ContentWrapper from "@/wrappers/ContentWrapper";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -21,7 +21,7 @@ const Project = () => {
 
     return (
         <ModelProvider modelType="project" id={id} categoryId={categoryId}>
-            <ProjectContent />
+            <ContentWrapper />
         </ModelProvider >
     );
 };
