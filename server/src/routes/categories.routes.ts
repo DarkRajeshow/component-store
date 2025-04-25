@@ -3,5 +3,5 @@ import express from 'express';
 import designRoutes from './design.routes'
 const router = express.Router();
 
-router.use('/:categoryId', designRoutes);
+router.use('/designs', designRoutes);
 export default router;

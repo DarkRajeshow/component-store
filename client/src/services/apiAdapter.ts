@@ -44,7 +44,7 @@ export class ApiAdapter {
             }
             return `/api/projects/${this.id}/categories/${this.categoryId}`;
         }
-        return `/api/categories/${this.categoryId}/designs/${this.id}`;
+        return `/api/designs/${this.id}/categories/${this.categoryId}`;
     }
 
     /**

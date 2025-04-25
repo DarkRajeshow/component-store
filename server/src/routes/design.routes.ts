@@ -22,9 +22,9 @@ router.get('/:id', designController.getDesignById);
 router.delete('/:id', designController.deleteDesign);
 
 // // Category operations
-// router.put('/:id/categories', designController.addCategory);
-// router.put('/:id/rename', designController.renameCategory);
-// router.delete('/:id', designController.deleteCategory);
+// router.put('/:id/categories/:categoryId/categories', designController.addCategory);
+// router.put('/:id/categories/:categoryId/rename', designController.renameCategory);
+// router.delete('/:id/categories/:categoryId', designController.deleteCategory);
 
 
 // hash related routes
@@ -36,7 +36,7 @@ router.get('/hash/:hash',
 
 // base drawing operations
 router.put(
-    '/:id/base',
+    '/:id/categories/:categoryId/base',
     designUpload.array('files') as express.RequestHandler,
     handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
     optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
@@ -45,7 +45,7 @@ router.put(
 
 // Component operations
 router.put(
-    '/:id/components/add/child',
+    '/:id/categories/:categoryId/components/add/child',
     designUpload.array('files') as express.RequestHandler,
     handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
     optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
@@ -53,52 +53,52 @@ router.put(
 );
 
 router.put(
-    '/:id/components/add/parent',
+    '/:id/categories/:categoryId/components/add/parent',
     designController.addComponent
 );
 
 router.put(
-    '/:id/components/update',
+    '/:id/categories/:categoryId/components/update',
     designUpload.array('files') as express.RequestHandler,
     handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
     optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
     designController.updateComponent
 );
 
-router.put('/:id/components/rename',
+router.put('/:id/categories/:categoryId/components/rename',
     designController.renameComponent
 );
 
 
 // need to change the component file.
 router.put(
-    '/:id/components/update',
+    '/:id/categories/:categoryId/components/update',
     designUpload.array('files') as express.RequestHandler,
     handlePDFtoSVG as express.RequestHandler<any, any, RequestWithFiles>,
     optimizeSVG as express.RequestHandler<any, any, RequestWithFiles>,
     designController.updateComponent
 );
 
-router.delete('/:id/components',
+router.delete('/:id/categories/:categoryId/components',
     designController.deleteComponent
 );
 
 
 // Page operations 
-router.put('/:id/pages',
+router.put('/:id/categories/:categoryId/pages',
     designController.addPage
 );
 
-router.put('/:id/pages/reorder',
+router.put('/:id/categories/:categoryId/pages/reorder',
     designController.reorderPages
   );
   
 
-router.put('/:id/pages/:pageId/rename',
+router.put('/:id/categories/:categoryId/pages/:pageId/rename',
     designController.renamePage
 );
 
-router.delete('/:id/pages/:pageId',
+router.delete('/:id/categories/:categoryId/pages/:pageId',
     designController.deletePage
 );
 

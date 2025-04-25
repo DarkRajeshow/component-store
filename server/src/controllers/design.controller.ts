@@ -104,6 +104,9 @@ class DesignController {
             const { id } = req.params;
             const { structure } = req.body;
 
+            console.log(structure);
+            
+
             // if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             //     return sendResponse(res, false, 'Component file required');
             // }

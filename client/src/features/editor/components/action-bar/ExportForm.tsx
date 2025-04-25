@@ -45,10 +45,10 @@ import { ICreateDesignRequest, IDesign } from '@/types/design.types';
 const ExportPopup = ({ onExport }: {
     onExport: (fileName: string) => void
 }) => {
+    const { id } = useParams()
     const [exportFormat, setExportFormat] = useState('pdf');
     const [hashId, setHashId] = useState("")
     const [fileName, setFileName] = useState('');
-    const { id } = useParams()
     const [action, setAction] = useState('export'); // 'export' or 'create'
     const [designExists, setDesignExists] = useState(false);
     const [existingDesignData, setExistingDesignData] = useState<undefined | IDesign>()
