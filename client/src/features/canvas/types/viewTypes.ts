@@ -30,11 +30,19 @@ export interface Offset {
   y: number;
 }
 
+
+export interface IDimentions {
+  width: number,
+  height: number
+}
+
 // View component props
 export interface ViewProps {
   generatePDF: (fileName: string) => void;
   reference: RefObject<SVGSVGElement>;
   zoom: number;
+  dimensions: IDimentions;
+  setDimensions: (updatedDimentions: IDimentions) => void;
   setZoom: (zoom: number | ((prevZoom: number) => number)) => void;
   offset: Offset;
   setOffset: (offset: Offset | ((prevOffset: Offset) => Offset)) => void;

@@ -38,8 +38,8 @@ export const useDragging = ({
 
       // Update the offset with adjusted values
       setOffset((prevOffset) => ({
-        x: prevOffset.x + adjustedDx / zoom,
-        y: prevOffset.y + adjustedDy / zoom,
+        x: prevOffset.x + (adjustedDx / 6) / zoom,
+        y: prevOffset.y + (adjustedDy / 6) / zoom,
       }));
 
       setSelectionState((prevState) => ({

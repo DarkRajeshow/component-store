@@ -49,7 +49,7 @@ const ExportPopup = ({ onExport }: {
     const [exportFormat, setExportFormat] = useState('pdf');
     const [hashId, setHashId] = useState("")
     const [fileName, setFileName] = useState('');
-    const [action, setAction] = useState('export'); // 'export' or 'create'
+    // const [action, setAction] = useState('export'); // 'export' or 'create'
     const [designExists, setDesignExists] = useState(false);
     const [existingDesignData, setExistingDesignData] = useState<undefined | IDesign>()
     const [isChecking, setIsChecking] = useState(false);
@@ -209,7 +209,7 @@ const ExportPopup = ({ onExport }: {
 
     const formatOptions = [
         { value: 'pdf', label: 'PDF Document', icon: FileDown },
-        { value: 'drf', label: 'DRF Format', icon: FileText },
+        { value: 'DXF', label: 'DXF Format', icon: FileText },
         { value: 'svg', label: 'SVG Vector', icon: FileDown }
     ];
 
@@ -274,7 +274,7 @@ const ExportPopup = ({ onExport }: {
                         </Alert>
                     )}
 
-                    <Tabs defaultValue="export" onValueChange={setAction} className="w-full">
+                    <Tabs defaultValue="export" className="w-full">
                         <TabsList className="w-full rounded-lg bg-gray-100 p-1">
                             <TabsTrigger value="export" className="rounded-md py-2.5 flex items-center justify-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                                 <FileDown className="h-4 w-4" /> Export File
@@ -314,7 +314,7 @@ const ExportPopup = ({ onExport }: {
                                         </Select>
                                         <p className="text-xs text-gray-500 mt-1">
                                             {exportFormat === 'pdf' && "PDF files are best for sharing and printing"}
-                                            {exportFormat === 'drf' && "DRF format preserves all design properties for future editing"}
+                                            {exportFormat === 'DXF' && "DXF format preserves all design properties for future editing"}
                                             {exportFormat === 'svg' && "SVG files are ideal for web usage and scaling"}
                                         </p>
                                     </div>

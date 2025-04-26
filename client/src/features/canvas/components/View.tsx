@@ -34,6 +34,8 @@ const View: React.FC<ViewProps> = ({
     zoom,
     offset,
     reference,
+    dimensions,
+    setDimensions,
     generatePDF,
     setZoom,
     setOffset,
@@ -118,11 +120,13 @@ const View: React.FC<ViewProps> = ({
         setRotation
     });
 
+
     // Combined mouse move handler
     const handleMouseMove = (event: React.MouseEvent) => {
         handleDragMove(event);
         updateSelectionOnMove(event);
     };
+
 
     // Generate design elements for the canvas
     const designElements = React.useMemo(() => {
@@ -147,14 +151,14 @@ const View: React.FC<ViewProps> = ({
                         }}
                         key={componentName}
                         href={href}
-                        height={window.innerHeight * 0.846}
-                        width={window.innerWidth - 32}
+                        height={dimensions.height}
+                        width={dimensions.width}
                     />
                 );
             }
             return null;
         }).filter(Boolean);
-    }, [structure.components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation]);
+    }, [structure.components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation, dimensions]);
 
     // Get base drawing path
     const baseDrawingPath = React.useMemo(() => {
@@ -162,10 +166,27 @@ const View: React.FC<ViewProps> = ({
         return `${baseContentPath}/${(structure.pages as IPages)[selectedPage]}/${typedBaseDrawing.fileId}.svg?v=${fileVersion}`;
     }, [baseContentPath, selectedPage, typedBaseDrawing?.fileId, fileVersion, structure.pages]);
 
+    const getImageDimensions = (src: string): Promise<{ width: number, height: number }> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.width, height: img.height });
+            img.onerror = reject;
+            img.src = src;
+        });
+    };
 
-    useEffect(()=>{
-        console.log(structure);
-    }, [structure])
+
+    useEffect(() => {
+        const printResult = async () => {
+            if (baseDrawingPath) {
+                const result = await getImageDimensions(baseDrawingPath)
+                setDimensions(result)
+                console.log(result);
+            }
+        }
+        printResult()
+    }, [baseDrawingPath])
+
     return (
         <TooltipProvider>
             <Dialog open={isPopUpON}>
@@ -211,6 +232,7 @@ const View: React.FC<ViewProps> = ({
                                         baseDrawingPath={baseDrawingPath}
                                         isBaseDrawingExists={isBaseDrawingExists}
                                         designElements={designElements}
+                                        dimensions={dimensions}
                                         onHoldSelection={handleHoldSelection}
                                     />
                                 </div>

@@ -1,5 +1,5 @@
 import React, { RefObject } from 'react';
-import { Offset } from '../types/viewTypes';
+import { IDimentions, Offset } from '../types/viewTypes';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface DesignCanvasProps {
@@ -11,6 +11,7 @@ interface DesignCanvasProps {
   isDragging: boolean;
   baseDrawingPath: string | null;
   isBaseDrawingExists: boolean;
+  dimensions: IDimentions;
   designElements: React.ReactNode[];
   onHoldSelection: () => void;
 }
@@ -25,8 +26,10 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
   baseDrawingPath,
   isBaseDrawingExists,
   designElements,
+  dimensions,
   onHoldSelection
 }) => {
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -39,8 +42,9 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
     <svg
       onClick={onHoldSelection}
       ref={reference}
+      fill='#FFF'
       className="components relative w-full h-full transition-none"
-      viewBox={`0 0 ${window.innerWidth - 32} ${window.innerHeight * 0.846}`}
+      viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
       xmlns="http://www.w3.org/2000/svg"
     >
       {baseDrawingPath && isBaseDrawingExists && (
@@ -52,8 +56,8 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({
             rotate: `${rotation}deg`,
           }}
           href={baseDrawingPath}
-          height={window.innerHeight * 0.846}
-          width={window.innerWidth - 32}
+          height={dimensions.height}
+          width={dimensions.width}
         />
       )}
       {designElements}
