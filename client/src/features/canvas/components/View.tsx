@@ -77,7 +77,6 @@ const View: React.FC<ViewProps> = ({
         handleMouseMove: handleDragMove,
         handleMouseUp
     } = useDragging({
-        zoom,
         rotation,
         setOffset,
         selectionState,
@@ -129,6 +128,38 @@ const View: React.FC<ViewProps> = ({
 
 
     // Generate design elements for the canvas
+    // const designElements = React.useMemo(() => {
+    //     if (!structure.components) return [];
+
+    //     return Object.entries(structure.components).map(([componentName, componentValue]) => {
+    //         const href = getSVGPath(componentValue);
+    //         const isValid = (componentValue as INormalComponent)?.value
+    //             || ((componentValue as IComponent)?.selected && (componentValue as IComponent).selected !== "none"
+    //                 && !((componentValue as IComponent)?.options?.[((componentValue as IComponent).selected)] as INestedParentLevel1)?.options)
+    //             || (((componentValue as IComponent)?.options?.[(componentValue as IComponent)?.selected] as INestedParentLevel1)?.selected
+    //                 && ((componentValue as IComponent).options[((componentValue as IComponent).selected)] as INestedParentLevel1).selected !== ' ');
+
+    //         if (isValid && href && existingFiles[href]) {
+    //             return (
+    //                 <image
+    //                     style={{
+    //                         transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
+    //                         transformOrigin: 'center',
+    //                         cursor: isDragging ? 'grabbing' : 'grab',
+    //                         rotate: `${rotation}deg`
+    //                     }}
+    //                     key={componentName}
+    //                     href={href}
+    //                     height={dimensions.height}
+    //                     width={dimensions.width}
+    //                 />
+    //             );
+    //         }
+    //         return null;
+    //     }).filter(Boolean);
+    // }, [structure.components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation, dimensions]);
+
+    // Generate design elements for the canvas
     const designElements = React.useMemo(() => {
         if (!structure.components) return [];
 
@@ -143,12 +174,6 @@ const View: React.FC<ViewProps> = ({
             if (isValid && href && existingFiles[href]) {
                 return (
                     <image
-                        style={{
-                            transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
-                            transformOrigin: 'center',
-                            cursor: isDragging ? 'grabbing' : 'grab',
-                            rotate: `${rotation}deg`
-                        }}
                         key={componentName}
                         href={href}
                         height={dimensions.height}
@@ -158,7 +183,7 @@ const View: React.FC<ViewProps> = ({
             }
             return null;
         }).filter(Boolean);
-    }, [structure.components, getSVGPath, existingFiles, zoom, offset, isDragging, rotation, dimensions]);
+    }, [structure.components, getSVGPath, existingFiles, dimensions]);
 
     // Get base drawing path
     const baseDrawingPath = React.useMemo(() => {
@@ -185,7 +210,7 @@ const View: React.FC<ViewProps> = ({
             }
         }
         printResult()
-    }, [baseDrawingPath])
+    }, [baseDrawingPath, setDimensions])
 
     return (
         <TooltipProvider>

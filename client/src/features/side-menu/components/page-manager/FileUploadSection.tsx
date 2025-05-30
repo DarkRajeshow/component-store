@@ -35,7 +35,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
     content
 }) => {
 
-    const { modelType } = useModel();
+    const { modelType, baseContentPath } = useModel();
     // Memoize file preview rendering logic
     const filePreview = useMemo(() => {
         // console.log("Rendering file preview for page:", choosenPage, "with fileId:", tempBaseDrawing?.fileId, "and file existence status:", fileExistenceStatus);
@@ -55,13 +55,14 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             );
         }
 
-        let completeCategoryPath = baseFolderPath;
+        let completeCategoryPath = baseContentPath;
 
         if (modelType === "project" && (content as IProject).hierarchy) {
             const project = content as IProject;
             const tempSelectedCategoryId = project.hierarchy.categoryMapping[tempSelectedCategory];
             completeCategoryPath = `${baseFolderPath}/${tempSelectedCategoryId}`
         }
+        
         return (
             <img
                 src={newBaseDrawingFiles?.[tempPages[choosenPage]]
@@ -71,7 +72,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
                 className="w-full rounded-xl"
             />
         );
-    }, [tempBaseDrawing?.fileId, choosenPage, newBaseDrawingFiles, tempPages, content, fileExistenceStatus, tempSelectedCategory, baseFolderPath, fileVersion, modelType]);
+    }, [tempBaseDrawing?.fileId, choosenPage, baseContentPath, newBaseDrawingFiles, tempPages, content, fileExistenceStatus, tempSelectedCategory, baseFolderPath, fileVersion, modelType]);
 
     return (
         <Card className="bg-blue-50 border-none">

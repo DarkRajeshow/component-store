@@ -224,120 +224,118 @@ const ContentWrapper = (): JSX.Element => {
     //         console.error('Error generating PDF:', error);
     //     }
     // }, [selectionBox, zoom, offset, rotation, designRef]);
-
+    
     const generateFitToPaperPDF = useCallback(async (fileName: string): Promise<void> => {
         const svgElement = designRef.current;
         if (!svgElement) {
             console.error('SVG element not found');
             return;
         }
-
+        
         // Get the original viewBox dimensions
-        const originalViewBox = svgElement.viewBox.baseVal;
-        const fullWidth = originalViewBox.width;
-        const fullHeight = originalViewBox.height;
-
-        // Determine if we're dealing with a 90/270 degree rotation
-        const isRotated90or270 = rotation === 90 || rotation === 270;
-
-        // Create a new SVG that's pre-rotated rather than using transform
-        const preRotatedSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-
-        // For 90/270 rotations, we swap width and height and adjust the viewBox
-        const effectiveWidth = isRotated90or270 ? fullHeight : fullWidth;
-        const effectiveHeight = isRotated90or270 ? fullWidth : fullHeight;
-
-        // Set up the new SVG with appropriate dimensions
-        preRotatedSvg.setAttribute('width', `${effectiveWidth}`);
-        preRotatedSvg.setAttribute('height', `${effectiveHeight}`);
-
-        // Choose PDF orientation based on the effective aspect ratio
-        const effectiveAspectRatio = effectiveWidth / effectiveHeight;
-        const pdf = new jsPDF(effectiveAspectRatio > 1 ? 'l' : 'p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        // Calculate dimensions for fit-to-paper
-        let renderWidth, renderHeight;
-        if (effectiveAspectRatio > pdfWidth / pdfHeight) {
-            // Width-constrained
-            renderWidth = pdfWidth - 20; // 10mm padding on each side
-            renderHeight = renderWidth / effectiveAspectRatio;
-        } else {
-            // Height-constrained
-            renderHeight = pdfHeight - 20; // 10mm padding on each side
-            renderWidth = renderHeight * effectiveAspectRatio;
-        }
-
-        // Center on page
-        const x = (pdfWidth - renderWidth) / 2;
-        const y = (pdfHeight - renderHeight) / 2;
-
+        const viewBox = svgElement.viewBox.baseVal;
+        const fullWidth = viewBox.width;
+        const fullHeight = viewBox.height;
+        
         try {
-            // Clone the original SVG content
-            const content = svgElement.cloneNode(true) as SVGSVGElement;
-
-            // Create a container group in our new SVG
+            // Create a new detached SVG element that we'll use for PDF generation
+            const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            
+            // Set the size to match the original viewBox
+            newSvg.setAttribute('width', String(fullWidth));
+            newSvg.setAttribute('height', String(fullHeight));
+            newSvg.setAttribute('viewBox', `0 0 ${fullWidth} ${fullHeight}`);
+            
+            // Create a container group for the content
             const contentGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-            // Set up the viewBox for the new SVG, accounting for zoom and offset
-            if (isRotated90or270) {
-                // For 90/270 rotations, we need to adjust the viewBox
-                preRotatedSvg.setAttribute('viewBox', `0 0 ${fullHeight * zoom} ${fullWidth * zoom}`);
-
-                // Apply transformations to pre-rotate the content
-                if (rotation === 90) {
-                    // For 90° rotation: translate down then rotate
-                    contentGroup.setAttribute('transform',
-                        `translate(${fullHeight * zoom}, 0) rotate(90)`);
-                } else { // rotation === 270
-                    // For 270° rotation: translate right then rotate
-                    contentGroup.setAttribute('transform',
-                        `translate(0, ${fullWidth * zoom}) rotate(270)`);
-                }
-            } else {
-                // For 0/180 rotations, use original dimensions
-                preRotatedSvg.setAttribute('viewBox',
-                    `${offset.x * zoom} ${offset.y * zoom} ${fullWidth * zoom} ${fullHeight * zoom}`);
-
-                if (rotation === 180) {
-                    // For 180° rotation: rotate around center point
+            
+            // Clone all content from the original SVG
+            const originalContent = svgElement.cloneNode(true) as SVGSVGElement;
+            
+            // Find the original g element
+            const originalG = originalContent.querySelector('g');
+            if (!originalG) {
+                console.error('Content group not found in SVG');
+                return;
+            }
+            
+            // Deep clone the original g element without its style/transform
+            const clonedG = originalG.cloneNode(true) as SVGGElement;
+            clonedG.removeAttribute('style');
+            
+            // Add all children from the cloned g to our content group
+            Array.from(clonedG.childNodes).forEach(child => {
+                contentGroup.appendChild(child.cloneNode(true));
+            });
+            
+            // Apply rotation to the whole content based on the current rotation setting
+            if (rotation !== 0) {
+                // For 90/270 rotations, we need to swap dimensions
+                const isRotated90or270 = rotation === 90 || rotation === 270;
+                
+                if (isRotated90or270) {
+                    // Update the SVG dimensions for rotated content
+                    newSvg.setAttribute('width', String(fullHeight));
+                    newSvg.setAttribute('height', String(fullWidth));
+                    newSvg.setAttribute('viewBox', `0 0 ${fullHeight} ${fullWidth}`);
+                    
+                    // Apply appropriate rotation transform
+                    if (rotation === 90) {
+                        contentGroup.setAttribute('transform', 
+                            `translate(${fullHeight}, 0) rotate(90)`);
+                    } else { // rotation === 270
+                        contentGroup.setAttribute('transform', 
+                            `translate(0, ${fullWidth}) rotate(270)`);
+                    }
+                } else if (rotation === 180) {
+                    // For 180 rotation
                     const centerX = fullWidth / 2;
                     const centerY = fullHeight / 2;
-                    contentGroup.setAttribute('transform',
+                    contentGroup.setAttribute('transform', 
                         `rotate(180, ${centerX}, ${centerY})`);
                 }
             }
-
-            // Copy all content from the original SVG to our content group
-            while (content.firstChild) {
-                contentGroup.appendChild(content.firstChild);
+            
+            // Add the content group to the new SVG
+            newSvg.appendChild(contentGroup);
+            
+            // Get dimensions to use for PDF generation
+            const isRotated90or270 = rotation === 90 || rotation === 270;
+            const effectiveWidth = isRotated90or270 ? fullHeight : fullWidth;
+            const effectiveHeight = isRotated90or270 ? fullWidth : fullHeight;
+            const effectiveAspectRatio = effectiveWidth / effectiveHeight;
+            
+            // Create PDF with appropriate orientation
+            const pdf = new jsPDF(effectiveAspectRatio > 1 ? 'l' : 'p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            // Calculate dimensions for fit-to-paper
+            let renderWidth, renderHeight;
+            if (effectiveAspectRatio > pdfWidth / pdfHeight) {
+                // Width-constrained
+                renderWidth = pdfWidth - 20; // 10mm padding on each side
+                renderHeight = renderWidth / effectiveAspectRatio;
+            } else {
+                // Height-constrained
+                renderHeight = pdfHeight - 20; // 10mm padding on each side
+                renderWidth = renderHeight * effectiveAspectRatio;
             }
-
-            // Add the content group to our pre-rotated SVG
-            preRotatedSvg.appendChild(contentGroup);
-
-            console.log({
-                rotation: `${rotation}°`,
-                isRotated90or270,
-                originalDimensions: `${fullWidth}×${fullHeight}`,
-                effectiveDimensions: `${effectiveWidth}×${effectiveHeight}`,
-                pdfSize: `${pdfWidth}mm × ${pdfHeight}mm`,
-                renderSize: `${renderWidth}mm × ${renderHeight}mm`,
-                aspectRatio: effectiveAspectRatio
-            });
-
-            // Use the pre-rotated SVG for PDF generation
-            await svg2pdf(preRotatedSvg, pdf, {
+            
+            // Center on page
+            const x = (pdfWidth - renderWidth) / 2;
+            const y = (pdfHeight - renderHeight) / 2;
+            
+            // Use the new SVG for PDF generation
+            await svg2pdf(newSvg, pdf, {
                 x, y, width: renderWidth, height: renderHeight
             });
-
+            
             pdf.save(`${fileName}.pdf`);
         } catch (error) {
             console.error('Error generating PDF:', error);
         }
-    }, [zoom, offset, rotation]);
-
+    }, [rotation]);
 
     useEffect(() => {
         console.log(offset);

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Offset, SelectionState } from '../types/viewTypes';
 
 interface UseDraggingProps {
-  zoom: number;
+  // zoom: number;
   rotation: number;
   setOffset: (offset: Offset | ((prevOffset: Offset) => Offset)) => void;
   selectionState: SelectionState;
@@ -10,7 +10,6 @@ interface UseDraggingProps {
 }
 
 export const useDragging = ({
-  zoom,
   rotation,
   setOffset,
   selectionState,
@@ -38,8 +37,8 @@ export const useDragging = ({
 
       // Update the offset with adjusted values
       setOffset((prevOffset) => ({
-        x: prevOffset.x + (adjustedDx / 6) / zoom,
-        y: prevOffset.y + (adjustedDy / 6) / zoom,
+        x: prevOffset.x + ((adjustedDx)) / 6,
+        y: prevOffset.y + ((adjustedDy)) / 6,
       }));
 
       setSelectionState((prevState) => ({
@@ -47,7 +46,7 @@ export const useDragging = ({
         lastMousePosition: { x: event.clientX, y: event.clientY },
       }));
     }
-  }, [isDragging, rotation, selectionState.lastMousePosition, setOffset, setSelectionState, zoom]);
+  }, [isDragging, rotation, selectionState.lastMousePosition, setOffset, setSelectionState]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);

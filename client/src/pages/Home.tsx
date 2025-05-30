@@ -1,26 +1,10 @@
-import { JSX, useEffect } from "react";
-import useAppStore from "../store/useAppStore";
-import { DesignCard } from "../features/dashboard";
+import { JSX } from "react";
+import HomePage from "@/features/dashboard";
 
-function Home(): JSX.Element {
-  const { fetchRecentDesigns, recentDesigns, RecentDesignLoading } = useAppStore();
-
-  useEffect(() => {
-    fetchRecentDesigns();
-  }, [fetchRecentDesigns]);
-
+const Home = (): JSX.Element => {
   return (
-    <main className="px-10">
-      <h1 className="text-2xl pt-10 pb-6 font-medium">Recents Designs</h1>
-      <div className="w-full flex flex-col items-start gap-3">
-        {
-          !RecentDesignLoading && recentDesigns && recentDesigns.length > 0 && recentDesigns.map((design, index) => (
-            <DesignCard design={design} key={index} />
-          ))
-        }
-      </div>
-    </main>
+    <HomePage />
   );
-}
+};
 
 export default Home;

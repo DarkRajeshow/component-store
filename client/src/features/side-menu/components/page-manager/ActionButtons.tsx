@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
@@ -20,6 +20,10 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     memoizedToggleDialog
 }) => {
     const isDisabled = saveLoading || (typeof tempBaseDrawing === "string" && tempBaseDrawing === " " && !newBaseDrawingFiles);
+
+    useEffect(()=>{
+        console.log(saveLoading);
+    }, [saveLoading])
 
     return (
         <div className="flex items-center justify-between gap-3 py-3 px-2">

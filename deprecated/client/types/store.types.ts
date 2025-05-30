@@ -1,7 +1,7 @@
 import { ProjectSlice } from '@/store/slices/projectSlice';
 import { DesignSlice } from '../../../client/src/store/slices/designSlice';
 import { FileSlice } from '../../../client/src/store/slices/fileSlice';
-import { RecentDesignSlice } from '../../../client/src/store/slices/recentDesignSlice';
+import { RecentDesignSlice } from '../../../client/src/store/slices/fetchRecentSlice';
 import { UISlice } from '../../../client/src/store/slices/uiSlice';
 import { UserSlice } from '../../../client/src/store/slices/userSlice';
 import { EditorSlice } from '@/store/slices/editorSlice';

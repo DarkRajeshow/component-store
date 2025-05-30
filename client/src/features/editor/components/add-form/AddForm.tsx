@@ -161,7 +161,7 @@ const AddForm: React.FC<AddFormProps> = ({
                     ...structure,
                     components: tempComponents
                 }
-
+c
                 // Passing folder, structure, and files in formdata
                 formData.append('folder', content.folder);
                 formData.append('structure', JSON.stringify(updatedStructure));

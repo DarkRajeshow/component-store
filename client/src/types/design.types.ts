@@ -179,6 +179,15 @@ export interface ICreateDerivedDesignRequest {
 
 
 
+
+
+
+
+
+
+
+
+
 // Design response types
 export interface ICreateDesignResponse {
   success: boolean;

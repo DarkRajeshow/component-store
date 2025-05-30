@@ -1,7 +1,7 @@
 import { ProjectSlice } from '@/store/slices/projectSlice';
 import { DesignSlice } from '@/store/slices/designSlice';  // Fixed relative path
 import { FileSlice } from '@/store/slices/fileSlice';      // Fixed relative path
-import { RecentDesignSlice } from '@/store/slices/recentDesignSlice'; // Fixed relative path 
+import { FetchRecentSlice } from '@/store/slices/fetchRecentSlice'; // Fixed relative path 
 import { UISlice } from '@/store/slices/uiSlice';          // Fixed relative path
 import { UserSlice } from '@/store/slices/userSlice';      // Fixed relative path
 import { EditorSlice } from '@/store/slices/editorSlice';
@@ -40,7 +40,7 @@ interface StoreActions {
 }
 
 // Combined store state type
-export type StoreState = DesignSlice & ProjectSlice & EditorSlice & FileSlice & RecentDesignSlice & UISlice & UserSlice & StoreActions;
+export type StoreState = DesignSlice & ProjectSlice & EditorSlice & FileSlice & FetchRecentSlice & UISlice & UserSlice & StoreActions;
 
 
 export interface ISelectionBox {

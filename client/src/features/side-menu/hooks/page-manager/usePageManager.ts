@@ -388,7 +388,6 @@ export function usePageManager(props: IUsePageManagerProps) {
         contentFolder,
         content,
         updateBaseDrawing,
-        tempSelectedCategory,
         newBaseDrawingFiles,
         tempPages,
         refreshContent,
@@ -417,7 +416,6 @@ export function usePageManager(props: IUsePageManagerProps) {
 
             if (!allFilesUploaded) {
                 toast.warning("You must upload the base drawing for all the pages to proceed.");
-                setSaveLoading(false);
                 return;
             }
 

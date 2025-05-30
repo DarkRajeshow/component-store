@@ -1,3 +1,2 @@
-// export { default as DesignCard } from '../design/components/action-bar/components/DesignCard'
-
-export { default as DesignCard } from "./components/DesignCard";
+import HomePage from './components/HomePage'
+export default HomePage;

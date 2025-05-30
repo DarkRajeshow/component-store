@@ -4,7 +4,7 @@ import { devtools, persist } from 'zustand/middleware';
 import createUserSlice from './slices/userSlice';
 import createDesignSlice from './slices/designSlice';
 import createFileSlice from './slices/fileSlice';
-import createRecentDesignSlice from './slices/recentDesignSlice';
+import createFetchRecentSlice from './slices/fetchRecentSlice';
 import createUISlice from './slices/uiSlice';
 import createProjectSlice from './slices/projectSlice';
 import createEditorSlice from './slices/editorSlice';
@@ -22,7 +22,7 @@ const useAppStore = create<StoreState>()(
         ...createUserSlice(set, get),
         ...createDesignSlice(set, get),
         ...createFileSlice(set, get),
-        ...createRecentDesignSlice(set, get),
+        ...createFetchRecentSlice(set, get),
         ...createUISlice(set, get),
         ...createProjectSlice(set, get),
         ...createEditorSlice(set, get),
