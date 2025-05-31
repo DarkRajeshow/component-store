@@ -32,12 +32,10 @@ const UpdateForm: React.FC = () => {
         baseContentPath,
         pages,
         newFiles,
-        fileCounts,
         menuOf,
 
         setOperation,
         setNewComponentName,
-        setFileCounts,
         setUpdatedValue,
         handleFileChange,
         handleDrop,
@@ -57,8 +55,6 @@ const UpdateForm: React.FC = () => {
                 return (
                     <UpdateChild
                         key={option}
-                        fileCounts={fileCounts}
-                        setFileCounts={setFileCounts}
                         // path={[...menuOf, option]}
                         updatedValue={updatedValue}
                         setUpdatedValue={setUpdatedValue}
@@ -69,7 +65,7 @@ const UpdateForm: React.FC = () => {
             }
             return null;
         });
-    }, [selectedComponentValue, updatedValue, fileCounts, setFileCounts, setUpdatedValue]);
+    }, [selectedComponentValue, updatedValue, setUpdatedValue]);
 
     // Handle close dialog with reset
     const handleCloseDialog = () => {

@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, useCallback, JSX, RefObject } from 'react';
-import { useParams } from 'react-router-dom';
+import { useRef, useState, useCallback, JSX, RefObject } from 'react';
 import { svg2pdf } from 'svg2pdf.js';
 import jsPDF from 'jspdf';
 import useAppStore from '../store/useAppStore';
@@ -8,7 +7,7 @@ import useAppStore from '../store/useAppStore';
 import SideMenu from '@/features/side-menu';
 import ActionBar from '@/features/editor';
 import View from '@/features/canvas';
-import { useModel } from '@/contexts/ModelContext';
+import { IDimentions } from '@/features/canvas/types/viewTypes';
 
 interface Offset {
     x: number;
@@ -20,6 +19,10 @@ const DesignContent = (): JSX.Element => {
     const designRef = useRef<SVGSVGElement | null>(null);
     const [zoom, setZoom] = useState<number>(1);
     const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
+    const [dimensions, setDimensions] = useState<IDimentions>({
+        height: 0,
+        width: 0
+    })
 
     const generatePDF = useCallback(async (fileName: string): Promise<void> => {
         const svgElement = designRef.current;
@@ -42,7 +45,7 @@ const DesignContent = (): JSX.Element => {
                 (val * (viewBoxLength / axisLength));
 
             const adjustAxis = (val: number, axisLength: number, viewBoxLength: number): number =>
-                zoom === 1 ? val : val - ((viewBoxLength - (viewBoxLength * zoom)) / 2);
+                zoom === 1 ? val : val - ((viewBoxLength - ((viewBoxLength * (axisLength / axisLength)) * zoom)) / 2);
 
             const selectionX = zoomFactor(adjustAxis(Math.min(startX, endX), svgWidth, viewBoxWidth), svgWidth, viewBoxWidth);
             const selectionY = zoomFactor(adjustAxis(Math.min(startY, endY), svgHeight, viewBoxHeight), svgHeight, viewBoxHeight);
@@ -86,6 +89,8 @@ const DesignContent = (): JSX.Element => {
                 zoom={zoom}
                 setZoom={setZoom}
                 offset={offset}
+                dimensions={dimensions}
+                setDimensions={setDimensions}
                 setOffset={setOffset}
                 reference={designRef as RefObject<SVGSVGElement>}
                 selectionBox={selectionBox}

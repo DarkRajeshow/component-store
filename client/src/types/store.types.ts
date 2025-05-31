@@ -23,7 +23,7 @@ interface StoreActions {
         updatedPages?: IPages;
         updatedComponents?: IComponents
     }) => void;
-    
+
     generateHierarchy: (params?: {
         updatedComponents?: IComponents | null;
         updatedBaseDrawing?: IFileInfo | null;

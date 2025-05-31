@@ -1,7 +1,7 @@
 // Import types
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../../../deprecated/client/types/store.types';
 import { IDesign } from '@/types/design.types';
+import { StoreState } from '@/types/store.types';
 
 // Define types for the design slice
 interface DesignState {

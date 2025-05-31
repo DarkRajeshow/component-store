@@ -2,7 +2,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface CategoryCardProps {
     category: {
@@ -30,8 +30,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     return (
         <Card
             className={`p-3 transition-all ${isSelected
-                    ? "border-blue-500 bg-blue-50"
-                    : "hover:border-gray-300 cursor-pointer"
+                ? "border-blue-500 bg-blue-50"
+                : "hover:border-gray-300 cursor-pointer"
                 }`}
             onClick={onSelect}
         >

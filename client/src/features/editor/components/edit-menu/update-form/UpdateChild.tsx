@@ -1,5 +1,4 @@
-
-import { memo } from 'react';
+import { memo, useState, Dispatch, SetStateAction } from 'react';
 import AddChild from './AddChild';
 import { IComponent, IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from '@/types/project.types';
 import { Button } from '@/components/ui/button';
@@ -13,30 +12,33 @@ import NestedChildrenSection from './NestedChildrenSection';
 import DeleteConfirmation from './DeleteConfirmation';
 import { useUpdateChild } from '@/features/editor/hooks/edit-menu/useUpdateChild';
 
+interface FileCountsRecord {
+    fileUploads: number;
+    selectedPagesCount: number;
+}
+
+type ComponentType = IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+
 interface UpdateChildProps {
     parentOption?: string;
     nestedIn?: string;
-    setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
-    fileCounts: Record<string, { fileUploads: number; selectedPagesCount: number }>;
-    setUpdatedValue: (value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null) => void;
-    updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
-    // path: string[];
     option: string;
-    value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+    value: ComponentType;
+    updatedValue: ComponentType;
+    setUpdatedValue: Dispatch<SetStateAction<ComponentType>>;
 }
 
 // Main UpdateChild component
 const UpdateChild = memo(({
     parentOption = "",
     nestedIn = "",
-    setFileCounts,
-    fileCounts,
-    setUpdatedValue,
-    updatedValue,
     option,
     value,
-    // path
+    updatedValue,
+    setUpdatedValue,
 }: UpdateChildProps) => {
+    const [, setFileCounts] = useState<Record<string, FileCountsRecord>>({});
+
     // Use the custom hook to handle all the logic
     const {
         renamedOption,
@@ -60,8 +62,10 @@ const UpdateChild = memo(({
         option,
         value,
         updatedValue,
-        setFileCounts,
-        setUpdatedValue,
+        setFileCounts: setFileCounts,
+        setUpdatedValue: (newValue) => {
+            console.log(newValue);
+        }
     });
 
     // Don't render if this option doesn't exist in the updated value
@@ -172,8 +176,6 @@ const UpdateChild = memo(({
                                     renamedOption={renamedOption}
                                     updatedValue={updatedValue}
                                     setUpdatedValue={setUpdatedValue}
-                                    fileCounts={fileCounts}
-                                    setFileCounts={setFileCounts}
                                 />
                             )}
                         </div>

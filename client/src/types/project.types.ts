@@ -44,6 +44,8 @@ export interface IComponent {
     options: IComponentOptions;
 }
 
+export type ComponentTypes = IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+
 export interface IComponents {
     [key: string]: IComponent | INormalComponent;
 }

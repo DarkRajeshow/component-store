@@ -14,7 +14,7 @@ export const useZoomAndRotation = ({
   setRotation
 }: UseZoomAndRotationProps) => {
   // Handle wheel event for zooming
-  const handleWheel = useCallback((event: React.WheelEvent) => {
+  const handleWheel = useCallback((event: React.WheelEvent<HTMLDivElement>) => {
     setZoom(prevZoom => Math.min(Math.max(prevZoom + event.deltaY * -0.001, 0.2), 6));
   }, [setZoom]);
 

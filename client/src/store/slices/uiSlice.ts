@@ -1,7 +1,6 @@
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../../../deprecated/client/types/store.types';
 import { IComponents } from '@/types/project.types';
-import { ISelectionBox } from '@/types/store.types';
+import { ISelectionBox, StoreState } from '@/types/store.types';
 
 // Define types for the UI slice
 interface UIState {

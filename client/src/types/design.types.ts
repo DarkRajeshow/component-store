@@ -59,6 +59,9 @@ export interface IComponents {
   [key: string]: IComponent | INormalComponent;
 }
 
+export type ComponentTypes = IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+
+
 export interface IStructure {
   pages: {
     [key: string]: string; // UUID

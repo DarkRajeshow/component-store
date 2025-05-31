@@ -3,28 +3,43 @@ import useAppStore from '../../../../store/useAppStore';
 import { DialogDescription, DialogTrigger, DialogTitle } from '../../../../components/ui/dialog';
 import { IStructure } from '@/types/design.types';
 import { useModel } from '@/contexts/ModelContext';
+import { IComponent, IComponents, INormalComponent, INestedParentLevel1, IFileInfo } from '@/types/project.types';
 
 
 function DeleteForm() {
 
     const { menuOf, structure, setStructureElements, setUndoStack, setRedoStack } = useAppStore();
-    const { deleteComponent } = useModel()
-    const tempcomponents = JSON.parse(JSON.stringify(structure.components));
+    const { deleteComponent } = useModel();
+    const tempcomponents = JSON.parse(JSON.stringify(structure.components)) as IComponents;
 
-    const updatedValue = menuOf.length === 3 ? tempcomponents[menuOf[0]].options[menuOf[1]].options[menuOf[2]] : menuOf.length === 2 ? tempcomponents[menuOf[0]].options[menuOf[1]] : tempcomponents[menuOf[0]];
+    const getUpdatedValue = () => {
+        if (menuOf.length === 3) {
+            const component = tempcomponents[menuOf[0]] as IComponent;
+            const nestedComponent = component.options[menuOf[1]] as INestedParentLevel1;
+            return nestedComponent.options[menuOf[2]];
+        } else if (menuOf.length === 2) {
+            const component = tempcomponents[menuOf[0]] as IComponent;
+            return component.options[menuOf[1]];
+        }
+        return tempcomponents[menuOf[0]];
+    };
 
+    const updatedValue = getUpdatedValue();
 
     const deleteValue = () => {
         if (menuOf.length === 3) {
-            if (tempcomponents[menuOf[0]].options[menuOf[1]].selected === menuOf[menuOf.length - 1]) {
-                tempcomponents[menuOf[0]].options[menuOf[1]].selected = " "
+            const component = tempcomponents[menuOf[0]] as IComponent;
+            const nestedComponent = component.options[menuOf[1]] as INestedParentLevel1;
+            if (nestedComponent.selected === menuOf[menuOf.length - 1]) {
+                nestedComponent.selected = " ";
             }
-            delete tempcomponents[menuOf[0]].options[menuOf[1]].options[menuOf[menuOf.length - 1]];
+            delete nestedComponent.options[menuOf[menuOf.length - 1]];
         } else if (menuOf.length === 2) {
-            if (tempcomponents[menuOf[0]].selected === menuOf[menuOf.length - 1]) {
-                tempcomponents[menuOf[0]].selected = "none"
+            const component = tempcomponents[menuOf[0]] as IComponent;
+            if (component.selected === menuOf[menuOf.length - 1]) {
+                component.selected = "none";
             }
-            delete tempcomponents[menuOf[0]].options[menuOf[menuOf.length - 1]];
+            delete component.options[menuOf[menuOf.length - 1]];
         } else if (menuOf.length === 1) {
             delete tempcomponents[menuOf[menuOf.length - 1]];
         }
@@ -33,22 +48,25 @@ function DeleteForm() {
     };
 
     function extractPaths() {
-        let paths = [];
+        const paths: string[] = [];
 
-        function traverse(current) {
-            if (typeof current === 'object' && current !== null) {
-                if (current.fileId && current.fileId !== "none") {
-                    paths.push(current.fileId);
-                }
-                for (let key in current) {
-                    if (current[key]) {
-                        traverse(current[key]);
-                    }
-                }
+        function traverse(current: IComponent | INormalComponent | INestedParentLevel1 | IFileInfo | undefined) {
+            if (!current || typeof current !== 'object') return;
+
+            // Check if it's a component with fileId
+            if ('fileId' in current && current.fileId && current.fileId !== "none") {
+                paths.push(current.fileId);
+            }
+
+            // If it's a component with options, traverse them
+            if ('options' in current && current.options) {
+                Object.values(current.options).forEach(option => {
+                    traverse(option as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
+                });
             }
         }
 
-        traverse(updatedValue);
+        traverse(updatedValue as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
         return paths;
     }
 
@@ -77,7 +95,7 @@ function DeleteForm() {
                 (document.querySelector("#close") as HTMLElement)?.click();
             }
             else {
-                toast.error(data ? data.status : "Error deleting and component.");
+                toast.error(data ? data.status : "Error deleting component.");
             }
         } catch (error) {
             console.log(error);

@@ -1,5 +1,7 @@
 import { toast } from "sonner";
-import { NewBaseDrawingFiles, Pages } from "../types/sideMenuTypes";
+import { NewBaseDrawingFiles } from "../types/sideMenuTypes";
+import { IPages } from "@/types/project.types";
+
 
 // FileUploadService.ts - Service for handling file operations
 export const FileUploadService = {
@@ -11,7 +13,7 @@ export const FileUploadService = {
         e: React.DragEvent<HTMLDivElement>,
         newBaseDrawingFiles: NewBaseDrawingFiles,
         choosenPage: string,
-        tempPages: Pages,
+        tempPages: IPages,
         setNewBaseDrawingFiles: React.Dispatch<React.SetStateAction<NewBaseDrawingFiles>>
     ): void {
         e.preventDefault();

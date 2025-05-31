@@ -5,6 +5,7 @@ import useAppStore from '../store/useAppStore';
 import SideMenu from '@/features/side-menu';
 import ActionBar from '@/features/editor';
 import View from '@/features/canvas';
+import { IDimentions } from '@/features/canvas/types/viewTypes';
 
 interface Offset {
     x: number;
@@ -12,11 +13,13 @@ interface Offset {
 }
 
 const ProjectContent = (): JSX.Element => {
-    const { selectionBox } = useAppStore();
-    const designRef = useRef<SVGSVGElement | null>(null);
+    const { selectionBox } = useAppStore(); const designRef = useRef<SVGSVGElement | null>(null);
     const [zoom, setZoom] = useState<number>(1);
     const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
-
+    const [dimensions, setDimensions] = useState<IDimentions>({
+        height: 0,
+        width: 0
+    })
     const generatePDF = useCallback(async (fileName: string): Promise<void> => {
         const svgElement = designRef.current;
         if (!svgElement) {
@@ -35,10 +38,8 @@ const ProjectContent = (): JSX.Element => {
             const viewBoxHeight = svgElement.viewBox.baseVal.height;
 
             const zoomFactor = (val: number, axisLength: number, viewBoxLength: number): number =>
-                (val * (viewBoxLength / axisLength));
-
-            const adjustAxis = (val: number, axisLength: number, viewBoxLength: number): number =>
-                zoom === 1 ? val : val - ((viewBoxLength - (viewBoxLength * zoom)) / 2);
+                (val * (viewBoxLength / axisLength)); const adjustAxis = (val: number, _axisLength: number, viewBoxLength: number): number =>
+                    zoom === 1 ? val : val - ((viewBoxLength - (viewBoxLength * zoom)) / 2);
 
             const selectionX = zoomFactor(adjustAxis(Math.min(startX, endX), svgWidth, viewBoxWidth), svgWidth, viewBoxWidth);
             const selectionY = zoomFactor(adjustAxis(Math.min(startY, endY), svgHeight, viewBoxHeight), svgHeight, viewBoxHeight);
@@ -76,8 +77,7 @@ const ProjectContent = (): JSX.Element => {
     return (
         <main className="h-screen fixed w-screen">
             <SideMenu />
-            <ActionBar generatePDF={generatePDF} />
-            <View
+            <ActionBar generatePDF={generatePDF} />            <View
                 generatePDF={generatePDF}
                 zoom={zoom}
                 setZoom={setZoom}
@@ -85,6 +85,8 @@ const ProjectContent = (): JSX.Element => {
                 setOffset={setOffset}
                 reference={designRef as React.RefObject<SVGSVGElement>}
                 selectionBox={selectionBox}
+                dimensions={dimensions}
+                setDimensions={setDimensions}
             />
         </main>
     );

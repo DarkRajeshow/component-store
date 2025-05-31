@@ -2,9 +2,9 @@ import { AxiosResponse } from 'axios';
 import api from './api';
 
 export const apiRequest = async <T>(
-    method: 'get' | 'post' | 'put' | 'delete',
+    method: 'get' | 'post' | 'put' | 'delete' | 'patch',
     endpoint: string,
-    data?: any
+    data?: unknown
 ): Promise<T> => {
     try {
         let response: AxiosResponse;
@@ -18,6 +18,9 @@ export const apiRequest = async <T>(
                 break;
             case 'put':
                 response = await api.put(endpoint, data);
+                break;
+            case 'patch':
+                response = await api.patch(endpoint, data);
                 break;
             case 'delete':
                 response = await api.delete(endpoint, { data });

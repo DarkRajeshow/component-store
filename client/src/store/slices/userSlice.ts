@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../../../deprecated/client/types/store.types';
 import { IUser } from '@/types/user.types';
+import { StoreState } from '@/types/store.types';
 
 // Define types for the user slice
 interface UserState {

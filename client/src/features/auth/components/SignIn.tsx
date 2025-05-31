@@ -8,7 +8,7 @@ const SignIn = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         // Validation
@@ -27,7 +27,8 @@ const SignIn = () => {
             } else {
                 toast.error(data.status);
             }
-        } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error: unknown) {
             toast.error('An error occurred during registration');
         }
     };

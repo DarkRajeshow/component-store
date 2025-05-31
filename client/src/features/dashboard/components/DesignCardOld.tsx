@@ -16,7 +16,7 @@ interface ExistingFiles {
 }
 
 function DesignCard({ design }: DesignCardProps) {
-    const { RecentDesignLoading, fileVersion } = useAppStore();
+    const { recentDesignLoading, fileVersion } = useAppStore();
     const [existingFiles, setExistingFiles] = useState<ExistingFiles>({});
 
     // const getSVGPath = useCallback((value: IComponent | INormalComponent | INestedParentLevel1, page: string): string | null => {
@@ -133,13 +133,13 @@ function DesignCard({ design }: DesignCardProps) {
                 </div>
             </div>
             <div className="grid grid-cols-3 overflow-x-auto gap-1">
-                {RecentDesignLoading && (
+                {recentDesignLoading && (
                     <div className="w-full ">
                         <div className="h-6 w-6 my-auto border-dark border-2 border-b-transparent animate-spin rounded-full" />
                     </div>
                 )}
 
-                {!RecentDesignLoading && design.structure?.pages && Object.keys(design.structure.pages).map((page) => (
+                {!recentDesignLoading && design.structure?.pages && Object.keys(design.structure.pages).map((page) => (
                     <div key={page} className="bg-white border-dark/10 border-2 p-2 mb-2">
                         <h1 className="uppercase font-medium text-sm p-3">{page}</h1>
                         <svg

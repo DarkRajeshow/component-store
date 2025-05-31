@@ -9,14 +9,16 @@ interface FileExistenceStatus {
     [key: string]: boolean;
 }
 
+type ComponentType = IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
+
 interface UseUpdateChildProps {
     parentOption?: string;
     nestedIn?: string;
     option: string;
-    value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
-    updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
-    setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
-    setUpdatedValue: (value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null) => void;
+    value: ComponentType;
+    updatedValue: ComponentType;
+    setFileCounts: React.Dispatch<React.SetStateAction<Record<string, FileCountsRecord>>>;
+    setUpdatedValue: (value: ComponentType) => void;
 }
 
 interface FileChangeEvent extends React.ChangeEvent<HTMLInputElement> {
@@ -31,6 +33,22 @@ interface FileUpdateStructure {
     };
 }
 
+interface FileCountsRecord {
+    fileUploads: number;
+    selectedPagesCount: number;
+}
+
+function isFileInfo(value: ComponentType | unknown): value is IFileInfo {
+    return value !== null && typeof value === 'object' && 'fileId' in value;
+}
+
+function isComponent(value: ComponentType | unknown): value is IComponent {
+    return value !== null && typeof value === 'object' && 'options' in value;
+}
+
+function isNestedParentLevel1(value: ComponentType | unknown): value is INestedParentLevel1 {
+    return value !== null && typeof value === 'object' && 'options' in value && 'selected' in value;
+}
 
 export function useUpdateChild({
     parentOption = "",
@@ -60,14 +78,14 @@ export function useUpdateChild({
 
     const handleFileChange = useCallback((e: FileChangeEvent, page: string): void => {
         const file: File = e.target.files[0];
-
-        if (!file) return;
+        if (!file || !isFileInfo(value)) return;
 
         if (file.type === 'image/svg+xml' || file.type === 'application/pdf') {
+            const fileId = value.fileId;
             setNewFiles({
                 ...newFiles,
-                [(value as IFileInfo)?.fileId]: {
-                    ...newFiles?.[(value as IFileInfo)?.fileId],
+                [fileId]: {
+                    ...newFiles?.[fileId],
                     [structure.pages[page]]: file
                 },
             } as FileUpdateStructure);
@@ -79,14 +97,14 @@ export function useUpdateChild({
     const handleDrop = useCallback((e: React.DragEvent, page: string) => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
-
-        if (!file) return;
+        if (!file || !isFileInfo(value)) return;
 
         if (file.type === 'image/svg+xml' || file.type === 'application/pdf') {
+            const fileId = value.fileId;
             setNewFiles({
                 ...newFiles,
-                [(value as IFileInfo)?.fileId]: {
-                    ...newFiles?.[(value as IFileInfo)?.fileId],
+                [fileId]: {
+                    ...newFiles?.[fileId],
                     [structure.pages[page]]: file
                 },
             });
@@ -96,34 +114,32 @@ export function useUpdateChild({
     }, [newFiles, structure.pages, setNewFiles, value]);
 
     const handleDelete = useCallback(() => {
+        if (!updatedValue) return;
+
         // Deep copy
         const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue));
-        if (parentOption) {
-            if (tempUpdateValue.options[parentOption].selected === renamedOption) {
-                tempUpdateValue.options[parentOption].selected = " ";
-            }
-
-            if ((value as IFileInfo)?.fileId) {
-                let updatedFiles = [...filesToDelete];
-                updatedFiles = [...updatedFiles, (value as IFileInfo).fileId];
-                setFilesToDelete(updatedFiles);
-            }
-
-            delete tempUpdateValue.options[parentOption].options[renamedOption];
-        } else {
-            if ((value as IFileInfo)?.fileId) {
-                let updatedFiles = [...filesToDelete];
-                updatedFiles = [...updatedFiles, (value as IFileInfo).fileId];
-                setFilesToDelete(updatedFiles);
-            } else if ((value as IComponent)?.options) {
-                for (const subValue of Object.values((value as IComponent)?.options)) {
-                    if ((subValue as IFileInfo)?.fileId) {
-                        let updatedFiles = [...filesToDelete];
-                        updatedFiles = [...updatedFiles, (subValue as IFileInfo).fileId];
-                        setFilesToDelete(updatedFiles);
-                    }
+        if (parentOption && isComponent(tempUpdateValue)) {
+            const parentComponent = tempUpdateValue.options[parentOption];
+            if (isNestedParentLevel1(parentComponent)) {
+                if (parentComponent.selected === renamedOption) {
+                    parentComponent.selected = " ";
                 }
+                if (isFileInfo(value) && value.fileId) {
+                    setFilesToDelete([...filesToDelete, value.fileId]);
+                }
+                delete parentComponent.options[renamedOption];
             }
+        } else if (isComponent(tempUpdateValue)) {
+            if (isFileInfo(value) && value.fileId) {
+                setFilesToDelete([...filesToDelete, value.fileId]);
+            } else if (isComponent(value)) {
+                Object.values(value.options).forEach(subValue => {
+                    if (isFileInfo(subValue) && subValue.fileId) {
+                        setFilesToDelete([...filesToDelete, subValue.fileId]);
+                    }
+                });
+            }
+            
             if (tempUpdateValue.selected === renamedOption) {
                 tempUpdateValue.selected = "none";
             }
@@ -133,26 +149,27 @@ export function useUpdateChild({
     }, [parentOption, renamedOption, setFilesToDelete, setUpdatedValue, updatedValue, value, filesToDelete]);
 
     const handleRename = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const newOptionName = e.target.value;
-        const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue));
+        if (!updatedValue || !isComponent(updatedValue)) return;
 
-        // Check if the new option name already exists in the parent options
-        const optionsToCheck = parentOption
-            ? tempUpdateValue.options[parentOption].options
+        const newOptionName = e.target.value;
+        const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue)) as IComponent;
+
+        const parentComponent = parentOption ? tempUpdateValue.options[parentOption] : null;
+        const optionsToCheck = parentOption && isNestedParentLevel1(parentComponent)
+            ? parentComponent.options
             : tempUpdateValue.options;
 
         if (optionsToCheck[newOptionName] && newOptionName !== renamedOption) {
             toast.error(`Option name "${newOptionName}" already exists! Please choose a different name.`);
-            return; // Exit the function to prevent further processing
+            return;
         }
 
-        // Proceed with renaming the option since it doesn't exist
-        if (parentOption) {
-            tempUpdateValue.options[parentOption].options[newOptionName] = tempUpdateValue.options[parentOption].options[renamedOption];
-            delete tempUpdateValue.options[parentOption].options[renamedOption];
+        if (parentOption && isNestedParentLevel1(parentComponent)) {
+            parentComponent.options[newOptionName] = parentComponent.options[renamedOption];
+            delete parentComponent.options[renamedOption];
 
-            if (tempUpdateValue.options[parentOption].selected === renamedOption) {
-                tempUpdateValue.options[parentOption].selected = newOptionName;
+            if (parentComponent.selected === renamedOption) {
+                parentComponent.selected = newOptionName;
             }
         } else {
             tempUpdateValue.options[newOptionName] = tempUpdateValue.options[renamedOption];
@@ -217,7 +234,7 @@ export function useUpdateChild({
     // Check which files exist on the server
     useEffect(() => {
         const checkFilesExistence = async () => {
-            if (!(value as IFileInfo)?.fileId) {
+            if (!isFileInfo(value)) {
                 setFileExistenceStatus({});
                 return;
             }
@@ -226,7 +243,7 @@ export function useUpdateChild({
 
             const results = await Promise.all(
                 Object.keys(structure.pages).map(async (page) => {
-                    const exists = await checkFileExists(`${baseContentPath}/${structure.pages[page]}/${(value as IFileInfo)?.fileId}.svg`);
+                    const exists = await checkFileExists(`${baseContentPath}/${structure.pages[page]}/${value.fileId}.svg`);
                     if (exists) {
                         alreadySelectedPages.push(page);
                     }
@@ -234,19 +251,17 @@ export function useUpdateChild({
                 })
             );
 
-            // Convert array of objects to a single object with pageFolder as keys
             const statusObject = results.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
-            const fileUploaded = Object.keys(newFiles[(value as IFileInfo)?.fileId] || {});
-            const tempSelectedPages = Object.entries(structure.pages)
-                .filter(([_, pageId]) => fileUploaded.includes(pageId))
-                .map(([page]) => page);
+            if (isFileInfo(value)) {
+                const fileUploaded = Object.keys(newFiles[value.fileId] || {});
+                const tempSelectedPages = Object.entries(structure.pages)
+                    .filter(([, pageId]) => fileUploaded.includes(pageId))
+                    .map(([page]) => page);
 
-            // setSelectedPages(tempSelectedPages);
-
-            // Update state with the full object
-            setFileExistenceStatus(statusObject);
-            setSelectedPages([...alreadySelectedPages, ...tempSelectedPages]);
+                setFileExistenceStatus(statusObject);
+                setSelectedPages([...alreadySelectedPages, ...tempSelectedPages]);
+            }
         };
 
         if (!loading) {
@@ -256,28 +271,23 @@ export function useUpdateChild({
 
     // Update file counts for parent component
     const updateFileCount = useCallback(() => {
-        if ((value as IFileInfo)?.fileId) {
-            const fileUploadCount = selectedPages.reduce((count, page) => {
-                const exists = fileExistenceStatus[page];
-                if (exists) {
-                    return count + 1;
-                }
-                return count;
-            }, 0);
+        if (!isFileInfo(value) || !value.fileId) return;
 
-            const newFileUploadCount = newFiles?.[(value as IFileInfo)?.fileId] ? Object.keys(newFiles?.[(value as IFileInfo)?.fileId]).length : 0;
+        const fileUploadCount = selectedPages.reduce((count, page) => {
+            const exists = fileExistenceStatus[page];
+            return exists ? count + 1 : count;
+        }, 0);
 
-            setFileCounts((prev) => {
-                const newCounts: Record<string, { fileUploads: number; selectedPagesCount: number }> = {
-                    ...prev,
-                    [option]: {
-                        fileUploads: (newFileUploadCount + fileUploadCount),
-                        selectedPagesCount: Object.keys(selectedPages).length
-                    }
-                };
-                return newCounts;
-            });
-        }
+        const fileId = value.fileId;
+        const newFileUploadCount = newFiles?.[fileId] ? Object.keys(newFiles[fileId]).length : 0;
+
+        setFileCounts((prev: Record<string, FileCountsRecord>) => ({
+            ...prev,
+            [option]: {
+                fileUploads: (newFileUploadCount + fileUploadCount),
+                selectedPagesCount: selectedPages.length
+            }
+        }));
     }, [selectedPages, newFiles, value, option, fileExistenceStatus, setFileCounts]);
 
     useEffect(() => {
@@ -286,11 +296,13 @@ export function useUpdateChild({
 
     // Check if component should be rendered
     const shouldRender = useCallback(() => {
+        if (!updatedValue || !isComponent(updatedValue)) return false;
+
         if (nestedIn) {
-            return !!((updatedValue as IComponent)?.options[nestedIn] as IComponent)?.options[renamedOption];
-        } else {
-            return !!(updatedValue as IComponent)?.options[renamedOption];
+            const nestedComponent = updatedValue.options[nestedIn];
+            return isComponent(nestedComponent) && !!nestedComponent.options[renamedOption];
         }
+        return !!updatedValue.options[renamedOption];
     }, [nestedIn, renamedOption, updatedValue]);
 
     return {

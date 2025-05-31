@@ -1,6 +1,7 @@
-import { IComponent, IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from "@/types/project.types";
+import { ComponentTypes, IComponent, IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from "@/types/project.types";
 import UpdateChild from "./UpdateChild";
-import { memo } from "react";
+import { Dispatch, memo, SetStateAction } from "react";
+
 
 // NestedChildrenSection component for displaying nested children
 const NestedChildrenSection = memo(({
@@ -9,16 +10,14 @@ const NestedChildrenSection = memo(({
     renamedOption,
     updatedValue,
     setUpdatedValue,
-    fileCounts,
-    setFileCounts,
 }: {
     value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
     option: string;
     renamedOption: string;
     updatedValue: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null;
-    setUpdatedValue: (value: IComponent | INestedParentLevel1 | INestedChildLevel2 | INestedChildLevel1 | null) => void;
-    fileCounts: Record<string, { fileUploads: number; selectedPagesCount: number }>;
-    setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
+    setUpdatedValue: Dispatch<SetStateAction<ComponentTypes>>;
+    // fileCounts: Record<string, { fileUploads: number; selectedPagesCount: number }>;
+    // setFileCounts: (counts: Record<string, { fileUploads: number; selectedPagesCount: number }>) => void;
     // fileId: string;
 }) => {
     if (!(value as IComponent)?.options) return null;
@@ -30,8 +29,6 @@ const NestedChildrenSection = memo(({
                 {Object.entries((value as IComponent).options).map(([subOption, subValue]) => (
                     <UpdateChild
                         key={subOption}
-                        setFileCounts={setFileCounts}
-                        fileCounts={fileCounts}
                         parentOption={option}
                         nestedIn={renamedOption}
                         updatedValue={updatedValue}

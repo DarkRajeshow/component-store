@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, Calendar, User, Code, Layers, ChevronLeft, ChevronRight, ExternalLink, Copy, Folder } from 'lucide-react';
 import { IDesign } from '@/types/design.types';
 import { IProject } from '@/types/project.types';
@@ -10,12 +10,23 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { isElectron } from '@/utils/isElectron';
 
 interface UnifiedCardProps {
     item: IDesign | IProject;
     viewMode: ViewMode;
     onSelect?: (id: string) => void;
     isSelected?: boolean;
+}
+
+export interface ElectronAPI {
+    openItemWindow: (route: string) => void;
+}
+
+declare global {
+    interface Window {
+        electronAPI?: ElectronAPI;
+    }
 }
 
 // Type guards
@@ -35,9 +46,9 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
 }) => {
     const [selectedPageIndex, setSelectedPageIndex] = useState(0);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
-    const [isHovering, setIsHovering] = useState(false);
+    const [, setIsHovering] = useState(false);
     const [isImageLoading, setIsImageLoading] = useState(true);
-
+    const navigate = useNavigate();
     const {
         getSVGPathForDesign,
         getSVGPathForProject,
@@ -244,7 +255,15 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
                             className="h-8 w-8 p-0"
                             onClick={(e) => {
                                 e.preventDefault();
-                                window.open(`/${itemType}s/${item._id}`, '_blank');
+                                const route = `/${itemType}s/${item._id}`;
+
+                                if (isElectron() && 'electronAPI' in window) {
+                                    // Let Electron main process handle new window
+                                    (window.electronAPI as ElectronAPI)?.openItemWindow(route);
+                                } else {
+                                    // Normal browser window open
+                                    window.open(route, '_blank');
+                                }
                             }}
                         >
                             <ExternalLink className="h-4 w-4" />
@@ -461,7 +480,8 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
         } else {
             // For projects, handle navigation manually
             e.preventDefault();
-            window.location.href = `/projects/${item._id}`;
+            navigate(`/${itemType}s}/${item._id}`);
+            // window.location.href = `/projects/${item._id}`;
         }
     };
 

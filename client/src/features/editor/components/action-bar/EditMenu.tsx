@@ -1,10 +1,14 @@
-import PropTypes from 'prop-types'
 import { useEffect } from 'react';
 import useAppStore from '../../../../store/useAppStore';
 import { DialogTrigger } from '@/components/ui/dialog';
 
 
-const EditMenu = ({ componentOption, setDialogType }) => {
+interface EditMenuProps {
+    componentOption: string;
+    setDialogType: (type: string) => void;
+}
+
+const EditMenu = ({ componentOption, setDialogType }: EditMenuProps) => {
 
     const { menuOf, setMenuOf, setUniqueFileName } = useAppStore()
 
@@ -75,11 +79,6 @@ const EditMenu = ({ componentOption, setDialogType }) => {
 
     }
 
-};
-
-EditMenu.propTypes = {
-    componentOption: PropTypes.string.isRequired,
-    setDialogType: PropTypes.func.isRequired
 };
 
 export default EditMenu;

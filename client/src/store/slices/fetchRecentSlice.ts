@@ -1,9 +1,9 @@
 import { toast } from "sonner";
 import { getRecentDesignsAPI, getRecentProjectsAPI } from "../../lib/globalAPI";
 import { StateCreator } from 'zustand';
-import { StoreState } from '../../../../deprecated/client/types/store.types';
 import { IDesign } from "@/types/design.types";
 import { IProject } from "@/types/project.types";
+import { StoreState } from "@/types/store.types";
 
 // Define types for the recent design slice
 interface RecentDesignState {

@@ -1,7 +1,7 @@
 import { JSX, useEffect, useState, useCallback, useMemo } from "react";
 import useAppStore from "@/store/useAppStore";
 import { useSearchAndFilter } from "../hooks/useSearchAndFilter";
-import { ViewMode } from "../types/home.types";
+import { ViewMode, SearchFilters } from "../types/home.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,8 +15,6 @@ import {
     Tag,
     SortAsc,
     SortDesc,
-    Sparkles,
-    TrendingUp,
     Eye,
     Archive,
     Zap
@@ -48,9 +46,7 @@ function HomePage(): JSX.Element {
     const [viewMode, setViewMode] = useState<ViewMode>({
         layout: 'grid',
         itemsPerRow: 3
-    });
-    const [searchFocused, setSearchFocused] = useState(false);
-    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+    });    const [searchFocused, setSearchFocused] = useState(false);
     const [activeQuickFilter, setActiveQuickFilter] = useState<string>('');
     const [showQuickActions, setShowQuickActions] = useState(false);
 
@@ -79,11 +75,9 @@ function HomePage(): JSX.Element {
             }
             return [...prev, id];
         });
-    }, []);
-
-    const handleCreateNew = () => {
+    }, []);    const handleCreateNew = useCallback(() => {
         navigate('/new-project');
-    };
+    }, [navigate]);
 
     const toggleViewMode = () => {
         setViewMode(prev => ({
@@ -205,12 +199,9 @@ function HomePage(): JSX.Element {
             <div className={`grid gap-6 ${gridCols} transition-all duration-300 ease-in-out`}>
                 {filteredItems.map((item, index) => (
                     <div
-                        key={item._id}
-                        style={{
+                        key={item._id}                        style={{
                             animationDelay: `${index * 50}ms`
                         }}
-                        onMouseEnter={() => setHoveredCard(item._id)}
-                        onMouseLeave={() => setHoveredCard(null)}
                     >
                         <UnifiedCard
                             key={item._id}
@@ -403,10 +394,9 @@ function HomePage(): JSX.Element {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             <Tag className="w-4 h-4 inline mr-1" />
                                             Type
-                                        </label>
-                                        <select
+                                        </label>                                        <select
                                             value={filters.type}
-                                            onChange={(e) => updateFilters({ type: e.target.value as 'all' | 'design' | 'project' })}
+                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilters({ type: e.target.value as 'all' | 'design' | 'project' })}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                         >
                                             <option value="all">All Types</option>
@@ -439,10 +429,9 @@ function HomePage(): JSX.Element {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             <Calendar className="w-4 h-4 inline mr-1" />
                                             Date Range
-                                        </label>
-                                        <select
+                                        </label>                                        <select
                                             value={filters.dateRange}
-                                            onChange={(e) => updateFilters({ dateRange: e.target.value as any })}
+                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilters({ dateRange: e.target.value as SearchFilters['dateRange'] })}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                         >
                                             <option value="all">All Time</option>
@@ -459,10 +448,9 @@ function HomePage(): JSX.Element {
                                             {filters.sortOrder === 'asc' ? <SortAsc className="w-4 h-4 inline mr-1" /> : <SortDesc className="w-4 h-4 inline mr-1" />}
                                             Sort By
                                         </label>
-                                        <div className="flex space-x-2">
-                                            <select
+                                        <div className="flex space-x-2">                                            <select
                                                 value={filters.sortBy}
-                                                onChange={(e) => updateFilters({ sortBy: e.target.value as any })}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilters({ sortBy: e.target.value as SearchFilters['sortBy'] })}
                                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                             >
                                                 <option value="date">Date</option>
