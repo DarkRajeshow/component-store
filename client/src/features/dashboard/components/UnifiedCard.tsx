@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, Calendar, User, Code, Layers, ChevronLeft, ChevronRight, ExternalLink, Copy, Folder } from 'lucide-react';
+import { Eye, Calendar, User, Code, Layers, ChevronLeft, ChevronRight, ExternalLink, Copy, Folder, RotateCw } from 'lucide-react';
 import { IDesign } from '@/types/design.types';
 import { IProject } from '@/types/project.types';
 import { ViewMode } from '../types/home.types';
@@ -48,6 +48,7 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [, setIsHovering] = useState(false);
     const [isImageLoading, setIsImageLoading] = useState(true);
+    const [rotation, setRotation] = useState(0);
     const navigate = useNavigate();
     const {
         getSVGPathForDesign,
@@ -365,16 +366,30 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
                                 {currentPage}
                             </span>
                         </div>
-                    )}
+                    )}                    {/* SVG Preview Controls */}
+                    <div className="absolute bottom-2 right-2 z-10">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 bg-white/90 backdrop-blur-sm rounded-md shadow-sm"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setRotation((prev) => (prev + 90) % 360);
+                            }}
+                        >
+                            <RotateCw className="h-3 w-3" />
+                        </Button>
+                    </div>
 
                     {/* SVG Preview */}
-                    <div className={`relative ${viewMode.layout === 'list' ? 'h-32' : 'h-48'} flex items-center justify-center`}>
+                    <div className={`relative ${viewMode.layout === 'list' ? 'h-[600px]' : 'h-auto'} flex items-center justify-center`}>
                         {currentPage && (
                             (itemType === 'design' && (item as IDesign).structure?.pages) ||
                             (itemType === 'project' && currentCategoryData)
                         ) && (
                                 <svg
-                                    className="w-full h-full object-contain"
+                                    className={`w-full h-full object-contain rotate-${rotation}`}
                                     viewBox="0 0 340 340"
                                     xmlns="http://www.w3.org/2000/svg"
                                     style={{
@@ -470,6 +485,8 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
     );
 
     // Handle navigation/selection
+
+    // Handle navigation/selection
     const handleCardClick = (e: React.MouseEvent) => {
         if (onSelect) {
             e.preventDefault();
@@ -504,4 +521,4 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
             {cardContent}
         </div>
     );
-};
+}
