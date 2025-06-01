@@ -2,6 +2,9 @@
 /client/node_modules/
 /server/node_modules/
 /desktop/node_modules/
+/desktop/build/
+/desktop/dist/
+/desktop/builder/
 
 # Build output (client)
 client/build/
@@ -12,6 +15,7 @@ client2/build/
 /client2/out/
 /desktop/build/
 /desktop/dist/
+/desktop/builder/
 
 # Build output (server)
 server/dist/
