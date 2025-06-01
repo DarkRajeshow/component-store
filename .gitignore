@@ -4,7 +4,7 @@
 /desktop/node_modules/
 /desktop/build/
 /desktop/dist/
-/desktop/builder
+/desktop/builder/
 
 # Build output (client)
 client/build/
@@ -13,8 +13,6 @@ client/build/
 client2/build/
 /client2/dist/
 /client2/out/
-/desktop/dist/
-/desktop/builder/
 
 # Build output (server)
 server/dist/
