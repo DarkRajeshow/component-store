@@ -57,9 +57,6 @@ Thumbs.db
 # Production build folder (optional, if you deploy builds)
 /public/build/
 
-# Ignore client build folder (if deployed separately)
-client/public/build/
-
 # Node Modules
 **/node_modules/
 
