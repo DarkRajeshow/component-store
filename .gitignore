@@ -1,77 +1,138 @@
-# Node modules
-/client/node_modules/
-/server/node_modules/
-/desktop/node_modules/
-/desktop/build/
-/desktop/dist/
-/desktop/builder/
+# Dependencies
+**/node_modules/
 
-# Build output (client)
+# Build outputs
+**/dist/
+**/build/
+**/out/
+**/win-unpacked/
+
+# Specific project build directories
 client/build/
-/client/dist/
-/client/out/
-client2/build/
-/client2/dist/
-/client2/out/
-
-# Build output (server)
+client/dist/
+client/out/
 server/dist/
-/server/build/
-/server/out/
+server/build/
+server/out/
+desktop/build/
+desktop/dist/
+desktop/builder/
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
-# Environment files
-# .env
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
 
 # Dependency directories
-/pnpm-lock.yaml
-/package-lock.json
-/yarn.lock
+node_modules/
+
+# Lock files (uncomment if you want to ignore them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # IDE and editor settings
-/.idea/
-/.vscode/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# TypeScript files (if you use TypeScript)
+# TypeScript
 *.tsbuildinfo
 
-# Test coverage reports
-/coverage/
+# Optional npm cache directory
+.npm
 
-# Debug folder
-/.vscode-test/
+# Optional eslint cache
+.eslintcache
 
-# Production build folder (optional, if you deploy builds)
-/public/build/
+# Optional REPL history
+.node_repl_history
 
-# Node Modules
-**/node_modules/
+# Output of 'npm pack'
+*.tgz
 
-# Electron Build Output
-**/dist/
-**/build/
-**/out/
-**/win-unpacked/
+# Yarn Integrity file
+.yarn-integrity
 
-# Electron Artifacts
+# parcel-bundler cache (https://parceljs.org/)
+.cache/
+.parcel-cache/
+
+# next.js build output
+.next/
+
+# nuxt.js build output
+.nuxt/
+
+# vuepress build output
+.vuepress/dist/
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Electron-specific
+# Build artifacts
 *.exe
 *.dmg
 *.AppImage
+*.deb
+*.rpm
+*.snap
 
-# macOS, Windows, Linux Junk
-.DS_Store
-Thumbs.db
+# Electron build directories
+dist/
+dist_electron/
+release/
 
+# macOS app bundles
+*.app
+
+# Windows installer files
+*.msi
+*.nsis
+
+# Temporary files
+tmp/
+temp/
