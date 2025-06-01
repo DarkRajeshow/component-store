@@ -3,7 +3,6 @@
 /server/node_modules/
 /desktop/node_modules/
 
-
 # Build output (client)
 client/build/
 /client/dist/
