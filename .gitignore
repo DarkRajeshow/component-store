@@ -59,3 +59,22 @@ Thumbs.db
 
 # Ignore client build folder (if deployed separately)
 client/public/build/
+
+# Node Modules
+**/node_modules/
+
+# Electron Build Output
+**/dist/
+**/build/
+**/out/
+**/win-unpacked/
+
+# Electron Artifacts
+*.exe
+*.dmg
+*.AppImage
+
+# macOS, Windows, Linux Junk
+.DS_Store
+Thumbs.db
+
