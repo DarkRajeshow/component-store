@@ -389,12 +389,14 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
                             (itemType === 'project' && currentCategoryData)
                         ) && (
                                 <svg
-                                    className={`w-full h-full object-contain rotate-${rotation}`}
+                                    className={`w-full h-full object-contain`}
                                     viewBox="0 0 340 340"
                                     xmlns="http://www.w3.org/2000/svg"
                                     style={{
                                         filter: isImageLoading ? 'blur(4px)' : 'none',
-                                        transition: 'filter 0.3s ease'
+                                        transition: 'filter 0.3s ease',
+                                        transform: `rotate(${rotation}deg)`,
+                                        transformOrigin: 'center'
                                     }}
                                 >
                                     {/* Base Drawing */}

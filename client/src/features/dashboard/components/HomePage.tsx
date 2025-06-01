@@ -46,7 +46,8 @@ function HomePage(): JSX.Element {
     const [viewMode, setViewMode] = useState<ViewMode>({
         layout: 'grid',
         itemsPerRow: 3
-    });    const [searchFocused, setSearchFocused] = useState(false);
+    });
+    const [searchFocused, setSearchFocused] = useState(false);
     const [activeQuickFilter, setActiveQuickFilter] = useState<string>('');
     const [showQuickActions, setShowQuickActions] = useState(false);
 
@@ -75,7 +76,9 @@ function HomePage(): JSX.Element {
             }
             return [...prev, id];
         });
-    }, []);    const handleCreateNew = useCallback(() => {
+    }, []);
+
+    const handleCreateNew = useCallback(() => {
         navigate('/new-project');
     }, [navigate]);
 
@@ -199,7 +202,7 @@ function HomePage(): JSX.Element {
             <div className={`grid gap-6 ${gridCols} transition-all duration-300 ease-in-out`}>
                 {filteredItems.map((item, index) => (
                     <div
-                        key={item._id}                        style={{
+                        key={item._id} style={{
                             animationDelay: `${index * 50}ms`
                         }}
                     >
@@ -449,15 +452,15 @@ function HomePage(): JSX.Element {
                                             Sort By
                                         </label>
                                         <div className="flex space-x-2">                                            <select
-                                                value={filters.sortBy}
-                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilters({ sortBy: e.target.value as SearchFilters['sortBy'] })}
-                                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                            >
-                                                <option value="date">Date</option>
-                                                <option value="name">Name</option>
-                                                <option value="type">Type</option>
-                                                <option value="category">Category</option>
-                                            </select>
+                                            value={filters.sortBy}
+                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilters({ sortBy: e.target.value as SearchFilters['sortBy'] })}
+                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        >
+                                            <option value="date">Date</option>
+                                            <option value="name">Name</option>
+                                            <option value="type">Type</option>
+                                            <option value="category">Category</option>
+                                        </select>
                                             <Button
                                                 onClick={() => updateFilters({
                                                     sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc'
