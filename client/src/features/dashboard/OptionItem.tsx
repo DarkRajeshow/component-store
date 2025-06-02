@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { LucideEllipsisVertical } from "lucide-react";
 
 interface OptionItemProps {
@@ -12,6 +13,7 @@ interface OptionItemProps {
     onOptionClick: () => void;
     onMenuClick: () => void;
     className?: string;
+    isLocked: boolean;
 }
 
 const OptionItem = ({
@@ -25,11 +27,33 @@ const OptionItem = ({
     isParentSelected = true,
     onOptionClick,
     onMenuClick,
-    className = ""
+    className = "",
+    isLocked
 }: OptionItemProps) => {
+
+    const canInteract = !isLocked || isSelected; // Can still interact if it's the selected option
+    const showLockIcon = isLocked; // Show lock only for non-selected locked options
+    // const showShieldIcon = isLocked && isSelected; // Show shield for selected locked options
+
     return (
-        <div className={`group flex items-center justify-between px-2 gap-1 select-none rounded-full ${menuVisible === menuPath ? 'bg-blue-50/80' : ''} ${className}`}>
-            <label className="group rounded-lg select-none">
+        <div
+            className={cn(
+                "group flex items-center justify-between px-1 mx-1 gap-1 my-[6px] select-none rounded-sm",
+                {
+                    'bg-blue-50/80': menuVisible === menuPath,
+                    "bg-green-50 border-green-400": isSelected,
+                    "bg-orange-50/70 border-1 border-orange-300": showLockIcon,
+                    // "bg-blue-50": showShieldIcon,
+                    "opacity-50": !isParentSelected,
+                    "cursor-not-allowed": !canInteract,
+                    "cursor-pointer": canInteract
+                },
+                className
+            )}
+
+        // className={`group flex items-center justify-between px-2 gap-1 select-none rounded-full ${menuVisible === menuPath ? 'bg-blue-50/80' : ''} ${className}`}
+        >
+            <label className="group rounded-lg w-full select-none">
                 <input
                     type="radio"
                     checked={isSelected}

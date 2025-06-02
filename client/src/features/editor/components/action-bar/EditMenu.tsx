@@ -1,84 +1,227 @@
 import { useEffect } from 'react';
-import useAppStore from '../../../../store/useAppStore';
 import { DialogTrigger } from '@/components/ui/dialog';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
+} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import {
+    Edit3,
+    Trash2,
+    FileEdit,
+    Lock,
+    Shield,
+    AlertCircle,
+    LucideIcon
+} from 'lucide-react';
+import type { VariantProps } from 'class-variance-authority';
+import useAppStore from '@/store/useAppStore';
 
+type ActionType = 'rename' | 'edit' | 'delete';
+type ButtonVariant = VariantProps<typeof Button>['variant'];
+
+interface MenuItemProps {
+    icon: LucideIcon;
+    label: string;
+    onClick: () => void;
+    disabled?: boolean;
+    variant?: ButtonVariant;
+    tooltipContent?: React.ReactNode;
+}
 
 interface EditMenuProps {
     componentOption: string;
     setDialogType: (type: string) => void;
+    lockStatus?: {
+        isLocked: boolean;
+        canEdit: boolean;
+        canDelete: boolean;
+        canRename: boolean;
+        reason: string;
+    };
 }
 
-const EditMenu = ({ componentOption, setDialogType }: EditMenuProps) => {
+const EditMenu = ({ componentOption, setDialogType, lockStatus }: EditMenuProps) => {
+    const canEdit = !lockStatus || lockStatus.canEdit;
+    const canDelete = !lockStatus || lockStatus.canDelete;
+    // const canRename = !lockStatus || lockStatus.canRename;
+    const isLocked = lockStatus?.isLocked || false;
 
-    const { menuOf, setMenuOf, setUniqueFileName } = useAppStore()
+    const { menuOf, setMenuOf, setUniqueFileName } = useAppStore();
 
     useEffect(() => {
         const ComponentPath = componentOption.split(">$>");
         setMenuOf(ComponentPath);
     }, [componentOption, setMenuOf])
 
-    if (menuOf.length === 1) {
-        return (
-            <div className="flex flex-col gap-1 p-1 w-28 min-w-max font-medium">
-                <div className='rotate-45 rounded-tl-sm h-4 w-4 bg-white border-t border-l border-gray-300  absolute -top-[8.5px] left-1/2 -translate-x-1/2 -z-10' />
-                <DialogTrigger onClick={() => {
-                    setDialogType('rename');
-                }} className='text-left flex bg-dark/5 px-2 py-1.5 rounded-md items-center'>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5  mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                    </svg>
-                    Rename</DialogTrigger>
-                <DialogTrigger
-                    onClick={() => {
-                        setDialogType('update');
-                    }} className='text-left flex bg-dark/5 px-2 py-1.5 rounded-md items-center'>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5  mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
-                    </svg>
-                    Update</DialogTrigger>
-                <DialogTrigger onClick={() => {
-                    setDialogType('delete');
-                }} className='text-left flex bg-dark/5 px-2 py-1.5 rounded-md items-center'>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5  mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
-                    </svg>
-                    Delete</DialogTrigger>
-            </div >
-        )
-    }
 
-    else {
+
+    // Helper function to get tooltip content for disabled actions
+    const getTooltipContent = (action: ActionType, canPerform: boolean) => {
+        if (canPerform) return null;
+
+        const baseReason = lockStatus?.reason || 'Action not permitted';
+        const actionMessages: Record<ActionType, string> = {
+            rename: 'Cannot rename this component',
+            edit: 'Cannot edit this component',
+            delete: 'Cannot delete this component'
+        };
+
         return (
-            <div className="flex flex-col gap-1 p-1 w-28 min-w-max font-medium">
-                <div className='rotate-45 rounded-bl-sm h-4 w-4 bg-white border-b border-l border-gray-300  absolute -left-[8.5px] top-1/2 -translate-y-1/2 -z-10' />
-                <DialogTrigger onClick={() => {
-                    setDialogType('rename');
-                }} className='text-left flex bg-dark/5 px-2 py-1.5 rounded-md items-center'>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5  mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                    </svg>
-                    Rename</DialogTrigger>
-                <DialogTrigger
-                    onClick={() => {
-                        setUniqueFileName();
-                        setDialogType('update');
-                    }} className='text-left flex bg-dark/5 px-2 py-1.5 rounded-md items-center'>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5  mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
-                    </svg>
-                    Update</DialogTrigger>
-                <DialogTrigger onClick={() => {
-                    setDialogType('delete');
-                }} className='text-left flex bg-dark/5 px-2 py-1.5 rounded-md items-center'>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5  mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
-                    </svg>
-                    Delete</DialogTrigger>
-            </div >
+            <div className="flex flex-col gap-1 text-xs">
+                <div className="flex items-center gap-1">
+                    <Lock className="h-3 w-3" />
+                    <span className="font-medium">{actionMessages[action]}</span>
+                </div>
+                <span className="text-muted-foreground">{baseReason}</span>
+            </div>
+        );
+    };
+
+    // Menu item component with enhanced styling
+    const MenuItem = ({
+        icon: Icon,
+        label,
+        onClick,
+        disabled,
+        variant = "ghost",
+        tooltipContent
+    }: MenuItemProps) => {
+        const buttonContent = (
+            <Button
+                variant={variant}
+                size="sm"
+                disabled={disabled}
+                onClick={onClick}
+                className={`
+                    w-full justify-start gap-2 h-9 px-3 
+                    ${disabled
+                        ? 'opacity-50 cursor-not-allowed bg-muted/30'
+                        : 'hover:bg-accent hover:text-accent-foreground transition-colors'
+                    }
+                    ${variant === 'destructive' && !disabled ? 'hover:bg-destructive/90' : ''}
+                `}
+            >
+                <Icon className={`h-4 w-4 ${disabled ? 'text-muted-foreground' : ''}`} />
+                <span className="text-sm font-medium">{label}</span>
+                {disabled && <Lock className="h-3 w-3 ml-auto text-muted-foreground" />}
+            </Button>
         );
 
-    }
+        if (disabled && tooltipContent) {
+            return (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        {buttonContent}
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-48">
+                        {tooltipContent}
+                    </TooltipContent>
+                </Tooltip>
+            );
+        }
 
+        return buttonContent;
+    };
+
+    const menuContent = (
+        <TooltipProvider delayDuration={300}>
+            <div className="flex flex-col gap-1 p-2 w-48 min-w-max bg-background border border-border rounded-lg shadow-lg">
+                {/* Header with lock status indicator */}
+                {isLocked && (
+                    <>
+                        <div className="flex items-center gap-2 px-2 py-1 mb-1">
+                            <Shield className="h-4 w-4 text-amber-500" />
+                            <Badge variant="secondary" className="text-xs">
+                                <AlertCircle className="h-3 w-3 mr-1" />
+                                Protected
+                            </Badge>
+                        </div>
+                        <Separator className="mb-1" />
+                    </>
+                )}
+
+                {/* Rename Action */}
+                <DialogTrigger asChild>
+                    <MenuItem
+                        icon={FileEdit}
+                        label="Rename"
+                        disabled={!canDelete}
+                        onClick={() => setDialogType('rename')}
+                        tooltipContent={getTooltipContent('rename', canDelete)}
+                    />
+                </DialogTrigger>
+
+                {/* Update/Edit Action */}
+                <DialogTrigger asChild>
+                    <MenuItem
+                        icon={Edit3}
+                        label="Update"
+                        disabled={!canEdit}
+                        onClick={() => {
+                            if (menuOf.length > 1) {
+                                setUniqueFileName();
+                            }
+                            setDialogType('update');
+                        }}
+                        tooltipContent={getTooltipContent('edit', canEdit)}
+                    />
+                </DialogTrigger>
+
+                <Separator className="my-1" />
+
+                {/* Delete Action */}
+                <DialogTrigger asChild>
+                    <MenuItem
+                        icon={Trash2}
+                        label="Delete"
+                        disabled={!canDelete}
+                        variant={canDelete ? "destructive" : "ghost"}
+                        onClick={() => setDialogType('delete')}
+                        tooltipContent={getTooltipContent('delete', canDelete)}
+                    />
+                </DialogTrigger>
+
+                {/* Lock status info at bottom */}
+                {isLocked && lockStatus?.reason && (
+                    <>
+                        <Separator className="mt-1" />
+                        <div className="px-2 py-1 text-xs text-muted-foreground">
+                            <div className="flex items-start gap-2">
+                                <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                                <span className="leading-tight">{lockStatus.reason}</span>
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        </TooltipProvider>
+    );
+
+    // Position-specific arrow styling
+    if (menuOf.length === 1) {
+        return (
+            <div className="relative">
+                {/* Top arrow */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-border" />
+                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-background" />
+                {menuContent}
+            </div>
+        );
+    } else {
+        return (
+            <div className="relative">
+                {/* Left arrow */}
+                <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-t-transparent border-b-transparent border-r-border" />
+                <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-t-transparent border-b-transparent border-r-background" />
+                {menuContent}
+            </div>
+        );
+    }
 };
 
 export default EditMenu;

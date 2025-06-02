@@ -2,11 +2,9 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import designService from '../services/design.service';
 import Design from '../models/design.model';
-import { IDesign, IStructure } from '../types/design.types';
+import { IDesign, IDesignSnapshot, IStructure } from '../types/design.types';
 import { v4 as uuidv4 } from 'uuid';
-import parseIfUnparsed from '../utils/parseIfUnparsed';
-import path from 'path';
-import fileService from '../services/file.service';
+import { extractSelectionPaths } from '../utils/ComponentTracker';
 
 // Helper function for standard response format
 const sendResponse = (res: Response, success: boolean, status: string, data?: any) => {
@@ -32,7 +30,7 @@ class DesignController {
 
             const userId = await designService.verifyUser(req.cookies.jwt);
             const { project, name, type, description, structure, category, code, hash, sourceDesign, folder, categoryId } = req.body;
-            
+
             if (!name || !type || !code || !hash || !project || !structure || !category || !folder || !categoryId) {
                 return sendResponse(res, false, 'Missing required fields');
             }
@@ -46,6 +44,11 @@ class DesignController {
                 components: {}
             };
 
+            const selectionPaths = extractSelectionPaths(initialStructure.components)
+            const snapshot: IDesignSnapshot = {
+                selectionPaths
+            }
+
             const design = await designService.createDesign(userId, {
                 project,
                 name,
@@ -58,6 +61,7 @@ class DesignController {
                 categoryId: categoryId,
                 code,
                 hash,
+                snapshot,
                 revisions: [],
                 accessTo: [{ userId, permissions: 'edit' }],
                 derivedDesigns: []
@@ -718,6 +722,13 @@ class DesignController {
                 components: {}
             };
 
+
+            const selectionPaths = extractSelectionPaths(initialStructure.components)
+            const snapshot: IDesignSnapshot = {
+                selectionPaths
+            }
+
+
             const design = await designService.createDesign(userId, {
                 project,
                 sourceDesign,
@@ -729,6 +740,7 @@ class DesignController {
                 selectedPage: '',
                 code,
                 hash,
+                snapshot,
                 revisions: [],
                 accessTo: [{ userId, permissions: 'edit' }],
                 derivedDesigns: []

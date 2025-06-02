@@ -10,14 +10,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useUpdateForm } from '../../../hooks/edit-menu/useUpdateForm';
 import { IComponent } from '@/types/design.types';
-import {
-    AddChild,
-    UpdateChild,
-    DeleteConfirmation,
-    PageSelector,
-    ComponentFileSection
-} from '.';
 import { IFileInfo, INestedChildLevel1, INestedChildLevel2, INestedParentLevel1 } from '@/types/project.types';
+import PageSelector from './PageSelector';
+import ComponentFileSection from './ComponentFileSection';
+import AddChild from './AddChild';
+import DeleteConfirmation from './DeleteConfirmation';
+import UpdateChild from './UpdateChild';
 
 
 const UpdateForm: React.FC = () => {

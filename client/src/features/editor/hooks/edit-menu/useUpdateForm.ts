@@ -4,7 +4,7 @@ import useAppStore from '../../../../store/useAppStore';
 import { checkFileExists } from '../../../../utils/checkFileExists';
 import { IStructure, IComponent, IFileInfo, IComponents, INestedChildLevel2 } from '@/types/design.types';
 import { useModel } from '@/contexts/ModelContext';
-import { INestedChildLevel1, INestedParentLevel1 } from '@/types/project.types';
+import { INestedChildLevel1, INestedParentLevel1, INormalComponent } from '@/types/project.types';
 
 interface FileCountInfo {
   fileUploads: number;
@@ -68,6 +68,8 @@ export const useUpdateForm = () => {
       : (menuOf.length === 2)
         ? (updatedComponents[menuOf[0]] as IComponent)?.options[menuOf[1]]
         : updatedComponents[menuOf[0]];
+
+    console.log(menuOf);
 
     if (value) {
       const deepCopyValue = JSON.parse(JSON.stringify(value));
@@ -175,25 +177,28 @@ export const useUpdateForm = () => {
   };
 
   // Function to extract file paths for deletion
-  const extractPaths = async (): Promise<string[]> => {
+  function extractPaths() {
     const paths: string[] = [];
 
-    function traverse(current: any): void {
-      if (typeof current === 'object' && current !== null) {
-        if ('fileId' in current && (current as IFileInfo).fileId !== "none") {
-          paths.push((current as IFileInfo).fileId);
-        }
-        for (const key in current) {
-          if (current[key]) {
-            traverse(current[key]);
-          }
-        }
+    function traverse(current: IComponent | INormalComponent | INestedParentLevel1 | IFileInfo | undefined) {
+      if (!current || typeof current !== 'object') return;
+
+      // Check if it's a component with fileId
+      if ('fileId' in current && current.fileId && current.fileId !== "none") {
+        paths.push(current.fileId);
+      }
+
+      // If it's a component with options, traverse them
+      if ('options' in current && current.options) {
+        Object.values(current.options).forEach(option => {
+          traverse(option as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
+        });
       }
     }
 
-    traverse(updatedValue);
+    traverse(updatedValue as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
     return paths;
-  };
+  }
 
   // Function to rename components
   const renameComponent = async (components: IComponents, keys: string[], newKey: string): Promise<IComponents> => {

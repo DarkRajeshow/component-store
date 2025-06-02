@@ -49,7 +49,7 @@ const DesignSchema = new Schema<IDesign>({
     code: {
         type: String,
         required: true,
-        unique : true,
+        unique: true,
     },
     hash: {
         type: String,
@@ -68,6 +68,10 @@ const DesignSchema = new Schema<IDesign>({
         },
     ],
     structure: {
+        type: Schema.Types.Mixed,
+        required: true,
+    },
+    snapshot: {
         type: Schema.Types.Mixed,
         required: true,
     },

@@ -29,11 +29,9 @@ Project.hierarchy = {
                     "options": { 
                         "none": { "fileId": "none" }, 
                         "2P DE C3 Bearing": { "fileId": "37a70f85-661b-4963-b2e2-f4d443ce9e35" }, 
-                        "2P DE Standard Bearing": { "fileId": "b16def5e-ee32-46cb-badb-c03b1448dbae" 
-}, 
+                        "2P DE Standard Bearing": { "fileId": "b16def5e-ee32-46cb-badb-c03b1448dbae" }, 
                         "4,6,8P DE C3 Bearing": { "fileId": "3a9d69fe-9066-4014-bb14-2e5ab2b6668f" }, 
-                        "4,6,8P DE Standard Bearing": { "fileId": "af531397-e723-4982-951f
-f08b0fac446d" }, 
+                        "4,6,8P DE Standard Bearing": { "fileId": "af531397-e723-4982-951ff08b0fac446d" }, 
                         "DE NU Bearing": { "fileId": "41e4b923-2683-4116-973b-7d43ae4bf2b9" }, 
                     } 
                 } 
@@ -48,7 +46,7 @@ f08b0fac446d" },
                 // this below options of components is "normal" type 
                 "Demo": { 
                     "value": false,
-                    "fileId": "52d1sd3432546a - 4018 - 97e0 - 112a6a8b7062" 
+                    "fileId": "52d1sd3432546a-4018-97e0-112a6a8b7062" 
                 } 
             } 
         } 
@@ -169,6 +167,8 @@ src
 
 
 
+
+
 could you create a user experience focused ui for export popup in my design application, in this export popup we need to provide different export options such as export as PDF ro export as DRF or export as SVG etc. and after selecting one of these user should have two more options, export file and create a new Design out, 
 
 and only export file or only Create new Design, 
@@ -188,3 +188,265 @@ These above fields are the required fields could you add inputs for these attrib
 I am bit unclear about my actual ui and needs, but whatever i explianed based on try to assume other curcumstances, and try to create a visually stunning yet highly fouced on user experience design
 
 use shadcn components as man as you want to create a consistent ui design.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I need to find the solution to a problem that is little complicated, 
+
+first I will explain what is the problem and what i want your task is to brainstrorm about the problem and find an optimal solution: 
+
+the problem is I have a project called GAD builder, and in this project I have a two schemas 
+1. Project Model
+2. Design Model 
+
+the project model and design model both are pretty same, but the project is the bigger and learger entiry compared to the design model,
+
+a project includes a heirarchy attribute which consist of two main attributes 
+categoriesMapping, 
+
+you will get to know more about the strcture when i provide the types for the design and project schema, 
+
+basially project manages multiple categories and design manages only one category, 
+
+project is highly dynamic and customizable, specially made to add new components and update the components whenever necessary, 
+
+but unlike project the designs are different design are derived from the project only, 
+after additing the deried components in the projects, and after selecting all the combination of components to get the desigred output, we could export that output as new design or download the output as pdf, 
+
+when we export the design we need to provide a code for it, 
+this code which be unique for all the designs, 
+
+and every design includes a attribute called hash which is generated based on the selected combinations of the components, 
+
+when user tries to export the design it automatically checks if this type of combination is already exist in the system or not, if yes then it will not allow to create new design with the same combination,
+
+as i told this combination is created when the user creates new design, 
+as i told combination of selected components and to clear that every component has a associated file with it, 
+
+previously i had decided to have separate folders for project and design, 
+
+but soon i realized that its a bad idea because it will consume a lot of space, making it enefficient and costly, 
+
+now i decided to use the same folders and files of project for the design, instead of coping them and wasting disk space, 
+
+but this introduces a lot of problems, 
+like I have also decided to keep everything working, for example we have a component called polarity, 
+and for this I added a file called file1.svg and exported a design with a certain combination, and soon after decided to change the file for the polarity for a specific reason, 
+
+but if the files are shared then the file will also get changed in the design model which is not our goal it should only be affected in the project schema, 
+and consider following situation where we are allowing both project and design to modify their components, e.g rename, change file or delete, 
+by enabling the modification it introduced many problems, 
+for example if i change a file in the design model, and it is selected, then we would have problem because when we do that it will change the combination right? and if combination is changed then we also need to change the hash and code for the design, which is i don't, I want to make the hash and code permanent and also allow users to update the design components, to export the design with only slight modification in existing design,
+so to do that i need to allow to update only those components which are not the part of the selected components combination, we should also allow users to add new components in the design but that shouldn't be selected,
+
+and many more related problems 
+
+we need to resolve these problems smartest way possible, how the mordern solutions related to these looks like, what should be my strategy,  
+
+as I told every project consists of categories 
+and every category has three main attributes 
+1. pages, 
+2. components, 
+3. baseDrawing, 
+
+ok the problem you understood, not that clearly but ya, little bit, right?
+
+so I will explain what you task is all about, 
+
+first we need to undestand is that when we export the design using the project, it shares the same files and consider if the project get updated then the design updated, 
+
+so instead of doing like this, we need to have some different logic here, 
+
+if the user tries to update the projects file consider 
+
+compnents reffers a file with name file1 and if we alredy exported the design using this project then 
+both design and projects shares the same file, and when i try to update the file 
+
+it should not delete existing file i.e file1 but instead it should add new file e.g file2 and update refference of component to reffer file2 instead of file1, 
+
+so the updated project will point to file2 but the design will still be pointing the file1, 
+
+this problem is solved, 
+
+here comes the new problem 
+
+we need also need to make the design components updatable, 
+
+but not those which are updated, not the part of the combinations, 
+
+what does this mean
+
+consider a design has two components 
+
+c1 and c2 
+
+each of them has different file associated with it, 
+but in the final output design only one component file is been used, i.e c1
+
+and other one is selected as none/false, so c2 component existance doesn't affect the output design, 
+
+but consider a user toggle the c2 component and try to create a new design using the current design then it should allow it, 
+meaning we could create designs out of project and also we could create designs out of designs, 
+
+for that reason we have a problem, 
+
+if user selects the c2 component which isn't selected in the first design then it should show that the design combination has changed, and allow users to export the design as pdf or create new design, 
+
+you may ask why?
+the simple answer is want to have the design interconnection, 
+and also we want to reduce effort, 
+consider a situation, if there is a design which selects has 100 components and creates a new combinations and exported as design, but after some days another client comes and asks similar combinations with one or two alterations, 
+
+in this case what will have if we go to the project, it will only include the options of components but notthing is selected by default, due to that user need to selects the components combinations from the scratch, and selecting 100 components may be trickier, 
+
+100 is huge may but even selecting 50 or 20 components also tooks a lot of time, 
+so thats why we have designs out designs, 
+
+because if 100 components selected and only one alteration need to be done in this 100 components then we could do directly to that design and do the customization in existing design, 
+
+so this is the main idea behind the project and design models 
+
+but this will be challening because this approach needs to allow users to update the design's unused components file, 
+
+why unused? because if the component is being used in the current design combination then we shouldn't change it, 
+
+basically, we could we the temporary changes in the design by selecting other components but when user reloads it loads all the exact combinations that are been selected when design was exported, 
+
+so this design combination will not get changed, but we could change it and export it into new design and that new design will maintain that selected combination, 
+
+so if the selected component's files get changes then the design get changed and i don't want it, 
+
+so we should only allow file updatation if that component is not the part of the existing design 
+
+so to do that we first need to understand which component is the part of the design, 
+
+and we should easily identify if this component is selected or not, 
+
+so this the explaination to understand why we want to do this tracking, 
+
+ok now I will go more differ into the implimention, 
+
+first understand how the structure of the components will look like, 
+
+
+
+
+
+
+  "structure": {
+    "pages": {
+      "gad": "b9bf8712-1984-4e3e-8767-657f12259565",
+      "T Box": "fdc87b72-3844-42ae-84bf-53058b54ec4f"
+    },
+    "baseDrawing": {
+      "fileId": "d9936ddb-eea6-41dc-9334-272a6b2f484b"
+    },
+
+    // focus on this object
+    "components": {
+      "Bearing": {
+        "selected": "none",
+        "options": {
+          "none": {
+            "fileId": "none"
+          },
+          "2P DE C3 BRG": {
+            "fileId": "e3dc5348-f6f7-40ca-bc92-b1cd2bc3b3ae"
+          },
+        }
+      },
+      "Auxillary box": {
+        "selected": "G THERMISTOR",
+        "options": {
+          "none": {
+            "fileId": "none"
+          },
+          "G THERMISTOR": {
+            "fileId": "9f07d2c2-1610-4456-9b3c-9b00032bf547"
+          }
+        }
+      },
+      "TTB": {
+        "value": true,
+        "fileId": "61a7ae3e-6156-47d8-bbff-57751ede05e3"
+      },
+      // this below nested component specially made to undestand the structure
+      "Parent": {
+        "selected": "child parent",
+        "options": {
+          "none": {
+            "fileId": "none"
+          },
+          "child": {
+            "fileId": "009bf3df-6191-41da-8b5e-dd3c3cb5f8f2"
+          },
+          "child parent": {
+            "selected": "child child 1",
+            "options": {
+              "child child 1": {
+                "fileId": "565dafff-2bb5-45db-9fc0-81f6489ba565"
+              }
+              "child child 2": {
+                "fileId": "565dafff-2bb5-45db-9fc0-81f6489ba565"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+ok now will only need to analyse which components are not allowed to edit, 
+
+1. because "Bearing" is selected as none so its completely updatable.  
+2. in "Auxillary box" component is selects "G THERMISTOR" so "G THERMISTOR" component should not allow updatation.but other chils of "Auxillary box" should be updatable
+3. TTB is true, so we restrict updatation for TTB.
+4. in "Parent" component is selects "child parent" and this nested parent component selects the "child child 1" so we need to restrict updatation in "child child 1" but user should able to update the "child child 2" and other childs of "parent" component
+
+and this prompt should aim to get the algorithm or function which will generate something by which we could identify if this component is mutable or not, 
+
+whatever solution it generated it should aim to match with the component's structure,
+
+we need to store the data of the selected components in the schem of the design and use that same data to check every component if that is part of the selection or we should generate that data dynamically based on the comopents that are selected and it should not update it data at even if the components state get changes locally, decide which is the better and based on that suggest solution, 
+
+we need to find something which is very optimal, i am rending the compnoents selection dropdown recursively and due to that i need to be carefully how to handle which component selection, 
+
+i have attached the entire code for rendering the components, your task is to analyse it carefully and give me the updated code to resolve this problem 
+
+and if the component is not allowed to update then we need to differenciate that, with other components. 
+
+for every component we have rename, update, and delete option and we should not allow any of them to be done in the restricted components.
+
+based on this detailed prompt could you give me the solution to this problem.

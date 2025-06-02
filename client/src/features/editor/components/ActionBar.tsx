@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { HomeIcon, InfoIcon, PlusIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { UpdateForm, RenameForm, DeleteForm } from './edit-menu';
-
 import { ATTRIBUTE_TYPES, useActionBar } from '../hooks/action-bar/useActionBar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DesignInfoPanel, ComponentsList, ExportForm } from './action-bar'
 import AddForm from './add-form';
 import { Button } from '@/components/ui/button';
 import useAppStore from '@/store/useAppStore';
+import { IDesign } from '@/types/design.types';
 
 
 interface ActionBarProps {
@@ -108,7 +108,7 @@ function ActionBar({ generatePDF }: ActionBarProps) {
 
                     <div className="flex items-center gap-1 relative" ref={infoContext}>
                         <p className="logo font-medium text-center  text-purple-700 capitalize">
-                             {content && content.name}
+                            {content && content.name}
                         </p>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -154,6 +154,8 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                             handleToggleContextMenu={handleToggleContextMenu}
                             pushToUndoStack={pushToUndoStack}
                             setDialogType={setDialogType}
+                            isDesignMode={modelType === "design"}
+                            designSnapshot={(content as IDesign).snapshot}
                         />
                     )}
                 </div>

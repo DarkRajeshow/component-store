@@ -70,6 +70,19 @@ export interface IStructure {
   components: IComponents;
 }
 
+// Types for the selection tracking system
+export interface ISelectionPath {
+  componentPath: string;
+  selectedOption: string;
+  fileId: string;
+}
+
+export interface IDesignSnapshot {
+  selectionPaths: ISelectionPath[];
+  // hash: string;
+}
+
+
 export interface IDesign extends Document {
   _id: string;
   user: string | IUser;
@@ -90,6 +103,7 @@ export interface IDesign extends Document {
   type: string;
   description?: string;
   structure: IStructure;
+  snapshot: IDesignSnapshot;
   derivedDesigns: string[];
   createdAt: Date;
   updatedAt: Date;

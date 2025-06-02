@@ -38,7 +38,7 @@ function extractPaths(components: IComponents): string[] {
     const result: string[] = [];
 
     for (const key in components) {
-        if (!components.hasOwnProperty(key)) continue;
+        if (!Object.prototype.hasOwnProperty.call(components, key)) continue;
 
         const value = components[key];
         if ((value as INormalComponent).fileId) {

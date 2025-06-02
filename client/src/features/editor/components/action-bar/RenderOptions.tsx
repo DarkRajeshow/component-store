@@ -4,6 +4,8 @@ import useAppStore from "../../../../store/useAppStore";
 import OptionItem from "../../../dashboard/OptionItem";
 import { cn } from "@/lib/utils";
 import { IComponent, IComponentOptions, IFileInfo, INestedParentLevel1 } from "@/types/project.types";
+import { IDesignSnapshot } from "@/types/design.types";
+import { getOptionLockStatus, isOptionLocked } from "../../utils/ComponentTracker";
 
 interface RenderOptionsProps {
     pushToUndoStack: () => void;
@@ -12,15 +14,28 @@ interface RenderOptionsProps {
     handleToggleContextMenu: (component: string, option: string, subOption?: string) => void;
     setDialogType: (type: string) => void;
     menuVisible: string | boolean;
+    componentPath: string;
+    designSnapshot: IDesignSnapshot | undefined;
+    isDesignMode: boolean;
 }
 
-const RenderOptions = ({ pushToUndoStack, component, options, handleToggleContextMenu, setDialogType, menuVisible }: RenderOptionsProps) => {
+const RenderOptions = ({
+    pushToUndoStack,
+    component,
+    options,
+    handleToggleContextMenu,
+    setDialogType,
+    menuVisible,
+    componentPath,
+    designSnapshot,
+    isDesignMode = false
+}: RenderOptionsProps) => {
     const { structure, updateSelectedSubOption, updateSelected } = useAppStore();
     const [openSubSubOptions, setOpenSubSubOptions] = useState<string[]>([]);
     const [scrollPosition, setScrollPosition] = useState(0);
     const divRef = useRef<HTMLDivElement>(null);
 
-    const components = structure.components
+    const components = structure.components;
 
     const handleOptionChange = (option: string) => {
         pushToUndoStack(); // Push the current state before the change
@@ -61,57 +76,100 @@ const RenderOptions = ({ pushToUndoStack, component, options, handleToggleContex
         };
     }, []);
 
-    return <div className="overflow-y-scroll max-h-[50vh] pl-2" ref={divRef}>
-        {Object.entries(options).map(([subOption, subValue]) => (
-            <div key={subOption}>
-                <OptionItem
-                    option={subOption}
-                    isSelected={(components[component] as IComponent).selected === subOption}
-                    showDropdownIcon={!!(subValue as INestedParentLevel1).selected}
-                    isOpen={openSubSubOptions.includes(subOption)}
-                    isNone={subOption === "none"}
-                    menuVisible={menuVisible}
-                    menuPath={`${component}>$>${subOption}`}
-                    onOptionClick={() => {
-                        handleOptionChange(subOption);
-                        handleToggleSubOptions(subOption, subValue);
-                    }}
-                    onMenuClick={() => handleToggleContextMenu(component, subOption)}
-                />
+    return (
+        <div className="overflow-y-scroll max-h-[50vh] pl-2" ref={divRef}>
+            {Object.entries(options).map(([subOption, subValue]) => {
+                // Get lock status for this option
+                const optionLockStatus = designSnapshot && isDesignMode
+                    ? getOptionLockStatus(componentPath, subOption, designSnapshot)
+                    : { isLocked: false, canEdit: true, canDelete: true, canRename: true, reason: '' };
 
-                {(menuVisible === `${component}>$>${subOption}`) && (
-                    <div className={cn("absolute -right-[112px] border -top-0 border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max", { [`-top-[${scrollPosition - 50}px]`]: true })}>
-                        <EditMenu setDialogType={setDialogType} componentOption={menuVisible} />
-                    </div>
-                )}
+                const isOptionDirectlyLocked = designSnapshot && isDesignMode
+                    ? isOptionLocked(componentPath, subOption, designSnapshot)
+                    : false;
 
-                {(subValue as IComponent).selected && (subValue as IComponent).options && (
-                    <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-0 overflow-hidden"}`}>
-                        {Object.entries((subValue as IComponent).options).map(([subSubOption]) => (
-                            <div key={subSubOption}>
-                                <OptionItem
-                                    option={subSubOption}
-                                    isSelected={(subValue as IComponent).selected === subSubOption}
-                                    isParentSelected={(components[component] as IComponent).selected === subOption}
-                                    menuVisible={menuVisible}
-                                    menuPath={`${component}>$>${subOption}>$>${subSubOption}`}
-                                    onOptionClick={() => handleSubOptionChange(subOption, subSubOption)}
-                                    onMenuClick={() => handleToggleContextMenu(component, subOption, subSubOption)}
-                                    className="group/subsubOption"
+                return (
+                    <div key={subOption}>
+                        <OptionItem
+                            option={subOption}
+                            isSelected={(components[component] as IComponent).selected === subOption}
+                            showDropdownIcon={!!(subValue as INestedParentLevel1).selected}
+                            isOpen={openSubSubOptions.includes(subOption)}
+                            isNone={subOption === "none"}
+                            menuVisible={menuVisible}
+                            menuPath={`${component}>$>${subOption}`}
+                            isLocked={isOptionDirectlyLocked}
+                            onOptionClick={() => {
+                                handleOptionChange(subOption);
+                                handleToggleSubOptions(subOption, subValue);
+                            }}
+                            onMenuClick={() => handleToggleContextMenu(component, subOption)}
+                        />
+
+                        {(menuVisible === `${component}>$>${subOption}`) && (
+                            <div className={cn(
+                                "absolute -right-[112px] border -top-0 border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max",
+                                { [`-top-[${scrollPosition - 50}px]`]: true }
+                            )}>
+                                <EditMenu
+                                    setDialogType={setDialogType}
+                                    componentOption={menuVisible}
+                                    lockStatus={optionLockStatus}
                                 />
-
-                                {(menuVisible === `${component}>$>${subOption}>$>${subSubOption}`) && (
-                                    <div className={cn("absolute -right-[112px] border border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max", { [`-top-[${scrollPosition}px]`]: true })}>
-                                        <EditMenu setDialogType={setDialogType} componentOption={menuVisible} />
-                                    </div>
-                                )}
                             </div>
-                        ))}
+                        )}
+
+                        {(subValue as IComponent).selected && (subValue as IComponent).options && (
+                            <div className={`duration-1000 transition-transform group ml-6 pl-3 border-l border-gray-400/25 ${(openSubSubOptions.includes(subOption)) ? "h-full" : "h-0 overflow-hidden"
+                                }`}>
+                                {Object.entries((subValue as IComponent).options).map(([subSubOption]) => {
+                                    // Get lock status for nested option
+                                    const nestedOptionPath = `${componentPath}.${subOption}`;
+                                    const nestedLockStatus = designSnapshot && isDesignMode
+                                        ? getOptionLockStatus(nestedOptionPath, subSubOption, designSnapshot)
+                                        : { isLocked: false, canEdit: true, canDelete: true, canRename: true, reason: '' };
+
+                                    const isNestedOptionLocked = designSnapshot && isDesignMode
+                                        ? isOptionLocked(nestedOptionPath, subSubOption, designSnapshot)
+                                        : false;
+
+                                    return (
+                                        <div key={subSubOption}>
+                                            <OptionItem
+                                                option={subSubOption}
+                                                isSelected={(subValue as IComponent).selected === subSubOption}
+                                                isParentSelected={(components[component] as IComponent).selected === subOption}
+                                                menuVisible={menuVisible}
+                                                menuPath={`${component}>$>${subOption}>$>${subSubOption}`}
+                                                isLocked={isNestedOptionLocked}
+                                                // lockReason={nestedLockStatus.reason}
+                                                onOptionClick={() => handleSubOptionChange(subOption, subSubOption)}
+                                                onMenuClick={() => handleToggleContextMenu(component, subOption, subSubOption)}
+                                                className="group/subsubOption"
+                                            />
+
+                                            {(menuVisible === `${component}>$>${subOption}>$>${subSubOption}`) && (
+                                                <div className={cn(
+                                                    "absolute -right-[112px] border border-gray-300 rounded-lg mt-1 bg-white z-30 min-w-max",
+                                                    { [`-top-[${scrollPosition}px]`]: true }
+                                                )}>
+                                                    <EditMenu
+                                                        setDialogType={setDialogType}
+                                                        componentOption={menuVisible}
+                                                        lockStatus={nestedLockStatus}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-        ))}
-    </div>;
+                );
+            })}
+        </div>
+    );
 };
 
 export default RenderOptions;
