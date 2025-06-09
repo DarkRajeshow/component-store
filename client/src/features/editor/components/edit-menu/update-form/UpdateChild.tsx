@@ -262,7 +262,7 @@ const UpdateChild = memo(({
 
                                                                 return (
                                                                     <FileUploader
-                                                                        key={page}
+                                                                        key={`${componentPath}-${option}-${page}-${valuePath}`}
                                                                         pagePath={pagePath}
                                                                         page={page}
                                                                         handleFileChange={handleFileChange}

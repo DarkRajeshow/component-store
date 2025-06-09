@@ -76,6 +76,11 @@ export function useUpdateChild({
     const [selectedPages, setSelectedPages] = useState<string[]>([]);
     const { baseContentPath } = useModel();
 
+    useEffect(() => {
+        console.log(newFiles);
+    }, [newFiles])
+
+
     const handleFileChange = useCallback((e: FileChangeEvent, page: string): void => {
         const file: File = e.target.files[0];
         if (!file || !isFileInfo(value)) return;
@@ -115,8 +120,7 @@ export function useUpdateChild({
 
     const handleDelete = useCallback(() => {
         if (!updatedValue) return;
-        
-        
+
         // Deep copy
         const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue));
         if (parentOption && isComponent(tempUpdateValue)) {
@@ -140,7 +144,7 @@ export function useUpdateChild({
                     }
                 });
             }
-            
+
             if (tempUpdateValue.selected === renamedOption) {
                 tempUpdateValue.selected = "none";
             }
@@ -235,34 +239,35 @@ export function useUpdateChild({
     // Check which files exist on the server
     useEffect(() => {
         const checkFilesExistence = async () => {
-            if (!isFileInfo(value)) {
+            if (!isFileInfo(value) || !value.fileId) {
                 setFileExistenceStatus({});
+                setSelectedPages([]);
                 return;
             }
 
+            const fileId = value.fileId;
             const alreadySelectedPages: string[] = [];
+            const statusChecks = Object.keys(structure.pages).map(async (page) => {
+                const exists = await checkFileExists(`${baseContentPath}/${structure.pages[page]}/${fileId}.svg`);
+                if (exists) {
+                    alreadySelectedPages.push(page);
+                }
+                return { [page]: exists };
+            });
 
-            const results = await Promise.all(
-                Object.keys(structure.pages).map(async (page) => {
-                    const exists = await checkFileExists(`${baseContentPath}/${structure.pages[page]}/${value.fileId}.svg`);
-                    if (exists) {
-                        alreadySelectedPages.push(page);
-                    }
-                    return { [page]: exists };
-                })
-            );
-
+            const results = await Promise.all(statusChecks);
             const statusObject = results.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
-            if (isFileInfo(value)) {
-                const fileUploaded = Object.keys(newFiles[value.fileId] || {});
-                const tempSelectedPages = Object.entries(structure.pages)
-                    .filter(([, pageId]) => fileUploaded.includes(pageId))
-                    .map(([page]) => page);
+            // Get pages that have new files uploaded
+            const newFilePages = Object.entries(structure.pages)
+                .filter(([, pageId]) => newFiles[fileId]?.[pageId])
+                .map(([page]) => page);
 
-                setFileExistenceStatus(statusObject);
-                setSelectedPages([...alreadySelectedPages, ...tempSelectedPages]);
-            }
+            // Combine existing and new file pages, removing duplicates
+            const allSelectedPages = [...new Set([...alreadySelectedPages, ...newFilePages])];
+
+            setFileExistenceStatus(statusObject);
+            setSelectedPages(allSelectedPages);
         };
 
         if (!loading) {
