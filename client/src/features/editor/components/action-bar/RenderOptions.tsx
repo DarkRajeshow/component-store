@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { IComponent, IComponentOptions, IFileInfo, INestedParentLevel1 } from "@/types/project.types";
 import { IDesignSnapshot } from "@/types/design.types";
 import { getOptionLockStatus, isOptionLocked } from "../../utils/ComponentTracker";
+import { useModel } from "@/contexts/ModelContext";
 
 interface RenderOptionsProps {
     pushToUndoStack: () => void;
@@ -16,7 +17,6 @@ interface RenderOptionsProps {
     menuVisible: string | boolean;
     componentPath: string;
     designSnapshot: IDesignSnapshot | undefined;
-    isDesignMode: boolean;
 }
 
 const RenderOptions = ({
@@ -28,8 +28,9 @@ const RenderOptions = ({
     menuVisible,
     componentPath,
     designSnapshot,
-    isDesignMode = false
 }: RenderOptionsProps) => {
+    const { modelType } = useModel();
+    const isDesignMode = modelType == 'design';
     const { structure, updateSelectedSubOption, updateSelected } = useAppStore();
     const [openSubSubOptions, setOpenSubSubOptions] = useState<string[]>([]);
     const [scrollPosition, setScrollPosition] = useState(0);

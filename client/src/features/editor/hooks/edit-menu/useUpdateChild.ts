@@ -115,7 +115,8 @@ export function useUpdateChild({
 
     const handleDelete = useCallback(() => {
         if (!updatedValue) return;
-
+        
+        
         // Deep copy
         const tempUpdateValue = JSON.parse(JSON.stringify(updatedValue));
         if (parentOption && isComponent(tempUpdateValue)) {

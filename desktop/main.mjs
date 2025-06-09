@@ -19,12 +19,12 @@ function createWindow() {
         }
     });
 
-    // if (isDev) {
-    //     win.loadURL('http://localhost:5173');
-    // } else {
-    // }
-    const indexPath = path.join(__dirname, 'builder', 'index.html');
-    win.loadFile(indexPath);
+    if (isDev) {
+        win.loadURL('http://localhost:5173');
+    } else {
+    }
+    // const indexPath = path.join(__dirname, 'builder', 'index.html');
+    // win.loadFile(indexPath);
 
     // Uncomment this if you want to open dev tools:
     win.webContents.openDevTools();

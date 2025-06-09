@@ -358,12 +358,7 @@ so this the explaination to understand why we want to do this tracking,
 
 ok now I will go more differ into the implimention, 
 
-first understand how the structure of the components will look like, 
-
-
-
-
-
+first understand how the structure of the components will look like,
 
   "structure": {
     "pages": {

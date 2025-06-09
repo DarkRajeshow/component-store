@@ -8,7 +8,6 @@ export interface ComponentLockStatus {
     canEdit: boolean;
     canDelete: boolean;
     canRename: boolean;
-    canToggle: boolean;
     lockLevel: 'none' | 'partial' | 'full';
     lockedPaths: ISelectionPath[];
 }
@@ -143,7 +142,6 @@ export function getComponentLockStatus(
         canEdit: true,
         canDelete: true,
         canRename: true,
-        canToggle: true,
         lockLevel: 'none',
         lockedPaths: []
     };
@@ -169,8 +167,7 @@ export function getComponentLockStatus(
             lockStatus.reason = 'This component is selected in the original design';
             lockStatus.canEdit = false; // Can't change the file
             lockStatus.canDelete = false; // Can't delete if selected
-            lockStatus.canToggle = true; // Can still toggle selection
-            lockStatus.canRename = true; // Can rename
+            lockStatus.canRename = false; // Can rename
         }
         return lockStatus;
     }
@@ -209,8 +206,7 @@ export function getComponentLockStatus(
 
             lockStatus.canEdit = true; // Can edit non-locked options
             lockStatus.canDelete = false; // Can't delete if any option is locked
-            lockStatus.canToggle = true; // Can change selection
-            lockStatus.canRename = true; // Can rename component
+            lockStatus.canRename = false; // Can't rename component
         } else if (childLocks.length > 0) {
             // Only nested children are locked
             lockStatus.lockLevel = 'partial';
@@ -218,8 +214,7 @@ export function getComponentLockStatus(
 
             lockStatus.canEdit = true; // Can edit non-locked options
             lockStatus.canDelete = false; // Can't delete because children are locked
-            lockStatus.canToggle = true; // Can change selection
-            lockStatus.canRename = true; // Can rename component
+            lockStatus.canRename = false; // Can't rename component
         }
     }
 
@@ -275,11 +270,11 @@ export function getOptionLockStatus(
 
     // Check if it's a direct selection or has nested selections
     const directLock = designSnapshot.selectionPaths.some(path =>
-        path.componentPath === componentPath && path.selectedOption === optionName
+        path.componentPath === componentPath && path.selectedOption === optionName && path.fileId !== "nested"
     );
 
     const hasNestedLocks = designSnapshot.selectionPaths.some(path =>
-        path.componentPath.startsWith(`${componentPath}.${optionName}.`)
+        path.componentPath === componentPath && path.selectedOption === optionName
     );
 
     if (directLock) {
@@ -287,7 +282,7 @@ export function getOptionLockStatus(
             isLocked: true,
             canEdit: false, // Can't edit files of directly selected options
             canDelete: false, // Can't delete selected options
-            canRename: true, // Can rename options
+            canRename: false, // Can rename options
             reason: 'This option is selected in the original design'
         };
     } else if (hasNestedLocks) {
@@ -295,7 +290,7 @@ export function getOptionLockStatus(
             isLocked: true,
             canEdit: true, // Can edit the option itself, but not nested selections
             canDelete: false, // Can't delete if has nested selections
-            canRename: true, // Can rename options
+            canRename: false, // Can rename options
             reason: 'This option contains nested selections from the original design'
         };
     }

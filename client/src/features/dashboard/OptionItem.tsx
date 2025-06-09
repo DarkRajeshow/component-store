@@ -31,22 +31,20 @@ const OptionItem = ({
     isLocked
 }: OptionItemProps) => {
 
-    const canInteract = !isLocked || isSelected; // Can still interact if it's the selected option
+    // const canInteract = !isLocked || isSelected; // Can still interact if it's the selected option
     const showLockIcon = isLocked; // Show lock only for non-selected locked options
     // const showShieldIcon = isLocked && isSelected; // Show shield for selected locked options
 
     return (
         <div
             className={cn(
-                "group flex items-center justify-between px-1 mx-1 gap-1 my-[6px] select-none rounded-sm",
+                "group flex items-center justify-between px-1 mx-1 gap-1 my-[6px] select-none rounded-sm cursor-pointer",
                 {
                     'bg-blue-50/80': menuVisible === menuPath,
                     "bg-green-50 border-green-400": isSelected,
                     "bg-orange-50/70 border-1 border-orange-300": showLockIcon,
                     // "bg-blue-50": showShieldIcon,
-                    "opacity-50": !isParentSelected,
-                    "cursor-not-allowed": !canInteract,
-                    "cursor-pointer": canInteract
+                    "opacity-50": !isParentSelected
                 },
                 className
             )}

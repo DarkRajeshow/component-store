@@ -3,6 +3,7 @@ import { LucideEllipsisVertical, LucideLock } from 'lucide-react';
 import { getComponentLockStatus } from '../../utils/ComponentTracker';
 import { IComponent, INormalComponent } from '@/types/project.types';
 import { IDesignSnapshot } from '@/types/design.types';
+import { useModel } from '@/contexts/ModelContext';
 
 interface ComponentOptionProps {
     component: string;
@@ -14,7 +15,6 @@ interface ComponentOptionProps {
     handleToggleContextMenu: (component: string) => void;
     menuVisible: string | boolean;
     designSnapshot?: IDesignSnapshot; // New: for design mode
-    isDesignMode?: boolean; // New: to differentiate project vs design
 }
 
 const ComponentOption = memo(({
@@ -27,8 +27,10 @@ const ComponentOption = memo(({
     handleToggleContextMenu,
     menuVisible,
     designSnapshot,
-    isDesignMode = false
 }: ComponentOptionProps) => {
+    const { modelType } = useModel();
+    const isDesignMode = modelType == 'design';
+
     const isBase = component === "base";
     const isBoolean = typeof (value as INormalComponent).value === 'boolean';
     const isChecked = isBoolean ? (value as INormalComponent).value : (value as IComponent)?.selected !== 'none';
@@ -43,18 +45,19 @@ const ComponentOption = memo(({
 
     return (
         <div
-            className={`group flex items-center justify-between pl-2 pr-1 gap-1 select-none border border-gray-400/25 rounded-lg ${isBase ? "cursor-auto !border-dark/50 opacity-40" :
-                showLockIcon ? "cursor-not-allowed border-orange-300 bg-orange-50" :
-                    "cursor-pointer"
+            className={`group flex items-center justify-between pl-2 pr-1 gap-1 select-none border border-gray-400/25 rounded-lg cursor-pointer ${isBase ? "cursor-auto !border-dark/50 opacity-40" :
+                showLockIcon ? "border-orange-300 bg-orange-50" :
+                    ""
                 } ${!showLockIcon && !isBase ? 'bg-white' : ''}`}
             title={isLocked ? lockStatus.reason : ''}
         >
-            <label className={`flex items-center gap-2 ${showLockIcon ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+            <label className={`flex items-center gap-2 cursor-pointer`}>
                 <input
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => {
-                        if (isBase || showLockIcon) return;
+                        // if (isBase || showLockIcon) return;
+                        if (isBase) return;
                         if (isBoolean) {
                             handleToggle(component);
                         } else {
@@ -63,11 +66,11 @@ const ComponentOption = memo(({
                         }
                     }}
                     hidden
-                    disabled={showLockIcon}
+                // disabled={showLockIcon}
                 />
                 <div className='flex items-center gap-2'>
                     <span className={`h-5 w-5 flex items-center justify-center rounded-full ${openDropdown === component ? "border border-dark" : ""
-                        } ${isChecked ? "bg-green-300/60" : "bg-design/30"} ${showLockIcon ? "bg-orange-200" : ""
+                        } ${isChecked ? "bg-green-300/60" : "bg-design/30"} ${(showLockIcon && isChecked) ? "bg-orange-200" : ""
                         }`}>
                         {showLockIcon ? (
                             <LucideLock className="size-[10px] text-orange-600" />
@@ -115,12 +118,10 @@ const ComponentOption = memo(({
 
             <span
                 onClick={() => {
-                    if (!lockStatus.canEdit && !lockStatus.canRename && !lockStatus.canDelete) return;
+                    // if (!lockStatus.canEdit && !lockStatus.canRename && !lockStatus.canDelete) return;
                     handleToggleContextMenu(component);
                 }}
-                className={`hover:bg-dark/5 p-1 rounded-full ${(!lockStatus.canEdit && !lockStatus.canRename && !lockStatus.canDelete) ?
-                    'cursor-not-allowed opacity-30' : ''
-                    }`}
+                className={`hover:bg-dark/5 p-1 rounded-full`}
             >
                 <LucideEllipsisVertical
                     strokeWidth={1.5}

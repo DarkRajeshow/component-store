@@ -154,7 +154,6 @@ function ActionBar({ generatePDF }: ActionBarProps) {
                             handleToggleContextMenu={handleToggleContextMenu}
                             pushToUndoStack={pushToUndoStack}
                             setDialogType={setDialogType}
-                            isDesignMode={modelType === "design"}
                             designSnapshot={(content as IDesign).snapshot}
                         />
                     )}

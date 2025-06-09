@@ -136,7 +136,7 @@ export function getComponentLockStatus(
             // Can still edit non-locked options and add new components
             lockInfo.canEdit = true; // Partial editing allowed
             lockInfo.canDelete = false; // Can't delete if any option is locked
-            lockInfo.canRename = true; // Can rename the component itself
+            lockInfo.canRename = false; // Can rename the component itself
         }
     }
 

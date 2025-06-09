@@ -19,7 +19,6 @@ interface ComponentsListProps {
     setDialogType: (type: string) => void;
     // New props for design mode
     designSnapshot?: IDesignSnapshot;
-    isDesignMode?: boolean;
     onSelectionChange?: (hasChanged: boolean) => void; // Callback when selection changes
 }
 
@@ -33,7 +32,6 @@ const ComponentsList = memo(({
     pushToUndoStack,
     setDialogType,
     designSnapshot,
-    isDesignMode = false,
     // onSelectionChange
 }: ComponentsListProps) => {
 
@@ -97,7 +95,6 @@ const ComponentsList = memo(({
                         handleToggleContextMenu={handleToggleContextMenu}
                         menuVisible={menuVisible}
                         designSnapshot={designSnapshot}
-                        isDesignMode={isDesignMode}
                     />
 
                     {openDropdown === component && (value as IComponent).options && (
@@ -114,7 +111,6 @@ const ComponentsList = memo(({
                                 componentPath={componentPath}
                                 options={(value as IComponent).options}
                                 designSnapshot={designSnapshot}
-                                isDesignMode={isDesignMode}
                             />
                         </div>
                     )}
