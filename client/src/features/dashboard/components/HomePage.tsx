@@ -172,6 +172,7 @@ function HomePage(): JSX.Element {
                         type="no-data"
                         title="Welcome to your workspace!"
                         description="Start creating amazing designs and projects"
+                        // actionLabel="Create project"
                         onAction={handleCreateNew}
                     />
                 );
@@ -432,7 +433,8 @@ function HomePage(): JSX.Element {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             <Calendar className="w-4 h-4 inline mr-1" />
                                             Date Range
-                                        </label>                                        <select
+                                        </label>                                        
+                                        <select
                                             value={filters.dateRange}
                                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateFilters({ dateRange: e.target.value as SearchFilters['dateRange'] })}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"

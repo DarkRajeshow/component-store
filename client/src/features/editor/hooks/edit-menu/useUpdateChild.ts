@@ -76,10 +76,45 @@ export function useUpdateChild({
     const [selectedPages, setSelectedPages] = useState<string[]>([]);
     const { baseContentPath } = useModel();
 
-    useEffect(() => {
-        console.log(newFiles);
-    }, [newFiles])
+    // const handleFileChange = useCallback((e: FileChangeEvent, page: string): void => {
+    //     const file: File = e.target.files[0];
+    //     if (!file || !isFileInfo(value)) return;
 
+    //     if (file.type === 'image/svg+xml' || file.type === 'application/pdf') {
+    //         const fileId = value.fileId;
+    //         setNewFiles({
+    //             ...newFiles,
+    //             [fileId]: {
+    //                 ...newFiles?.[fileId],
+    //                 [structure.pages[page]]: file
+    //             },
+    //         } as FileUpdateStructure);
+    //     } else {
+    //         toast.error('Please choose a SVG or PDF file.');
+    //     }
+    // }, [newFiles, structure.pages, setNewFiles, value]);
+
+    // const handleDrop = useCallback((e: React.DragEvent, page: string) => {
+    //     e.preventDefault();
+    //     const file = e.dataTransfer.files[0];
+    //     if (!file || !isFileInfo(value)) return;
+
+    //     if (file.type === 'image/svg+xml' || file.type === 'application/pdf') {
+    //         const fileId = value.fileId;
+    //         setNewFiles({
+    //             ...newFiles,
+    //             [fileId]: {
+    //                 ...newFiles?.[fileId],
+    //                 [structure.pages[page]]: file
+    //             },
+    //         });
+    //     } else {
+    //         toast.error('Please choose a SVG or PDF file.');
+    //     }
+    // }, [newFiles, structure.pages, setNewFiles, value]);
+
+
+    // In useUpdateChild hook, update these functions:
 
     const handleFileChange = useCallback((e: FileChangeEvent, page: string): void => {
         const file: File = e.target.files[0];
@@ -117,6 +152,7 @@ export function useUpdateChild({
             toast.error('Please choose a SVG or PDF file.');
         }
     }, [newFiles, structure.pages, setNewFiles, value]);
+
 
     const handleDelete = useCallback(() => {
         if (!updatedValue) return;

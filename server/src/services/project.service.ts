@@ -50,6 +50,7 @@ export class ProjectService {
             userService.addProjectToUser(userId, project._id as unknown as Types.ObjectId);
             return project;
         } catch (error) {
+            console.log(error);
             throw new AppError('Failed to create project', 500);
         }
     }

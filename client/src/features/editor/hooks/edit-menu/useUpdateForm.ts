@@ -4,7 +4,8 @@ import useAppStore from '../../../../store/useAppStore';
 import { checkFileExists } from '../../../../utils/checkFileExists';
 import { IStructure, IComponent, IFileInfo, IComponents, INestedChildLevel2 } from '@/types/design.types';
 import { useModel } from '@/contexts/ModelContext';
-import { INestedChildLevel1, INestedParentLevel1, INormalComponent } from '@/types/project.types';
+import { INestedChildLevel1, INestedParentLevel1 } from '@/types/project.types';
+import { generateNewFileIds, updateComponentFileIds, createNewFileStructure } from '../../utils/fileUtils';
 
 interface FileCountInfo {
   fileUploads: number;
@@ -26,7 +27,7 @@ export const useUpdateForm = () => {
     updatedComponents,
     structure,
     loading,
-    filesToDelete,
+    // filesToDelete,
     deleteFilesOfPages,
     setStructureElements,
     setDeleteFilesOfPages,
@@ -68,8 +69,6 @@ export const useUpdateForm = () => {
       : (menuOf.length === 2)
         ? (updatedComponents[menuOf[0]] as IComponent)?.options[menuOf[1]]
         : updatedComponents[menuOf[0]];
-
-    console.log(menuOf);
 
     if (value) {
       const deepCopyValue = JSON.parse(JSON.stringify(value));
@@ -176,29 +175,29 @@ export const useUpdateForm = () => {
     return tempComponents;
   };
 
-  // Function to extract file paths for deletion
-  function extractPaths() {
-    const paths: string[] = [];
+  // // Function to extract file paths for deletion
+  // function extractPaths() {
+  //   const paths: string[] = [];
 
-    function traverse(current: IComponent | INormalComponent | INestedParentLevel1 | IFileInfo | undefined) {
-      if (!current || typeof current !== 'object') return;
+  //   function traverse(current: IComponent | INormalComponent | INestedParentLevel1 | IFileInfo | undefined) {
+  //     if (!current || typeof current !== 'object') return;
 
-      // Check if it's a component with fileId
-      if ('fileId' in current && current.fileId && current.fileId !== "none") {
-        paths.push(current.fileId);
-      }
+  //     // Check if it's a component with fileId
+  //     if ('fileId' in current && current.fileId && current.fileId !== "none") {
+  //       paths.push(current.fileId);
+  //     }
 
-      // If it's a component with options, traverse them
-      if ('options' in current && current.options) {
-        Object.values(current.options).forEach(option => {
-          traverse(option as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
-        });
-      }
-    }
+  //     // If it's a component with options, traverse them
+  //     if ('options' in current && current.options) {
+  //       Object.values(current.options).forEach(option => {
+  //         traverse(option as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
+  //       });
+  //     }
+  //   }
 
-    traverse(updatedValue as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
-    return paths;
-  }
+  //   traverse(updatedValue as IComponent | INormalComponent | INestedParentLevel1 | IFileInfo);
+  //   return paths;
+  // }
 
   // Function to rename components
   const renameComponent = async (components: IComponents, keys: string[], newKey: string): Promise<IComponents> => {
@@ -243,7 +242,9 @@ export const useUpdateForm = () => {
     return components; // Return the updated components object
   };
 
-  // Handle form submission for updating
+  // Import the new utilities at the top of your useUpdateForm file
+
+  // Replace the existing handleUpdate function with this updated version:
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUpdateLoading(true);
@@ -288,34 +289,52 @@ export const useUpdateForm = () => {
       setUndoStack([]);
       setRedoStack([]);
 
-      const renamedComponents = await renameComponent(structure.components, menuOf, newComponentName);
-      const updatedComponents = await updateValue(renamedComponents);
+
+
+      // Rename components
+      const renamedComponents = await renameComponent(updatedComponents, menuOf, newComponentName);
+      const updatedComponentsLast = await updateValue(renamedComponents);
+      // Generate new file IDs for files that are being updated
+      const fileUpdateMap = generateNewFileIds(newFiles);
+
+      // Update the component structure with new file IDs
+      const finalUpdatedComponents = updateComponentFileIds(updatedComponentsLast, fileUpdateMap);
+
       const updatedStructure: IStructure = {
         ...structure,
-        components: updatedComponents
+        components: finalUpdatedComponents
       };
 
       const formData = new FormData();
       formData.append('folder', contentFolder);
-      formData.append('filesToDelete', JSON.stringify(filesToDelete));
-      formData.append('deleteFilesOfPages', JSON.stringify(deleteFilesOfPages));
+      // formData.append('filesToDelete', JSON.stringify(filesToDelete));
+      // formData.append('deleteFilesOfPages', JSON.stringify(deleteFilesOfPages));
+      // formData.append('filesToDelete', JSON.stringify(""));
+      // formData.append('deleteFilesOfPages', JSON.stringify(""));
       formData.append('structure', JSON.stringify(updatedStructure));
+      formData.append('isUpdate', 'true'); // Indicate this is an update operation
 
-      // Add files to FormData
-      for (const [title, value] of Object.entries(newFiles)) {
-        for (const [folder, file] of Object.entries(value)) {
-          const customName = `${folder}<<&&>>${title}${(file as File).name.slice(-4)}`; // Folder path + filename
+      // Create new file structure with updated file IDs
+      const newFileStructure = createNewFileStructure(newFiles, fileUpdateMap);
+
+      // Add files to FormData with new file IDs
+      for (const [newFileId, folderFiles] of Object.entries(newFileStructure)) {
+        for (const [folder, file] of Object.entries(folderFiles)) {
+          console.log(newFileId);
+
+          const customName = `${folder}<<&&>>${newFileId}${(file as File).name.slice(-4)}`;
           formData.append('files', (file as File), customName);
         }
       }
+      // return;
+
 
       const data = await updateComponent(formData);
 
       if (data && data.success) {
-
         setStructureElements({
-          updatedComponents: updatedComponents
-        })
+          updatedComponents: finalUpdatedComponents
+        });
 
         toast.success(data.status);
         const closeButton = document.querySelector("#close");
@@ -325,16 +344,15 @@ export const useUpdateForm = () => {
         setNewFiles({});
         incrementFileVersion();
       } else {
-        toast.error(data ? data.status : "Error renaming component.");
+        toast.error(data ? data.status : "Error updating component.");
       }
     } catch (error) {
-      console.error('Failed to rename component:', error);
+      console.error('Failed to update component:', error);
       toast.error('Failed to update component');
     }
 
     setUpdateLoading(false);
   };
-
   // Handle component deletion
   const handleDelete = async () => {
     try {
@@ -346,7 +364,8 @@ export const useUpdateForm = () => {
 
       const body = {
         structure: updatedStructure,
-        filesToDelete: await extractPaths()
+        // filesToDelete: await extractPaths()
+        filesToDelete: []
       };
 
       const data = await deleteComponent(body);

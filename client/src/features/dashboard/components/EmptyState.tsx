@@ -39,7 +39,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <div className="flex-1 flex items-center justify-center min-h-[400px]">
             <Card className="max-w-md mx-auto border-none shadow-none">
                 <CardContent className="text-center py-12">
-                    <div className="mb-6">
+                    <div className="mb-6 flex justify-center">
                         {getIcon()}
                     </div>
 
@@ -51,7 +51,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
                         {description}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                         {type === 'no-results' && hasActiveFilters && onClearFilters && (
                             <Button variant="outline" onClick={onClearFilters}>
                                 <Filter className="h-4 w-4 mr-2" />
@@ -60,10 +60,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
                         )}
 
                         {actionLabel && onAction && (
-                            <Button onClick={onAction}>
+                            <span className='flex items-center text-center cursor-pointer' onClick={onAction}>
                                 <Plus className="h-4 w-4 mr-2" />
                                 {actionLabel}
-                            </Button>
+                            </span>
                         )}
                     </div>
                 </CardContent>

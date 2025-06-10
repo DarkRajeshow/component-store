@@ -62,6 +62,7 @@ export class ProjectController {
                 folder: projectFolder,
                 hierarchy: initialHierarchy,
                 selectedCategory: defaultCategoryName,
+                selectedCategoryId: defaultCategoryId,
                 selectedPage: defaultPageName,
                 type,
                 description,
@@ -176,7 +177,7 @@ export class ProjectController {
             const { id, categoryId } = req.params;
             const { structure, deleteFilesOfPages, filesToDelete } = req.body;
 
-            if (!structure || !deleteFilesOfPages || !filesToDelete) {
+            if (!structure) {
                 return sendResponse(res, false, 'Data is missing.');
             }
 
@@ -192,19 +193,26 @@ export class ProjectController {
 
             const folderPath = path.join(__dirname, 'public', 'uploads', 'projects', result.project.folder, categoryId);
 
-            const parsedDeleteFilesOfPages = JSON.parse(deleteFilesOfPages);
-            const parsedFilesToDelete = JSON.parse(filesToDelete);
 
             // Handle file deletions
-            await projectService.fileService.deleteFiles(folderPath, parsedDeleteFilesOfPages);
-            if (parsedFilesToDelete && parsedFilesToDelete.length > 0) {
-                await projectService.fileService.deleteFilesRecursively(folderPath, parsedFilesToDelete);
+            if (deleteFilesOfPages) {
+                const parsedDeleteFilesOfPages = JSON.parse(deleteFilesOfPages);
+                if (parsedDeleteFilesOfPages && parsedDeleteFilesOfPages.length > 0) {
+                    await projectService.fileService.deleteFiles(folderPath, parsedDeleteFilesOfPages);
+                }
             }
+            if (filesToDelete) {
+                const parsedFilesToDelete = JSON.parse(filesToDelete);
+                if (parsedFilesToDelete && parsedFilesToDelete.length > 0) {
+                    await projectService.fileService.deleteFilesRecursively(folderPath, parsedFilesToDelete);
+                }
+            }
+            
             return sendResponse(res, true, 'Component updated successfully');
 
         } catch (error) {
             console.error(error);
-            return sendResponse(res, false, 'Error renaming component');
+            return sendResponse(res, false, 'Error updating component');
         }
     }
 
@@ -261,10 +269,10 @@ export class ProjectController {
             // const pageIdValue = project.hierarchy.categories[categoryId].pages[pageId];
             // Get the entries in their original order
             const pageEntries = Object.entries(project.hierarchy.categories[categoryId].pages);
-            
+
             // Create new ordered pages object
             const orderedPages: { [key: string]: string } = {};
-            
+
             // Rebuild the pages object with the new name while maintaining order
             pageEntries.forEach(([key, value]) => {
                 if (value === pageId) {

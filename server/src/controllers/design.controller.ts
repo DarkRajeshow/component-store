@@ -154,8 +154,11 @@ class DesignController {
 
             const userId = await designService.verifyUser(req.cookies.jwt);
             const designId = req.params.id;
-            const { structure, deleteFilesOfPages, filesToDelete } = req.body;
+            // const { structure, deleteFilesOfPages, filesToDelete } = req.body;
+            const { structure } = req.body;
 
+            console.log(req.body);
+            
             if (!structure) {
                 return sendResponse(res, false, 'Data is missing.');
             }

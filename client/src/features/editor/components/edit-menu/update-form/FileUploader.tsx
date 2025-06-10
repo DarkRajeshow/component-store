@@ -1,7 +1,9 @@
 import { memo, DragEvent } from 'react';
 import { handleClick, handleDragOver } from '../../../../../utils/dragDrop';
-import { XIcon } from 'lucide-react';
+import { Copy, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 
 const FileUploader = memo(({
@@ -24,7 +26,7 @@ const FileUploader = memo(({
     baseContentPath?: string;
     valuePath?: string;
     removeFile: (page: string) => void;
-}) => { 
+}) => {
     return (
         <div className='py-6 bg-yellow-50 px-6 border border-zinc-300 rounded-md'>
             <h2 className='font-medium text-black capitalize pb-2'>
@@ -32,17 +34,34 @@ const FileUploader = memo(({
             </h2>
 
             {selectedFile && (
-                <div className='px-4 py-2 rounded-lg bg-blue-200 flex items-center justify-between mb-2'>
-                    <p>
-                        Selected file: <span className='font-medium text-red-800'>{selectedFile.name}</span>
-                    </p>
+                <div className="mb-4 p-3 rounded-lg bg-blue-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <p className="flex items-center gap-2 text-base">
+                            Selected file: <Badge variant="secondary" className="font-medium text-red-800 text-sm">{selectedFile.name}</Badge>
+                        </p>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            type='button'
+                            onClick={() => {
+                                navigator.clipboard.writeText(selectedFile.name);
+                                toast.success('Filename copied to clipboard');
+                            }}
+                            className="h-8 w-8 hover:text-blue-700"
+                        >
+                            <Copy className="h-5 w-5" />
+                        </Button>
+                    </div>
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => removeFile(page)}
-                        className="hover:text-red-700 h-8 w-8"
+                        type='button'
+                        onClick={() => {
+                            removeFile(page)
+                        }}
+                        className="h-8 w-8 hover:text-red-700"
                     >
-                        <XIcon className="h-5 w-5" />
+                        <X className="h-5 w-5" />
                     </Button>
                 </div>
             )}

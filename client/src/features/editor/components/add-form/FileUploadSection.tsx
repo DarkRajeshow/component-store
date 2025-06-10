@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 
 // API and Utils
 import { handleClick } from '../../../../utils/dragDrop';
+import { Copy, X } from 'lucide-react';
 
 interface CustomizationFiles {
     [key: string]: File;
@@ -65,15 +66,32 @@ const FileUploadSection: React.FC<{
             <CardContent>
                 {newCustomizationFiles?.[pages[page]] && (
                     <div className="mb-4 p-3 rounded-lg bg-blue-100 flex items-center justify-between">
-                        <p>
-                            Selected file: <Badge variant="outline" className="font-medium text-red-800">{newCustomizationFiles[pages[page]].name}</Badge>
-                        </p>
+                        <div className="flex items-center gap-2">
+                            <p className="flex items-center gap-2 text-base">
+                                Selected file: <Badge variant="secondary" className="font-medium text-red-800 text-sm">{newCustomizationFiles[pages[page]].name}</Badge>
+                            </p>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                type='button'
+                                onClick={() => {
+                                    navigator.clipboard.writeText(newCustomizationFiles[pages[page]].name);
+                                    toast.success('Filename copied to clipboard');
+                                }}
+                                className="h-8 w-8 hover:text-blue-700"
+                            >
+                                <Copy className="h-5 w-5" />
+                            </Button>
+                        </div>
                         <Button
                             variant="ghost"
                             size="icon"
+                            type='button'
                             onClick={handleRemoveFile}
                             className="h-8 w-8 hover:text-red-700"
                         >
+                            <X className="h-5 w-5" />
+                            {/* 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -83,7 +101,7 @@ const FileUploadSection: React.FC<{
                                 className="h-5 w-5"
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
+                            </svg> */}
                         </Button>
                     </div>
                 )}
