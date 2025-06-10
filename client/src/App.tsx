@@ -6,8 +6,6 @@ import SignUp from './pages/SignUpPage';
 import SignIn from './pages/SignInPage';
 import Navbar from './components/layout/Navbar';
 import { JSX, useEffect, useState } from 'react';
-import Design from './pages/Design';
-import Project from './pages/Project';
 
 function App(): JSX.Element {
   const location = useLocation();
@@ -30,8 +28,6 @@ function App(): JSX.Element {
         <Route path="/" element={<Home />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/designs/:id" element={<Design />} />
-        <Route path="/projects/:id" element={<Project />} />
       </Routes>
     </main>
   );

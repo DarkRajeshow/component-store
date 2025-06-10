@@ -8,11 +8,7 @@ import { connectDB } from "./config/db";
 import { errorHandler } from "./middleware/errorHandler.middleware";
 import V1Routes from "./routes/v1.routes";
 import userRoutes from './routes/user.routes'
-import projectRoutes from './routes/project.routes'
 import revisionRoutes from './routes/revision.routes';
-import organizationRoutes from './routes/organization.routes';
-import categoryRoutes from './routes/categories.routes';
-import designRoutes from './routes/design.routes';
 
 dotenv.config();
 const app = express();
@@ -50,10 +46,7 @@ app.get("/", (req, res) => {
 })
 
 app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/designs', designRoutes);
 app.use('/api/revisions', revisionRoutes);
-app.use('/api/organizations', organizationRoutes);
 
 // // Routes
 // app.use("/api/v1", V1Routes);
