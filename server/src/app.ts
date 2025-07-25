@@ -7,8 +7,9 @@ import { connectDB } from "./config/db";
 // import { corsOptions } from "./utils/corsOptions";
 import { errorHandler } from "./middleware/errorHandler.middleware";
 import V1Routes from "./routes/v1.routes";
-import userRoutes from './routes/user.routes'
-import revisionRoutes from './routes/revision.routes';
+// import userRoutes from './routes/user.routes'
+// import revisionRoutes from './routes/revision.routes';
+import router from "./routes";
 
 dotenv.config();
 const app = express();
@@ -45,12 +46,9 @@ app.get("/", (req, res) => {
     res.send("working")
 })
 
-app.use('/api/users', userRoutes);
-app.use('/api/revisions', revisionRoutes);
-
-// // Routes
-// app.use("/api/v1", V1Routes);
-app.use("/api", V1Routes);
+// Routes
+app.use("/api/v1", V1Routes);
+// app.use("/api", V1Routes);
 // app.use("/api/designs", DesignRoutes);
 
 // Error handler
@@ -67,7 +65,7 @@ app.get("/", (req, res) => {
 const startServer = async () => {
     try {
         await connectDB();
-        const PORT = process.env.PORT || 8080;
+        const PORT = process.env.PORT || 5000;
         app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
     } catch (error) {
         console.error("Error starting server:", error);

@@ -33,7 +33,7 @@ export const apiRequest = async <T>(
         const transformedResponse = {
             success: response.status >= 200 && response.status < 300,
             status: response.statusText,
-            ...response.data
+            ...(Array.isArray(response.data) ? { data: response.data } : response.data)
         };
 
         return transformedResponse as T;

@@ -1,164 +1,64 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import userService from '../services/user.service';
+import { User } from '../models/user.model';
 
 class UserController {
-    /**
-     * Register a new user
-     */
-    async registerUser(req: Request, res: Response, next: NextFunction) {
-        const { username, email, password } = req.body;
-
-        console.log('Registering user:', username, email, password);
-        
-
+    async getReportingTo(req: Request, res: Response) {
         try {
-            const result = await userService.registerUser(username, email, password);
-
-
-            if (result.success && result.token) {
-                // Determine if the environment is development or production
-                const isProduction = process.env.CLIENT_DOMAIN !== 'localhost';
-
-                res.cookie('jwt', result.token, {
-                    maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-                    secure: isProduction,
-                    httpOnly: true,
-                    sameSite: "strict"
-                });
+            const { designation, department } = req.query;
+            if (!designation || !department) {
+                return res.status(400).json({ message: 'Designation and department are required' });
             }
-
-            res.json({
-                success: result.success,
-                status: result.status,
-                user: result.user
-            });
+            const users = await userService.getReportingTo(designation as string, department as string);
+            res.status(200).json(users);
         } catch (error) {
-            console.error('Error in registerUser controller:', error);
-            res.json({ success: false, status: 'Internal Server Error' });
+            res.status(500).json({ message: (error as Error).message });
         }
     }
 
-    /**
-     * Login a user
-     */
-    async loginUser(req: Request, res: Response, next: NextFunction) {
-        const { username, password } = req.body;
-
+    async getAllUsers(req: Request, res: Response) {
         try {
-            const result = await userService.loginUser(username, password);
-
-            if (result.success && result.token) {
-                // Determine if the environment is development or production
-                const isProduction = process.env.CLIENT_DOMAIN !== 'localhost';
-
-                res.cookie('jwt', result.token, {
-                    maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
-                    secure: isProduction,
-                    httpOnly: true,
-                    sameSite: "strict"
-                });
-            }
-
-            res.json({
-                success: result.success,
-                status: result.status,
-                user: result.user
-            });
+            const users = await User.find();
+            res.status(200).json(users);
         } catch (error) {
-            console.error('Error in loginUser controller:', error);
-            res.json({ success: false, status: 'Internal Server Error' });
+            res.status(500).json({ message: (error as Error).message });
         }
     }
 
-    /**
-     * Logout a user
-     */
-    logoutUser(req: Request, res: Response, next: NextFunction) {
-        res.clearCookie('jwt');
-        res.json({ success: true, status: 'Logged out successfully.' });
-    }
-
-    /**
-     * Middleware to check if a user is authenticated
-     */
-    isAuthenticated(req: Request & { isAuthenticated: () => boolean }, res: Response, next: NextFunction) {
+    async getUserById(req: Request, res: Response) {
         try {
-            const jwtCookie = req.cookies.jwt;
-            if (!jwtCookie) {
-                req.isAuthenticated = () => false; // No JWT cookie present
-            } else {
-                req.isAuthenticated = () => true; // JWT cookie present and valid
+            const user = await User.findById(req.params.id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
             }
+            res.status(200).json(user);
         } catch (error) {
-            console.error('Error decoding or verifying JWT token:', error);
-            req.isAuthenticated = () => false; // Error decoding or verifying JWT token
-        }
-        next();
-    }
-
-    /**
-     * Get user ID from JWT token
-     */
-    getUserId(req: Request, res: Response) {
-        const jwtCookie = req.cookies.jwt;
-
-        if (!jwtCookie) {
-            return res.json({ success: false, status: "Login to continue." });
-        }
-
-        const result = userService.verifyToken(jwtCookie);
-
-        if (result.success && result.userId) {
-            res.json({ success: true, userId: result.userId });
-        } else {
-            res.json({ success: false, status: result.status || 'Internal Server Error' });
+            res.status(500).json({ message: (error as Error).message });
         }
     }
 
-    /**
-     * Get user data
-     */
-    async getUserData(req: Request, res: Response) {
-        const jwtCookie = req.cookies.jwt;
-
-        if (!jwtCookie) {
-            return res.json({ success: false, status: "User not logged in." });
+    async updateUser(req: Request, res: Response) {
+        try {
+            const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(500).json({ message: (error as Error).message });
         }
-
-        const tokenResult = userService.verifyToken(jwtCookie);
-
-        if (!tokenResult.success || !tokenResult.userId) {
-            return res.json({ success: false, status: 'User not logged in.' });
-        }
-
-        const result = await userService.getUserData(tokenResult.userId);
-        res.json(result);
     }
 
-    /**
-     * Update user preferences
-     */
-    async updateUserPreferences(req: Request, res: Response) {
-        const jwtCookie = req.cookies.jwt;
-        const { theme, language } = req.body;
-
-        if (!jwtCookie) {
-            return res.json({ success: false, status: "User not logged in." });
+    async deleteUser(req: Request, res: Response) {
+        try {
+            const user = await User.findByIdAndDelete(req.params.id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json({ message: 'User deleted successfully' });
+        } catch (error) {
+            res.status(500).json({ message: (error as Error).message });
         }
-
-        const tokenResult = userService.verifyToken(jwtCookie);
-
-        if (!tokenResult.success || !tokenResult.userId) {
-            return res.json({ success: false, status: 'User not logged in.' });
-        }
-
-        const result = await userService.updateUserPreferences(
-            tokenResult.userId,
-            theme,
-            language
-        );
-
-        res.json(result);
     }
 }
 

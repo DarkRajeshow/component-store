@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import filePath from '../../utils/filePath.js';
+// import filePath from '../../utils/filePath.js';
 import { designTypes } from '../../constants/index.jsx';
-import useAppStore from '../../store/useAppStore.js';
-import { createEmptyProjectAPI, getUserAPI, logoutAPI } from '../../lib/globalAPI.js';
+import { createEmptyProjectAPI } from '../../lib/globalAPI.js';
 import {
     Dialog,
     DialogContent,
@@ -33,10 +32,10 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Plus, LogOut, User } from 'lucide-react';
-import { IUser } from '@/types/user.types.js';
+import { useAuth } from '@/hooks/useAuth.js';
 
 const Navbar = () => {
-    const { user, setUser } = useAppStore();
+    const { user, isAuthenticated, logout } = useAuth();
     const [emptyProjectData, setEmptyProjectData] = useState({
         name: "",
         type: "",
@@ -45,50 +44,6 @@ const Navbar = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-
-    const fetchLoggedUser = useCallback(async () => {
-        try {
-            const response = await getUserAPI();
-            if (response.success) {
-                setUser(response.user as IUser);
-            }
-            else {
-                setUser({} as IUser);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }, [setUser]);
-
-    const logoutUser = useCallback(async () => {
-        try {
-            const data = await logoutAPI();
-            if (data.success) {
-                setUser({} as IUser);
-                toast.success("You logged out successfully.")
-            }
-            else {
-                toast.error(data.status)
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }, [setUser]);
-
-    useEffect(() => {
-        fetchLoggedUser();
-    }, [location.pathname, fetchLoggedUser]);
-
-    const isAuthenticated = user && user.username ? true : false;
-
-    // useEffect(() => {
-    //     const tempDesignInfo = designTypes[selectedDesignType]?.questions.reduce((acc, question) => {
-    //         acc[question.name] = question.options[0];
-    //         return acc;
-    //     }, {}) || {};
-
-    //     setDesignInfo(tempDesignInfo);
-    // }, [selectedDesignType]);
 
     const createEmptyProject = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -176,7 +131,7 @@ const Navbar = () => {
                     <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                         <div className="w-40">
                             <Link to={"/"} className="text-lg font-medium text-purple-700">
-                                GAD Builder
+                                Store
                             </Link>
                         </div>
 
@@ -196,11 +151,11 @@ const Navbar = () => {
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="rounded-full h-10 w-10 p-0">
-                                                <img
-                                                    src={`${filePath}/${user.dp}`}
-                                                    alt={user.username}
+                                                {/* <img
+                                                    src={`${filePath}/${user.}`}
+                                                    alt={user.name}
                                                     className="h-full w-full rounded-full"
-                                                />
+                                                /> */}
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-56">
@@ -208,10 +163,10 @@ const Navbar = () => {
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem disabled className="flex justify-between">
                                                 <User className="mr-2 h-4 w-4" />
-                                                <span>{user.username}</span>
+                                                <span>{user.name}</span>
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem onClick={logoutUser}>
+                                            <DropdownMenuItem onClick={logout}>
                                                 <LogOut className="mr-2 h-4 w-4" />
                                                 <span>Logout</span>
                                             </DropdownMenuItem>
@@ -228,10 +183,10 @@ const Navbar = () => {
                             ) : (
                                 <div className="flex gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link to="/sign-in">Login</Link>
+                                        <Link to="/login">Login</Link>
                                     </Button>
                                     <Button asChild size="sm">
-                                        <Link to="/sign-up">Register</Link>
+                                        <Link to="/register">Register</Link>
                                     </Button>
                                 </div>
                             )}

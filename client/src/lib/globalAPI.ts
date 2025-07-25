@@ -50,7 +50,7 @@ export const registerAPI = async (userCredentials: IUserRegisterRequest) => {
 };
 
 export const getUserAPI = async () => {
-    return apiRequest<IUserResponse>('get', "/api/users");
+    return apiRequest<IUserResponse>('get', "/api/users/me");
 };
 
 export const logoutAPI = async () => {

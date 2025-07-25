@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import User, { IUser } from '../models/user.model';
 import { hashPassword, comparePasswords } from '../utils/bcrypt';
+import { User } from '../models/user.model';
+import { IUser } from '../types/user.types';
+
 
 // Define interfaces for request bodies
 interface RegisterRequest {
@@ -239,6 +241,43 @@ class UserService {
             console.error('Error updating user preferences:', error);
             return { success: false, status: 'Internal Server Error' };
         }
+    }
+
+    async getReportingTo(designation: string, department: string): Promise<IUser[]> {
+        console.log(`Fetching reporting to for designation: ${designation} in department: ${department}`);
+        let reportingToDesignations: string[] = [];
+        switch (designation) {
+            case 'Senior Manager':
+                reportingToDesignations = ['Department Head'];
+                break;
+            case 'Manager':
+                reportingToDesignations = ['Senior Manager', 'Department Head'];
+                break;
+            case 'Assistant Manager':
+                reportingToDesignations = ['Manager', 'Senior Manager', 'Department Head'];
+                break;
+            case 'Employee':
+                reportingToDesignations = ['Assistant Manager', 'Manager', 'Senior Manager', 'Department Head'];
+                break;
+            default:
+                reportingToDesignations = [];
+        }
+
+        if (reportingToDesignations.length === 0 || !department) {
+            console.log('No reporting designations or department found, returning empty array.');
+            return [];
+        }
+
+        console.log(`Searching for users with designations: ${reportingToDesignations.join(', ')} in department: ${department}`);
+
+        const users = await User.find({
+            designation: { $in: reportingToDesignations },
+            department: department,
+            isApproved: true,
+        });
+
+        console.log(`Found ${users.length} approved users in department ${department}.`);
+        return users;
     }
 }
 

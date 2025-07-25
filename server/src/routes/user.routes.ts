@@ -1,21 +1,13 @@
-import express from "express";
-import userController from "../controllers/user.controller";
-import designController from "../controllers/design.controller";
+import { Router } from 'express';
+import userController from '../controllers/user.controller';
 
+const router = Router();
 
-const router = express.Router();
+router.get('/reporting-to', userController.getReportingTo);
+router.get('/', userController.getAllUsers);
+router.get('/:id', userController.getUserById);
+router.put('/:id', userController.updateUser);
+router.delete('/:id', userController.deleteUser);
 
-// User authentication routes
-router.post("/register", userController.registerUser.bind(userController));
-router.post("/login", userController.loginUser.bind(userController));
-router.post("/logout", userController.logoutUser.bind(userController));
-
-// User data routes
-router.get("/", userController.getUserData.bind(userController));
-router.get("/id", userController.getUserId.bind(userController));
-router.get("/designs", designController.getUserDesigns);
-
-// User preferences
-router.put("/preferences", userController.updateUserPreferences.bind(userController));
 
 export default router;

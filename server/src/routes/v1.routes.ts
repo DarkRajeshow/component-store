@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import userRoutes from './user.routes'
-import designRoutes from './design.routes'
+import authRoutes from './auth.routes';
+import adminRoutes from './admin.routes';
 
 const router = express.Router();
 
@@ -8,7 +9,10 @@ const router = express.Router();
 // router.get('/user', userRoutes);
 // router.get('/design', designRoutes);
 
+
 router.use('/users', userRoutes);
-router.use('/designs', designRoutes);
+router.use('/auth', authRoutes);
+router.use('/admin', adminRoutes);
+
 
 export default router;
