@@ -2,11 +2,11 @@
 import { Notification } from '../models/notification.model';
 import { User } from '../models/user.model';
 import { Admin } from '../models/admin.model';
-import { NotificationPayload, EmailNotificationPayload, SocketNotificationPayload, INotification } from '../types/notification.types';
+import { NotificationPayload, EmailNotificationPayload, SocketNotificationPayload, INotification, INotificationTypes } from '../types/notification.types';
 import { getNotificationTemplate } from '../utils/notification-templates';
 import { notificationQueue } from '../utils/queue';
 import { getSocketInstance } from '../utils/socket';
-import { Designation } from '../types/user.types';
+import { Designation, IAdmin, IUser } from '../types/user.types';
 import { EmailService } from './email.service';
 
 
@@ -15,10 +15,10 @@ export class NotificationService {
     static async createInAppNotification(payload: NotificationPayload): Promise<INotification | null> {
         try {
             const notification = new Notification(payload);
-            
+
             console.log("notification");
             console.log(notification);
-            
+
             await notification.save();
 
             // Emit real-time notification via Socket.IO
@@ -55,7 +55,7 @@ export class NotificationService {
                 recipient = await User.findById(recipientId);
             }
             console.log("[NotificationService] recipient:", recipient);
-            
+
             if (!recipient) {
                 console.error('Recipient not found:', recipientId);
                 return;
@@ -353,7 +353,7 @@ export class NotificationService {
         );
 
         const isDepartmentHead = user.designation === Designation.DEPARTMENT_HEAD;
-        
+
         if (!isDepartmentHead) {
             // Find and notify department head
             const departmentHead = await User.findOne({
@@ -361,7 +361,7 @@ export class NotificationService {
                 designation: 'Department Head',
                 isApproved: true
             });
-            
+
             if (departmentHead) {
                 await this.sendNotification(
                     'registration',
@@ -460,5 +460,95 @@ export class NotificationService {
             },
             true
         );
+    }
+
+    // Send notification when user is enabled/disabled
+    static async sendUserDisabledNotification(user: IUser, isDisabled: boolean) {
+        const template = isDisabled ? 'user_disabled' : 'user_enabled';
+
+        // Prepare email payload
+        const emailPayload: EmailNotificationPayload = {
+            to: user.email,
+            subject: `Your account has been ${isDisabled ? 'disabled' : 'enabled'}`,
+            html: `<p>Dear ${user.name},</p>
+                   <p>Your account has been ${isDisabled ? 'disabled' : 'enabled'} by the admin.</p>
+                   ${isDisabled ? '<p>If you have any questions, please contact support.</p>' : ''}
+                   <p>Regards,</p>
+                   <p>The Team</p>`,
+            priority: 'high'
+        };
+
+        // Send email
+        try {
+            await EmailService.sendEmail(emailPayload);
+            console.log(`Email sent to ${user.email} regarding account ${isDisabled ? 'disable' : 'enable'}`);
+        } catch (error) {
+            console.error('Error sending email for user disable/enable notification:', error);
+        }
+
+        // Prepare in-app notification payload
+        const inAppPayload: NotificationPayload = {
+            recipient: user._id.toString(),
+            recipientType: 'user',
+            type: template,
+            title: `Your account has been ${isDisabled ? 'disabled' : 'enabled'}`,
+            message: `Dear ${user.name}, your account has been ${isDisabled ? 'disabled' : 'enabled'} by the admin.`,
+            data: {},
+            priority: 'high',
+            actionRequired: false
+        };
+
+        // Send in-app notification
+        try {
+            await this.createInAppNotification(inAppPayload);
+            console.log(`In-app notification sent for account ${isDisabled ? 'disable' : 'enable'}`);
+        } catch (error) {
+            console.error('Error sending in-app notification for user disable/enable:', error);
+        }
+    }
+
+    // Send notification when admin is enabled/disabled
+    static async sendAdminDisabledNotification(admin: IAdmin, isDisabled: boolean) {
+        const template: INotificationTypes = isDisabled ? 'admin_disabled' : 'admin_enabled';
+
+        // Prepare email payload
+        const emailPayload: EmailNotificationPayload = {
+            to: admin.email,
+            subject: `Admin account has been ${isDisabled ? 'disabled' : 'enabled'}`,
+            html: `<p>Dear Admin,</p>
+                   <p>Your admin account has been ${isDisabled ? 'disabled' : 'enabled'}.</p>
+                   ${isDisabled ? '<p>Please contact support for more information.</p>' : ''}
+                   <p>Regards,</p>
+                   <p>The Team</p>`,
+            priority: 'high'
+        };
+
+        // Send email
+        try {
+            await EmailService.sendEmail(emailPayload);
+            console.log(`Email sent to ${admin.email} regarding admin account ${isDisabled ? 'disable' : 'enable'}`);
+        } catch (error) {
+            console.error('Error sending email for admin disable/enable notification:', error);
+        }
+
+        // Prepare in-app notification payload
+        const inAppPayload: NotificationPayload = {
+            recipient: admin._id.toString(),
+            recipientType: 'admin',
+            type: template,
+            title: `Admin account has been ${isDisabled ? 'disabled' : 'enabled'}`,
+            message: `Dear Admin, your account has been ${isDisabled ? 'disabled' : 'enabled'}.`,
+            data: {},
+            priority: 'high',
+            actionRequired: false
+        };
+
+        // Send in-app notification
+        try {
+            await this.createInAppNotification(inAppPayload);
+            console.log(`In-app notification sent for admin account ${isDisabled ? 'disable' : 'enable'}`);
+        } catch (error) {
+            console.error('Error sending in-app notification for admin disable/enable:', error);
+        }
     }
 }

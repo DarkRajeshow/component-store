@@ -2,11 +2,13 @@
 
 import mongoose from "mongoose";
 
+export type INotificationTypes = 'registration' | 'dh_approval' | 'admin_approval' | 'rejection' | 'status_update' | 'user_disabled' | 'user_enabled' | 'admin_disabled' | 'admin_enabled';
+
 export interface INotification extends Document {
     _id: mongoose.Types.ObjectId;
     recipient: mongoose.Types.ObjectId;
     recipientType: 'user' | 'admin';
-    type: 'registration' | 'dh_approval' | 'admin_approval' | 'rejection' | 'status_update';
+    type: INotificationTypes;
     title: string;
     message: string;
     data?: any; // Additional data for the notification
@@ -23,7 +25,7 @@ export interface INotification extends Document {
 export interface NotificationPayload {
     recipient: string;
     recipientType: 'user' | 'admin';
-    type: 'registration' | 'dh_approval' | 'admin_approval' | 'rejection' | 'status_update';
+    type: INotificationTypes;
     title: string;
     message: string;
     data?: any;

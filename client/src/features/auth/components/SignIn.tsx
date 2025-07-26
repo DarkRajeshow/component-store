@@ -13,7 +13,7 @@ const SignIn = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        role: 'designer', // Default role
+        role: 'other', // Default role
         secretKey: '',
     });
     const [showPassword, setShowPassword] = useState(false);

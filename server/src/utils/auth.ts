@@ -19,7 +19,7 @@ export interface JWTPayload {
 
 export interface AuthRequest extends Request {
     user?: IUser | IAdmin;
-    userId: string;
+    userId?: string;
     userType?: 'user' | 'admin';
 }
 
@@ -117,6 +117,7 @@ export const authenticateToken = async (
         // Store user info in request
         req.user = user;
         req.userType = decoded.userType;
+        req.userId = decoded.id; // Set userId for controllers that need it
 
         next();
     } catch (error) {
@@ -149,7 +150,7 @@ export const authorize = (...roles: string[]) => {
         if (!req.user) {
             return res.status(401).json({
                 success: false,
-                message: 'Authentica76tion required'
+                message: 'Authentication required'
             });
         }
 

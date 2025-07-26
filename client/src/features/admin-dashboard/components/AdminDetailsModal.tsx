@@ -15,9 +15,10 @@ interface AdminDetailsModalProps {
   handleAdminApproval: (adminId: string, action: "approve" | "reject", remarks?: string) => void;
   approvalRemarks: string;
   setApprovalRemarks: (remarks: string) => void;
+  onToggleAdminDisabled: (adminId: string, isApproved: boolean) => void;
 }
 
-const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({ admin, open, onOpenChange, handleAdminApproval, approvalRemarks, setApprovalRemarks }) => {
+const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({ admin, open, onOpenChange, handleAdminApproval, approvalRemarks, setApprovalRemarks, onToggleAdminDisabled }) => {
   const isActionDisabled = admin.isApproved === true || admin.isApproved === false;
   const statusBadge = admin.isApproved === true
     ? <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>
@@ -93,6 +94,23 @@ const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({ admin, open, onOp
               </div>
             </CardContent>
           </Card>
+
+          {/* Toggle Disabled */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Toggle Disabled</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4 mb-4">
+                <Label className="text-lg font-semibold text-gray-500">Account Status</Label>
+                <Badge className={`${admin.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{admin.isDisabled ? 'Disabled' : 'Enabled'}</Badge>
+              </div>
+              <Button onClick={() => onToggleAdminDisabled(admin._id, !admin.isDisabled)}>
+                {admin.isDisabled ? 'Enable' : 'Disable'}
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Approval Actions */}
           <Card>
             <CardHeader>

@@ -17,6 +17,7 @@ interface UserDetailsModalProps {
   setApprovalRemarks: (val: string) => void;
   handleAdminFinalApproval: (userId: string, action: "approve" | "reject", remarks?: string) => void;
   getStatusBadge: (status: string) => React.ReactNode;
+  onToggleUserDisabled: (userId: string, isApproved: boolean) => void;
 }
 
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
@@ -26,7 +27,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   approvalRemarks,
   setApprovalRemarks,
   handleAdminFinalApproval,
-  getStatusBadge
+  getStatusBadge,
+  onToggleUserDisabled
 }) => {
   console.log('UserDetailsModal rendered', { open, user });
   return (
@@ -128,6 +130,25 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </div>
             </CardContent>
           </Card>
+
+
+          {/* Toggle Disabled */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Toggle Disabled</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4 mb-4">
+                <Label className="text-lg font-semibold text-gray-500">Account Status</Label>
+                <Badge className={`${user.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{user.isDisabled ? 'Disabled' : 'Enabled'}</Badge>
+              </div>
+              <Button onClick={() => onToggleUserDisabled(user._id, !user.isDisabled)}>
+                {user.isDisabled ? 'Enable' : 'Disable'}
+              </Button>
+            </CardContent>
+          </Card>
+
+
           {/* Approval Status */}
           <Card>
             <CardHeader>

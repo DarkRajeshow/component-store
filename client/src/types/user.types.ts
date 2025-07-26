@@ -55,6 +55,7 @@ export interface IUser {
     role: Role;
     preferences?: Record<string, string | number>; //temp key value types may change in future
     approvedBy?: string;
+    isDisabled: boolean,
     dhApprovalStatus: ApprovalStatus;
     adminApprovalStatus: ApprovalStatus;
     statusLogs: IStatusLog[];
@@ -72,6 +73,7 @@ export interface IAdmin {
     isApproved: boolean;
     role: 'admin';
     isSystemAdmin: boolean;
+    isDisabled: boolean,
     createdAt: Date;
     updatedAt: Date;
 }

@@ -32,6 +32,11 @@ const AdminSchema = new Schema<IAdmin>({
         type: Boolean,
         default: false,
     },
+    isDisabled: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
     approvedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin',

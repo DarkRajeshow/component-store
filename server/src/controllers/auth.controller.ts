@@ -170,10 +170,11 @@ export const loginUser = async (req: Request, res: Response) => {
         }
 
         // Restrict login based on isApproved (for users) and isSystemAdmin (for admins)
-        if ((userType === 'user' && !(user as IUser).isApproved) || (userType === 'admin' && !(user as IAdmin).isSystemAdmin)) {
+        if ((userType === 'user' && (!(user as IUser).isApproved || (user as IUser).isDisabled)) ||
+            (userType === 'admin' && (!(user as IAdmin).isSystemAdmin || (user as IAdmin).isDisabled))) {
             return res.status(403).json({
                 success: false,
-                message: 'Your account is not approved for login. Please contact the administrator.'
+                message: 'Your account is not approved or is disabled. Please contact the administrator.'
             });
         }
 

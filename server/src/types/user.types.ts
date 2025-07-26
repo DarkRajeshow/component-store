@@ -61,10 +61,10 @@ export interface IUser extends Document {
     statusLogs: IStatusLog[];
     createdAt: Date;
     updatedAt: Date;
-
-    // Virtual fields
-    reportingManager?: IUser;
+    isDisabled: boolean,
     approver?: IUser;
+    reportingManager?: IUser;
+    // Virtual fields
 }
 
 
@@ -78,6 +78,7 @@ export interface IAdmin extends Document {
     statusLogs: IStatusLog[],
     role: 'admin';
     isSystemAdmin: boolean;
+    isDisabled: boolean,
     createdAt: Date;
     updatedAt: Date;
 }

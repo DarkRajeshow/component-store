@@ -93,7 +93,12 @@ const UserSchema = new Schema<IUser>({
         enum: Object.values(ApprovalStatus),
         default: ApprovalStatus.PENDING
     },
-    statusLogs: [StatusLogSchema]
+    statusLogs: [StatusLogSchema],
+    isDisabled: {
+        type: Boolean,
+        default: false,
+        required: true
+    }
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
