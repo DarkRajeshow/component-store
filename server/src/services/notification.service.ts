@@ -24,10 +24,34 @@ export class NotificationService {
             // Emit real-time notification via Socket.IO
             const io = getSocketInstance();
             if (io) {
+                // Emit general notification
                 io.to(`user_${payload.recipient}`).emit('new-notification', {
                     notification: notification.toObject(),
                     unreadCount: await this.getUnreadCount(payload.recipient)
                 });
+
+                // Emit component-specific events
+                if (payload.type === 'component_created') {
+                    io.to(`user_${payload.recipient}`).emit('component-created', {
+                        notification: notification.toObject(),
+                        unreadCount: await this.getUnreadCount(payload.recipient)
+                    });
+                } else if (payload.type === 'revision_uploaded') {
+                    io.to(`user_${payload.recipient}`).emit('revision-uploaded', {
+                        notification: notification.toObject(),
+                        unreadCount: await this.getUnreadCount(payload.recipient)
+                    });
+                } else if (payload.type === 'component_updated') {
+                    io.to(`user_${payload.recipient}`).emit('component-updated', {
+                        notification: notification.toObject(),
+                        unreadCount: await this.getUnreadCount(payload.recipient)
+                    });
+                } else if (payload.type === 'component_deleted') {
+                    io.to(`user_${payload.recipient}`).emit('component-deleted', {
+                        notification: notification.toObject(),
+                        unreadCount: await this.getUnreadCount(payload.recipient)
+                    });
+                }
             }
 
             return notification;

@@ -16,7 +16,7 @@ const notificationSchema = new Schema<INotification>({
     type: {
         type: String,
         required: true,
-        enum: ['registration', 'dh_approval', 'admin_approval', 'rejection', 'status_update',  'user_disabled', 'user_enabled', 'admin_disabled', 'admin_enabled']
+        enum: ['registration', 'dh_approval', 'admin_approval', 'rejection', 'status_update', 'user_disabled', 'user_enabled', 'admin_disabled', 'admin_enabled', 'component_created', 'component_updated', 'component_deleted', 'revision_uploaded']
     },
     title: {
         type: String,

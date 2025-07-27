@@ -25,6 +25,31 @@ class UserController {
         }
     }
 
+    async searchUsers(req: Request, res: Response) {
+        try {
+            const { search, limit = 10 } = req.query;
+            
+            let query = {};
+            if (search && typeof search === 'string') {
+                query = {
+                    $or: [
+                        { name: { $regex: search, $options: 'i' } },
+                        { email: { $regex: search, $options: 'i' } }
+                    ]
+                };
+            }
+
+            const users = await User.find(query)
+                .select('_id name email')
+                .limit(Number(limit))
+                .sort({ name: 1 });
+
+            res.status(200).json({ users });
+        } catch (error) {
+            res.status(500).json({ message: (error as Error).message });
+        }
+    }
+
     async getUserById(req: Request, res: Response) {
         try {
             const user = await User.findById(req.params.id);

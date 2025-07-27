@@ -33,6 +33,9 @@ import {
 } from '@/components/ui/select';
 import { Plus, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth.js';
+import { NotificationBell } from '@/features/notification/components/NotificationBell';
+import { NotificationList } from '@/features/notification/components/NotificationList';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuth();
@@ -41,6 +44,7 @@ const Navbar = () => {
         type: "",
         description: ""
     });
+    const [notificationOpen, setNotificationOpen] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -148,6 +152,16 @@ const Navbar = () => {
                         <div className="flex items-center space-x-3">
                             {isAuthenticated && user ? (
                                 <>
+                                    <Popover open={notificationOpen} onOpenChange={setNotificationOpen}>
+                                        <PopoverTrigger asChild>
+                                            <div>
+                                                <NotificationBell onClick={() => setNotificationOpen((v) => !v)} />
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent align="end" className="p-0 w-80">
+                                            <NotificationList />
+                                        </PopoverContent>
+                                    </Popover>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="rounded-full h-10 w-10 p-0">

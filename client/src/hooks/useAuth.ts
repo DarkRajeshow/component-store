@@ -1,6 +1,6 @@
 
 // src/hooks/useAuth.ts
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { authService, RegisterData } from '@/services/authService';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
@@ -20,8 +20,12 @@ export const useAuth = () => {
         logout: logoutStore
     } = useAuthStore();
 
+    const initialized = useRef(false);
+
     // Initialize auth state
     useEffect(() => {
+        if (initialized.current) return;
+        initialized.current = true;
         const initializeAuth = async () => {
             const token = localStorage.getItem('accessToken');
             if (!token) {
@@ -51,7 +55,7 @@ export const useAuth = () => {
         };
 
         initializeAuth();
-    }, [logoutStore, setApprovalStatus, setAuthenticated, setLoading, setUser, setUserType]);
+    }, []); // Only run once on mount
 
     const login = async (credentials: { email: string; password: string }) => {
         try {

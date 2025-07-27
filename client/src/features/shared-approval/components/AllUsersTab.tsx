@@ -48,13 +48,13 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
   onResetFilters,
   onViewDetails,
   onToggleUserDisabled,
-  onToggleAdminDisabled,
-  onUserApproval,
-  onAdminApproval,
+  // onToggleAdminDisabled,
+  // onUserApproval,
+  // onAdminApproval,
   onDeleteUser,
-  role
+  // role
 }) => {
-  const isAdmin = role === 'admin';
+  // const isAdmin = role === 'admin';
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
@@ -133,7 +133,7 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2 items-center justify-center">
+                    <div className="flex gap-2 items-center">
                       <Button
                         variant="outline"
                         size="sm"

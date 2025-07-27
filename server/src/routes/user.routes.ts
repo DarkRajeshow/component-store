@@ -5,6 +5,7 @@ import { authenticateToken, authorize } from '../utils/auth';
 const router = Router();
 
 router.get('/reporting-to', userController.getReportingTo);
+router.get('/search', userController.searchUsers);
 router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
 router.put('/:id', userController.updateUser);

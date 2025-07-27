@@ -2,7 +2,20 @@
 
 import mongoose from "mongoose";
 
-export type INotificationTypes = 'registration' | 'dh_approval' | 'admin_approval' | 'rejection' | 'status_update' | 'user_disabled' | 'user_enabled' | 'admin_disabled' | 'admin_enabled';
+export type INotificationTypes =
+  | 'registration'
+  | 'dh_approval'
+  | 'admin_approval'
+  | 'rejection'
+  | 'status_update'
+  | 'user_disabled'
+  | 'user_enabled'
+  | 'admin_disabled'
+  | 'admin_enabled'
+  | 'component_created'
+  | 'revision_uploaded'
+  | 'component_updated'
+  | 'component_deleted';
 
 export interface INotification extends Document {
     _id: mongoose.Types.ObjectId;

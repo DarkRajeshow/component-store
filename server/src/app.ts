@@ -9,7 +9,9 @@ import { errorHandler } from "./middleware/errorHandler.middleware";
 import V1Routes from "./routes/v1.routes";
 // import userRoutes from './routes/user.routes'
 // import revisionRoutes from './routes/revision.routes';
-import router from "./routes";
+// import router from "./routes";
+import http from 'http';
+import { initializeSocket } from './utils/socket';
 
 dotenv.config();
 const app = express();
@@ -38,7 +40,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static(path.join(server_dirname, "public")));
-app.use("/api/uploads", express.static("public/uploads"));
+app.use("/api/v1/uploads", express.static("public/design-files"));
 
 
 
@@ -66,7 +68,9 @@ const startServer = async () => {
     try {
         await connectDB();
         const PORT = process.env.PORT || 5000;
-        app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+        const httpServer = http.createServer(app);
+        initializeSocket(httpServer);
+        httpServer.listen(PORT, () => console.log(`Server started on port ${PORT}`));
     } catch (error) {
         console.error("Error starting server:", error);
         process.exit(1); // Exit process with failure

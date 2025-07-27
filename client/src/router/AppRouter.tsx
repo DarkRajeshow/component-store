@@ -10,6 +10,8 @@ import UnauthorizedPage from '@/pages/special/UnauthorizedPage';
 import { useAuth } from '@/hooks';
 import AdminSetupPage from '@/pages/AdminSetupPage';
 import DhDashboard from '@/features/dh-dashboard/components/DhDashboard';
+import TestPage from '@/pages/TestPage';
+import { ComponentListPage, ComponentDetailsPage } from '@/features/component-model/pages';
 
 const AppRouter = () => {
   const { isAuthenticated } = useAuth();
@@ -47,8 +49,30 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/test"
+          element={
+            <TestPage />
+          }
+        />
+        <Route
+          path="/components"
+          element={
+            <ProtectedRoute requiredRoles={[Role.ADMIN]}>
+              <ComponentListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/components/:id"
+          element={
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER]}>
+              <ComponentDetailsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/sign-in"} />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
 
