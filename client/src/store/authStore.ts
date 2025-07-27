@@ -1,6 +1,7 @@
 // src/stores/authStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { FinalApprovalStatus } from '@/types/user.types';
 
 export interface User {
     _id: string;
@@ -11,7 +12,7 @@ export interface User {
     department?: string;
     designation?: string;
     role: 'admin' | 'designer' | 'other';
-    isApproved?: boolean;
+    isApproved?: FinalApprovalStatus;
     reportingManager?: {
         name: string;
         designation: string;
@@ -38,7 +39,7 @@ export interface StatusLog {
 export interface ApprovalStatus {
     dhApproval: 'pending' | 'approved' | 'rejected';
     adminApproval: 'pending' | 'approved' | 'rejected';
-    isApproved: boolean;
+    isApproved: FinalApprovalStatus;
     progressPercentage: number;
     currentStage: 'department_head' | 'admin' | 'completed' | 'rejected';
 }

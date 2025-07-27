@@ -5,13 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Shield, Eye, User, Mail, Users } from 'lucide-react';
-import { IAdmin } from '@/types/user.types';
+import { IAdmin, FinalApprovalStatus } from '@/types/user.types';
 
 interface SystemAdminsTabProps {
   admins: IAdmin[];
   onViewDetails: (admin: IAdmin) => void;
   onAdminApproval: (adminId: string, action: "approve" | "reject") => void;
-  onToggleAdminDisabled: (adinId: string, isDisabled: boolean) => void;
+  onToggleAdminDisabled: (adinId: string) => void;
 }
 
 export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
@@ -35,7 +35,8 @@ export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
               <TableRow className='bg-zinc-50'>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>System Admin Status</TableHead>
+                <TableHead>System Admin Type</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Toggle User</TableHead>
               </TableRow>
             </TableHeader>
@@ -71,6 +72,24 @@ export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
                     </div>
                   </TableCell>
                   <TableCell>
+                    <Badge
+                      className={
+                        admin.isApproved === FinalApprovalStatus.PENDING
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                          : admin.isApproved === FinalApprovalStatus.APPROVED
+                          ? "bg-green-100 text-green-800 border-green-300"
+                          : "bg-red-100 text-red-800 border-red-300"
+                      }
+                      variant="outline"
+                    >
+                      {admin.isApproved === FinalApprovalStatus.PENDING
+                        ? 'Pending'
+                        : admin.isApproved === FinalApprovalStatus.APPROVED
+                        ? 'Approved'
+                        : 'Rejected'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <div className='flex items-center gap-4 justify-center'>
                       <Button onClick={() => onViewDetails(admin)} variant="outline" size="sm">
                         <Eye className="w-4 h-4 mr-1" />
@@ -79,7 +98,7 @@ export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
 
                       <Switch
                         checked={!admin.isDisabled}
-                        onCheckedChange={() => onToggleAdminDisabled(admin._id, !admin.isDisabled)}
+                        onCheckedChange={() => onToggleAdminDisabled(admin._id)}
                       />
                     </div>
                   </TableCell>

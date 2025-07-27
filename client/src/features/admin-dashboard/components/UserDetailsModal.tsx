@@ -7,17 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, Mail, Phone, Building, Shield, Clock, Check, X } from 'lucide-react';
-import { ApprovalStatus, IUser } from '@/types/user.types';
+import { ApprovalStatus, IUser, FinalApprovalStatus } from '@/types/user.types';
 
 interface UserDetailsModalProps {
   user: IUser;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onToggleUserDisabled: (userId: string) => void;
   approvalRemarks: string;
-  setApprovalRemarks: (val: string) => void;
+  setApprovalRemarks: (remarks: string) => void;
   handleAdminFinalApproval: (userId: string, action: "approve" | "reject", remarks?: string) => void;
   getStatusBadge: (status: string) => React.ReactNode;
-  onToggleUserDisabled: (userId: string, isApproved: boolean) => void;
 }
 
 const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
@@ -142,9 +142,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 <Label className="text-lg font-semibold text-gray-500">Account Status</Label>
                 <Badge className={`${user.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{user.isDisabled ? 'Disabled' : 'Enabled'}</Badge>
               </div>
-              <Button onClick={() => onToggleUserDisabled(user._id, !user.isDisabled)}>
-                {user.isDisabled ? 'Enable' : 'Disable'}
-              </Button>
+                              <Button onClick={() => onToggleUserDisabled(user._id)}>
+                  {user.isDisabled ? 'Enable' : 'Disable'}
+                </Button>
             </CardContent>
           </Card>
 
@@ -169,9 +169,10 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <div>
                 <Label className="text-sm font-medium text-gray-500">Overall Status</Label>
                 <div className="mt-1">
-                  {user.isApproved ?
-                    <Badge className="bg-green-100 text-green-800">Approved</Badge> :
-                    <Badge className="bg-red-100 text-red-800">Not Approved</Badge>
+                  {user.isApproved === FinalApprovalStatus.PENDING ?
+                    <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge> :
+                    user.isApproved === FinalApprovalStatus.APPROVED ? <Badge className="bg-green-100 text-green-800">Approved</Badge> :
+                      <Badge className="bg-red-100 text-red-800">Not Approved</Badge>
                   }
                 </div>
               </div>

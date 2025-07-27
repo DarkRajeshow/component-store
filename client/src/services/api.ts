@@ -28,11 +28,11 @@ api.interceptors.response.use(
   (error) => {
     if (
       error.response?.status === 401 &&
-      !error.config?.url?.includes('/login') &&
+      !error.config?.url?.includes('/sign-in') &&
       localStorage.getItem('accessToken')
     ) {
       localStorage.removeItem('accessToken');
-      window.location.href = '/login';
+      window.location.href = '/sign-in';
     }
     return Promise.reject(error);
   }

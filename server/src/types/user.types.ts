@@ -35,6 +35,12 @@ export enum ApprovalStatus {
     NOT_REQUIRED = 'not_required'
 }
 
+export enum FinalApprovalStatus {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
+}
+
 export interface IStatusLog {
     status: string;
     timestamp: Date;
@@ -48,7 +54,7 @@ export interface IUser extends Document {
     email: string;
     mobileNo: string;
     password: string;
-    isApproved: boolean;
+    isApproved: FinalApprovalStatus;
     employeeId: string;
     department: Department;
     designation: Designation;
@@ -73,7 +79,7 @@ export interface IAdmin extends Document {
     name: string;
     email: string;
     password: string;
-    isApproved: boolean;
+    isApproved: FinalApprovalStatus;
     approvedBy: mongoose.Types.ObjectId | string | IAdmin,
     statusLogs: IStatusLog[],
     role: 'admin';

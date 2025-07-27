@@ -29,7 +29,7 @@ const AdminSetup = () => {
         try {
             await authService.createInitialAdmin(formData);
             toast.success('Administrator account created successfully!');
-            navigate('/login');
+            navigate('/sign-in');
         } catch (error: any) {
             const message = error.response?.data?.message || 'Failed to create admin account.';
             toast.error(message);

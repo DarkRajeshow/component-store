@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Eye, Trash, Trash2 } from 'lucide-react';
+import { Users, Eye, Trash2 } from 'lucide-react';
 import { FilterBar } from './FilterBar';
 import {
   AlertDialog,
@@ -18,6 +18,8 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
+import { IUser } from '@/types/user.types';
+import { FinalApprovalStatus } from '@/types/user.types';
 
 interface Filters {
   search: string;
@@ -32,7 +34,7 @@ interface Filters {
 }
 
 interface AllUsersTabProps {
-  filteredUsers: any[];
+  filteredUsers: IUser[];
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   departments: string[];
@@ -40,11 +42,11 @@ interface AllUsersTabProps {
   roles: string[];
   approvalStatuses: string[];
   onResetFilters: () => void;
-  onViewDetails: (user: any) => void;
-  onUserApproval: (userId: string, isApproved: boolean) => void;
+  onViewDetails: (user: IUser) => void;
+  onUserApproval: (userId: string, isApproved: FinalApprovalStatus) => void;
   onAdminApproval: (adminId: string, action: "approve" | "reject") => void;
-  onToggleUserDisabled: (userId: string, isApproved: boolean) => void;
-  onToggleAdminDisabled: (adminId: string, isApproved: boolean) => void;
+  onToggleUserDisabled: (userId: string, isApproved: FinalApprovalStatus) => void;
+  onToggleAdminDisabled: (adminId: string, isApproved: FinalApprovalStatus) => void;
   onDeleteUser: (userId: string) => void;
 }
 
@@ -97,6 +99,7 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
                 <TableHead>Department</TableHead>
                 <TableHead>Designation</TableHead>
                 <TableHead>Registration Date</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Toggle User</TableHead>
               </TableRow>
             </TableHeader>
@@ -120,6 +123,24 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
                     {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
                   </TableCell>
                   <TableCell>
+                    <Badge
+                      className={
+                        user.isApproved === FinalApprovalStatus.PENDING
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                          : user.isApproved === FinalApprovalStatus.APPROVED
+                            ? "bg-green-100 text-green-800 border-green-300"
+                            : "bg-red-100 text-red-800 border-red-300"
+                      }
+                      variant="outline"
+                    >
+                      {user.isApproved === FinalApprovalStatus.PENDING
+                        ? 'Pending'
+                        : user.isApproved === FinalApprovalStatus.APPROVED
+                          ? 'Approved'
+                          : 'Rejected'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <div className="flex gap-2 items-center justify-center">
                       <Button
                         variant="outline"
@@ -133,7 +154,7 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
                       {user.role === 'admin' && (
                         <Switch
                           checked={!user.isDisabled}
-                          onCheckedChange={() => onToggleAdminDisabled(user._id, !user.isDisabled)}
+                          onCheckedChange={() => onToggleAdminDisabled(user._id, user.isApproved)}
                         />
                       )}
 
@@ -142,7 +163,7 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
                         <>
                           <Switch
                             checked={!user.isDisabled}
-                            onCheckedChange={() => onToggleUserDisabled(user._id, !user.isDisabled)}
+                            onCheckedChange={() => onToggleUserDisabled(user._id, user.isApproved)}
                           />
                           <AlertDialog open={deleteDialogOpen && userToDelete === user._id} onOpenChange={open => { setDeleteDialogOpen(open); if (!open) setUserToDelete(null); }}>
                             <AlertDialogTrigger asChild>

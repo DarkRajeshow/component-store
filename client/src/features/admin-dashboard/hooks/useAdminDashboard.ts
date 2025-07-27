@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'sonner';
-import { ApprovalStatus, IAdmin, IUser } from '@/types/user.types';
+import { ApprovalStatus, Department, Designation, IAdmin, IUser, Role, FinalApprovalStatus } from '@/types/user.types';
 import { adminService } from '../services/adminService'
 import getErrorMessage from '@/utils/getErrorMessage';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,9 +67,9 @@ export const useAdminDashboard = () => {
         }
     };
 
-    const HandleToggleUserDisabled = async (userId: string, isDisabled: boolean) => {
+    const HandleToggleUserDisabled = async (userId: string) => {
         try {
-            const response = await adminService.toggleUserDisabled(userId, isDisabled);
+            const response = await adminService.toggleUserDisabled(userId);
             if (response.success) {
                 setUsers(users => users.map(u => u._id === userId ? { ...u, isDisabled: response.isDisabled } : u));
                 // Update selectedUser if it's the same user
@@ -85,9 +85,9 @@ export const useAdminDashboard = () => {
         }
     };
 
-    const HandleToggleAdminDisabled = async (adminId: string, isDisabled: boolean) => {
+    const HandleToggleAdminDisabled = async (adminId: string) => {
         try {
-            const response = await adminService.toggleAdminDisabled(adminId, isDisabled);
+            const response = await adminService.toggleAdminDisabled(adminId);
             if (response.success) {
                 setAdmins(admins => admins.map(a => a._id === adminId ? { ...a, isDisabled: response.isDisabled } : a));
                 // Update selectedAdmin if it's the same admin
@@ -111,15 +111,15 @@ export const useAdminDashboard = () => {
                     ? {
                         ...u,
                         adminApprovalStatus: action === "approve" ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED,
-                        isApproved: action === "approve"
+                        isApproved: action === "approve" ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.REJECTED
                     }
                     : u
             ));
             setApprovalRemarks('');
             setSelectedUser(null);
             toast.success(response.message);
-        } catch (err: any) {
-            let errorMsg = getErrorMessage(err);
+        } catch (err: unknown) {
+            const errorMsg = getErrorMessage(err);
             setError(errorMsg);
             toast.error(errorMsg);
             console.error(err);
@@ -129,11 +129,11 @@ export const useAdminDashboard = () => {
     const handleAdminApproval = async (adminId: string, action: "approve" | "reject", remarks?: string) => {
         try {
             const response = await adminService.adminApprovalForAdmin(adminId, action, remarks);
-            setAdmins(admins => admins.map(a => a._id === adminId ? { ...a, isApproved: action === "approve" } : a));
+            setAdmins(admins => admins.map(a => a._id === adminId ? { ...a, isApproved: action === "approve" ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.REJECTED } : a));
             setSelectedAdmin(null);
             toast.success(response.message);
-        } catch (err: any) {
-            let errorMsg = getErrorMessage(err);
+        } catch (err: unknown) {
+            const errorMsg = getErrorMessage(err);
             setError(errorMsg);
             toast.error(errorMsg);
             console.error(err);
@@ -142,24 +142,29 @@ export const useAdminDashboard = () => {
 
     const filteredUsers = useMemo(() => {
         // Combine users and admins for display in All Users tab
-        const allUsers = [
-            ...users,
+        const allUsers: IUser[] = [
+            ...users.map(user => ({
+                ...user,
+                isApproved: user.isApproved,
+            } as IUser)),
             ...admins.map(admin => ({
                 _id: admin._id,
                 name: admin.name,
                 email: admin.email,
                 employeeId: '-',
                 mobileNo: '-',
-                department: '-',
-                designation: '-',
-                role: admin.role,
-                dhApprovalStatus: '-',
-                adminApprovalStatus: '-',
-                isApproved: '-',
+                department: Department.OTHER,
+                designation: Designation.DEPARTMENT_HEAD,
+                role: Role.ADMIN,
+                dhApprovalStatus: ApprovalStatus.NOT_REQUIRED,
+                adminApprovalStatus: ApprovalStatus.NOT_REQUIRED,
+                isApproved: admin.isApproved,
                 createdAt: admin.createdAt,
-                isSystemUser: true,
+                updatedAt: admin.updatedAt,
+                isSystemAdmin: admin.isSystemAdmin,
                 isDisabled: admin.isDisabled,
-            }))
+                statusLogs: [],
+            } as IUser))
         ].filter(user => !currentUser || user._id !== currentUser._id);
         return allUsers.filter(user => {
             const matchesSearch = !filters.search ||
@@ -175,8 +180,8 @@ export const useAdminDashboard = () => {
             const matchesAdminApproval = !filters.adminApprovalStatus || user.adminApprovalStatus === filters.adminApprovalStatus;
 
             const matchesApprovalStatus = !filters.approvalStatus ||
-                (filters.approvalStatus === 'approved' && user.isApproved) ||
-                (filters.approvalStatus === 'pending' && !user.isApproved) ||
+                (filters.approvalStatus === 'approved' && user.isApproved === FinalApprovalStatus.APPROVED) ||
+                (filters.approvalStatus === 'pending' && user.isApproved === FinalApprovalStatus.PENDING) ||
                 (filters.approvalStatus === 'rejected' && user.adminApprovalStatus === 'rejected');
 
             const matchesDateRange = !filters.dateRange || (() => {
@@ -213,7 +218,7 @@ export const useAdminDashboard = () => {
             u.dhApprovalStatus?.toLowerCase() === "approved" &&
             u.adminApprovalStatus?.toLowerCase() === "pending"
         ),
-        ...admins.filter(a => a.isApproved === null)
+        ...admins.filter(a => a.isApproved === FinalApprovalStatus.PENDING)
     ];
 
     // Debug: log pendingUsers after calculation
@@ -238,12 +243,13 @@ export const useAdminDashboard = () => {
             const response = await deleteUserAPI(userId);
             if (response.success) {
                 setUsers(users => users.filter(u => u._id !== userId));
-                toast.success('User deleted successfully');
+                toast.success(response.message);
             } else {
                 toast.error(response.message || 'Failed to delete user');
             }
-        } catch (err) {
-            toast.error('Failed to delete user');
+        } catch (err: unknown) {
+            const error = getErrorMessage(err);
+            toast.error(error || 'Failed to delete user');
         }
     };
 

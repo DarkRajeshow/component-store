@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { IAdmin, IUser } from '@/types/user.types';
+import { IAdmin, IUser, FinalApprovalStatus } from '@/types/user.types';
 
 export const adminService = {
   // Get all users
@@ -14,15 +14,15 @@ export const adminService = {
     return response.data;
   },
 
-  // Approve user (admin)
-  toggleUserDisabled: async (userId: string, isApproved: boolean) => {
-    const response = await api.post(`/admin/toggle-user-disabled/${userId}`, { isApproved });
+  // Toggle user disabled status
+  toggleUserDisabled: async (userId: string) => {
+    const response = await api.post(`/admin/toggle-user-disabled/${userId}`);
     return response.data;
   },
 
   // Approve admin as system admin
-  toggleAdminDisabled: async (adminId: string, isSystemAdmin: boolean) => {
-    const response = await api.post(`/admin/toggle-admin-disabled/${adminId}`, { isSystemAdmin });
+  toggleAdminDisabled: async (adminId: string) => {
+    const response = await api.post(`/admin/toggle-admin-disabled/${adminId}`);
     return response.data;
   },
 

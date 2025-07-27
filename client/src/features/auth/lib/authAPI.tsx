@@ -2,9 +2,9 @@ import { IUserLoginRequest, IUserLoginResponse, IUserRegisterRequest, IUserRegis
 import { apiRequest } from "../../../lib/apiClient";
 
 export const loginAPI = async (userCredentials: IUserLoginRequest) => {
-    return apiRequest<IUserLoginResponse>('post', "/api/users/login", userCredentials);
+    return apiRequest<IUserLoginResponse>('post', "/api/users/sign-in", userCredentials);
 };
 
 export const registerAPI = async (userCredentials: IUserRegisterRequest) => {
-    return apiRequest<IUserRegisterResponse>('post', "/api/users/register", userCredentials);
+    return apiRequest<IUserRegisterResponse>('post', "/api/users/sign-up", userCredentials);
 };

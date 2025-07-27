@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { IUser, IAdmin } from '@/types/user.types';
+import { IUser, IAdmin, FinalApprovalStatus } from '@/types/user.types';
 
 interface QuickActionsFooterProps {
   users: IUser[];
@@ -26,7 +26,7 @@ export const QuickActionsFooter: React.FC<QuickActionsFooterProps> = ({
               Pending: {pendingUsersCount}
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
-              Approved: {users.filter(u => u.isApproved).length}
+              Approved: {users.filter(u => u.isApproved === FinalApprovalStatus.APPROVED).length}
             </Badge>
           </div>
           <div className="flex gap-2">

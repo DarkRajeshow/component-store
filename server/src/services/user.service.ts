@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { hashPassword, comparePasswords } from '../utils/bcrypt';
 import { User } from '../models/user.model';
-import { IUser } from '../types/user.types';
+import { FinalApprovalStatus, IUser } from '../types/user.types';
 
 
 // Define interfaces for request bodies
@@ -273,7 +273,7 @@ class UserService {
         const users = await User.find({
             designation: { $in: reportingToDesignations },
             department: department,
-            isApproved: true,
+            isApproved: FinalApprovalStatus.APPROVED,
         });
 
         console.log(`Found ${users.length} approved users in department ${department}.`);

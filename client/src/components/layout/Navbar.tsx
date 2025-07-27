@@ -183,10 +183,10 @@ const Navbar = () => {
                             ) : (
                                 <div className="flex gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link to="/login">Login</Link>
+                                        <Link to="/sign-in">Login</Link>
                                     </Button>
                                     <Button asChild size="sm">
-                                        <Link to="/register">Register</Link>
+                                        <Link to="/sign-up">Register</Link>
                                     </Button>
                                 </div>
                             )}

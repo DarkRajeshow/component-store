@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from 'express';
-import { IUser, IAdmin, Department, Designation } from '../types/user.types';
+import { IUser, IAdmin, Department, Designation, FinalApprovalStatus } from '../types/user.types';
 import { JWT_REFRESH_SECRET, JWT_SECRET } from '../config/env';
 import { Admin } from '../models/admin.model';
 import { User } from '../models/user.model';
@@ -11,7 +11,7 @@ export interface JWTPayload {
     id: string;
     email: string;
     role: 'admin' | 'designer' | 'other';
-    isApproved?: boolean;
+    isApproved?: FinalApprovalStatus;
     userType: 'user' | 'admin';
     sessionId: string; // For enhanced security
     deviceInfo?: string;
@@ -175,7 +175,7 @@ export const requireApproval = (req: AuthRequest, res: Response, next: NextFunct
 
     const user = req.user as IUser;
 
-    if (!user.isApproved) {
+    if (user.isApproved !== FinalApprovalStatus.APPROVED) {
         return res.status(403).json({
             success: false,
             message: 'Account not approved',
@@ -211,7 +211,7 @@ export const requireDepartmentHead = (req: AuthRequest, res: Response, next: Nex
 export const getUserHierarchy = async (department: string, currentUserId?: string) => {
     const users = await User.find({
         department,
-        isApproved: true,
+        isApproved: FinalApprovalStatus.APPROVED,
         _id: { $ne: currentUserId } // Exclude current user
     }).select('name designation email employeeId').sort({ designation: 1 });
 

@@ -221,7 +221,7 @@ const SignUp = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <Card className="w-full max-w-2xl shadow-xl">
+            <Card className="w-full max-w-4xl shadow-xl py-10">
                 <CardHeader className="space-y-2 text-center">
                     <CardTitle className="text-2xl font-bold text-gray-900">Create Account</CardTitle>
                     <CardDescription className="text-gray-600">
@@ -544,7 +544,7 @@ const SignUp = () => {
                         {/* Login Link */}
                         <div className="text-center text-sm text-gray-600">
                             Already have an account?{' '}
-                            <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">
+                            <Link to="/sign-in" className="text-blue-600 hover:text-blue-800 font-medium">
                                 Sign in here
                             </Link>
                         </div>

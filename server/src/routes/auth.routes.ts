@@ -23,8 +23,8 @@ import {
 const router = express.Router();
 
 // Public routes
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/sign-up', registerUser);
+router.post('/sign-in', loginUser);
 router.post('/logout', logout);
 router.get('/department-hierarchy', getDepartmentHierarchy);
 

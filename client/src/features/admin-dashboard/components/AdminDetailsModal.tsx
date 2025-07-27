@@ -7,6 +7,7 @@ import { Shield, Mail, User, Clock, CheckCircle, XCircle, X } from 'lucide-react
 import { IAdmin } from '@/types/user.types';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@radix-ui/react-dialog';
+import { FinalApprovalStatus } from '@/types/user.types';
 
 interface AdminDetailsModalProps {
   admin: IAdmin;
@@ -15,17 +16,19 @@ interface AdminDetailsModalProps {
   handleAdminApproval: (adminId: string, action: "approve" | "reject", remarks?: string) => void;
   approvalRemarks: string;
   setApprovalRemarks: (remarks: string) => void;
-  onToggleAdminDisabled: (adminId: string, isApproved: boolean) => void;
+  onToggleAdminDisabled: (adminId: string) => void;
 }
 
 const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({ admin, open, onOpenChange, handleAdminApproval, approvalRemarks, setApprovalRemarks, onToggleAdminDisabled }) => {
-  const isActionDisabled = admin.isApproved === true || admin.isApproved === false;
-  const statusBadge = admin.isApproved === true
+  const isActionDisabled = admin.isApproved === FinalApprovalStatus.APPROVED || admin.isApproved === FinalApprovalStatus.REJECTED;
+  const statusBadge = admin.isApproved === FinalApprovalStatus.APPROVED
     ? <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>
-    : admin.isApproved === false
+    : admin.isApproved === FinalApprovalStatus.REJECTED
       ? <Badge className="bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>
       : <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
 
+      console.log(admin.isApproved  + " " + admin.name);
+      
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-scroll">
@@ -105,7 +108,7 @@ const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({ admin, open, onOp
                 <Label className="text-lg font-semibold text-gray-500">Account Status</Label>
                 <Badge className={`${admin.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{admin.isDisabled ? 'Disabled' : 'Enabled'}</Badge>
               </div>
-              <Button onClick={() => onToggleAdminDisabled(admin._id, !admin.isDisabled)}>
+              <Button onClick={() => onToggleAdminDisabled(admin._id)}>
                 {admin.isDisabled ? 'Enable' : 'Disable'}
               </Button>
             </CardContent>

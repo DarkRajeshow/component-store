@@ -14,6 +14,7 @@ export enum Department {
 }
 
 export enum Designation {
+    SUPREME = "Supreme",
     DEPARTMENT_HEAD = 'Department Head',
     SENIOR_MANAGER = 'Senior Manager',
     MANAGER = 'Manager',
@@ -23,6 +24,7 @@ export enum Designation {
 
 export enum Role {
     ADMIN = 'admin',
+    DEPARTMENT_HEAD = "Department Head",
     DESIGNER = 'designer',
     OTHER = 'other'
 }
@@ -32,6 +34,12 @@ export enum ApprovalStatus {
     APPROVED = 'approved',
     REJECTED = 'rejected',
     NOT_REQUIRED = 'not_required'
+}
+
+export enum FinalApprovalStatus {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
 }
 
 export interface IStatusLog {
@@ -46,8 +54,8 @@ export interface IUser {
     name: string;
     email: string;
     mobileNo: string;
-    password: string;
-    isApproved: boolean;
+    password?: string;
+    isApproved: FinalApprovalStatus;
     employeeId: string;
     department: Department;
     designation: Designation;
@@ -69,8 +77,8 @@ export interface IAdmin {
     _id: string;
     name: string;
     email: string;
-    password: string;
-    isApproved: boolean;
+    password?: string;
+    isApproved: FinalApprovalStatus;
     role: 'admin';
     isSystemAdmin: boolean;
     isDisabled: boolean,

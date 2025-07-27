@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IAdmin } from "../types/user.types";
+import { FinalApprovalStatus, IAdmin } from "../types/user.types";
 
 const AdminSchema = new Schema<IAdmin>({
     name: {
@@ -25,8 +25,9 @@ const AdminSchema = new Schema<IAdmin>({
         immutable: true
     },
     isApproved: {
-        type: Boolean,
-        default: null,
+        type: String,
+        enum: Object.values(FinalApprovalStatus),
+        default: FinalApprovalStatus.PENDING,
     },
     isSystemAdmin: {
         type: Boolean,

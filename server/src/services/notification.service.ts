@@ -6,7 +6,7 @@ import { NotificationPayload, EmailNotificationPayload, SocketNotificationPayloa
 import { getNotificationTemplate } from '../utils/notification-templates';
 import { notificationQueue } from '../utils/queue';
 import { getSocketInstance } from '../utils/socket';
-import { Designation, IAdmin, IUser } from '../types/user.types';
+import { Designation, IAdmin, IUser, FinalApprovalStatus } from '../types/user.types';
 import { EmailService } from './email.service';
 
 
@@ -359,7 +359,7 @@ export class NotificationService {
             const departmentHead = await User.findOne({
                 department: user.department,
                 designation: 'Department Head',
-                isApproved: true
+                isApproved: FinalApprovalStatus.APPROVED
             });
 
             if (departmentHead) {

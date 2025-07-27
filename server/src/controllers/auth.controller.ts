@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { User } from '../models/user.model';
 import { Admin } from '../models/admin.model';
 
-import { IUser, IAdmin, Designation, Role, ApprovalStatus } from '../types/user.types';
+import { IUser, IAdmin, Designation, Role, ApprovalStatus, FinalApprovalStatus } from '../types/user.types';
 import {
     hashPassword,
     comparePassword,
@@ -170,7 +170,7 @@ export const loginUser = async (req: Request, res: Response) => {
         }
 
         // Restrict login based on isApproved (for users) and isSystemAdmin (for admins)
-        if ((userType === 'user' && (!(user as IUser).isApproved || (user as IUser).isDisabled)) ||
+        if ((userType === 'user' && ((user as IUser).isApproved !== FinalApprovalStatus.APPROVED || (user as IUser).isDisabled)) ||
             (userType === 'admin' && (!(user as IAdmin).isSystemAdmin || (user as IAdmin).isDisabled))) {
             return res.status(403).json({
                 success: false,
@@ -186,7 +186,7 @@ export const loginUser = async (req: Request, res: Response) => {
             id: user._id.toString(),
             email: user.email,
             role: userType === 'admin' ? 'admin' as const : (user as IUser).role,
-            isApproved: userType === 'admin' ? true : (user as IUser).isApproved,
+            isApproved: userType === 'admin' ? FinalApprovalStatus.APPROVED : (user as IUser).isApproved,
             userType,
             deviceInfo: deviceFingerprint
         };
@@ -350,7 +350,7 @@ export const adminApprovalForUser = async (req: AuthRequest, res: Response) => {
         userToApprove.adminApprovalStatus = newStatus;
 
         if (action === 'approve') {
-            userToApprove.isApproved = true;
+            userToApprove.isApproved = FinalApprovalStatus.APPROVED;
             userToApprove.approvedBy = adminId;
         }
 
@@ -416,7 +416,7 @@ export const adminApprovalForAdmin = async (req: AuthRequest, res: Response) => 
         }
 
         // Prevent re-approval or re-rejection
-        if (adminToApprove.isApproved === true || adminToApprove.isApproved === false) {
+        if (adminToApprove.isApproved === FinalApprovalStatus.APPROVED || adminToApprove.isApproved === FinalApprovalStatus.REJECTED) {
             return res.status(400).json({
                 success: false,
                 message: 'Admin user has already been reviewed. Approval/rejection can only be done once.'
@@ -424,12 +424,12 @@ export const adminApprovalForAdmin = async (req: AuthRequest, res: Response) => 
         }
 
         // Update approval status
-        const isApproved = action === 'approve';
-        adminToApprove.isApproved = isApproved;
+        const newStatus = action === 'approve' ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.REJECTED;
+        adminToApprove.isApproved = newStatus;
         adminToApprove.approvedBy = adminId;
 
         // Add status log
-        const statusMessage = isApproved
+        const statusMessage = newStatus === FinalApprovalStatus.APPROVED
             ? 'Admin user approved. Account activated.'
             : `Admin user rejected. ${remarks || ''}`;
 
@@ -444,7 +444,7 @@ export const adminApprovalForAdmin = async (req: AuthRequest, res: Response) => 
         await adminToApprove.save();
 
         // Send notification to admin user
-        NotificationService.sendAdminApprovalNotificationsToAdmin(adminToApprove, isApproved).catch(error => {
+        NotificationService.sendAdminApprovalNotificationsToAdmin(adminToApprove, newStatus === FinalApprovalStatus.APPROVED).catch(error => {
             console.error('Error queueing admin approval notifications:', error);
         });
 
@@ -508,7 +508,7 @@ export const getUserStatus = async (req: AuthRequest, res: Response) => {
                 adminApproval: userWithDetails.adminApprovalStatus,
                 isApproved: userWithDetails.isApproved,
                 progressPercentage,
-                currentStage: userWithDetails.isApproved ? 'completed' :
+                currentStage: userWithDetails.isApproved === FinalApprovalStatus.APPROVED ? 'completed' :
                     userWithDetails.dhApprovalStatus === ApprovalStatus.PENDING ? 'department_head' :
                         userWithDetails.adminApprovalStatus === ApprovalStatus.PENDING ? 'admin' : 'rejected'
             },
@@ -673,7 +673,7 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// Create Initial Admin (Run only once during setup)
+// Create Initial Admin (First admin will be system admin and other will be regular admin.)
 export const createInitialAdmin = async (req: Request, res: Response) => {
     try {
         const { name, email, password, setupKey } = req.body;
@@ -711,7 +711,6 @@ export const createInitialAdmin = async (req: Request, res: Response) => {
                 });
             }
         }
-
 
         // Validate input
         if (!name || !email || !password) {

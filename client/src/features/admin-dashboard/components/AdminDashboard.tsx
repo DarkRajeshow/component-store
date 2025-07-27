@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import UserDetailsModal from './UserDetailsModal';
 import AdminDetailsModal from './AdminDetailsModal';
-import { useAdminDashboard } from './useAdminDashboard';
+import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import { StatusBadge } from './StatusBadge';
 import { StatsCards } from './StatsCards';
 import { PendingApprovalsTab } from './PendingApprovalsTab';
@@ -12,6 +12,7 @@ import { QuickActionsFooter } from './QuickActionsFooter';
 import { DashboardHeader } from './DashboardHeader';
 import { ErrorAlert } from './ErrorAlert';
 import { LoadingSpinner } from './LoadingSpinner';
+import { IAdmin, IUser } from '@/types/user.types';
 
 const AdminDashboard: React.FC = () => {
   const {
@@ -53,11 +54,11 @@ const AdminDashboard: React.FC = () => {
     return <StatusBadge status={status} />;
   };
 
-  const handleViewDetails = (item: any) => {
+  const handleViewDetails = (item: IUser | IAdmin) => {
     if (item.role === 'admin') {
-      setSelectedAdmin(item);
+      setSelectedAdmin(item as IAdmin);
     } else {
-      setSelectedUser(item);
+      setSelectedUser(item as IUser);
     }
   };
 
@@ -66,7 +67,7 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-6 mx-auto space-y-6">
       <DashboardHeader onRefresh={fetchData} />
 
       <ErrorAlert error={error} />

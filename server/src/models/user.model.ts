@@ -1,6 +1,6 @@
 // src/models/User.ts
 import mongoose, { Document, Schema } from 'mongoose';
-import { ApprovalStatus, Department, Designation, IStatusLog, IUser, Role } from '../types/user.types';
+import { ApprovalStatus, Department, Designation, FinalApprovalStatus, IStatusLog, IUser, Role } from '../types/user.types';
 
 const StatusLogSchema = new Schema<IStatusLog>({
     status: { type: String, required: true },
@@ -35,8 +35,9 @@ const UserSchema = new Schema<IUser>({
         minlength: [8, 'Password must be at least 8 characters']
     },
     isApproved: {
-        type: Boolean,
-        default: false
+        type: String,
+        enum: Object.values(FinalApprovalStatus),
+        default: FinalApprovalStatus.PENDING
     },
     employeeId: {
         type: String,

@@ -1,5 +1,7 @@
 // src/services/authService.ts
 import axios from 'axios';
+import { authAPI } from '@/features/auth/lib/authAPI';
+import { FinalApprovalStatus } from '@/types/user.types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
@@ -31,11 +33,11 @@ authAPI.interceptors.response.use(
         // Only redirect to login if it's a token expiration (authenticated user losing session)
         // Not for login failures (unauthenticated user with wrong credentials)
         if (error.response?.status === 401 &&
-            !error.config?.url?.includes('/login') &&
+            !error.config?.url?.includes('/sign-in') &&
             localStorage.getItem('accessToken')) {
             // Handle token expiration for authenticated users
             localStorage.removeItem('accessToken');
-            window.location.href = '/login';
+            window.location.href = '/sign-in';
         }
         return Promise.reject(error);
     }
@@ -67,13 +69,13 @@ export interface ApprovalData {
 export const authService = {
     // Register new user
     register: async (data: RegisterData) => {
-        const response = await authAPI.post('/register', data);
+        const response = await authAPI.post('/sign-up', data);
         return response.data;
     },
 
     // Login userīI
     login: async (data: LoginData) => {
-        const response = await authAPI.post('/login', data);
+        const response = await authAPI.post('/sign-in', data);
         
         if (response.data.tokens?.accessToken) {
             localStorage.setItem('accessToken', response.data.tokens.accessToken);
@@ -151,7 +153,7 @@ export const authService = {
     },
 
     // Approve user (admin)
-    approveUser: async (userId: string, isApproved: boolean) => {
+    approveUser: async (userId: string, isApproved: FinalApprovalStatus) => {
         const response = await authAPI.patch(`/approve-user/${userId}`, { isApproved });
         return response.data;
     },

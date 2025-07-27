@@ -63,9 +63,6 @@ export const toggleUserDisabled = async (req: AuthRequest, res: Response) => {
     const { userType, user } = req;
     const actingUserId = req.userId;
 
-    console.log(req);
-
-
     const userToUpdate = await User.findById(id);
     if (!userToUpdate) {
       return res.status(404).json({ success: false, message: 'User not found' });

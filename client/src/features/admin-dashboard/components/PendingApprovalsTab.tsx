@@ -5,12 +5,12 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Eye } from 'lucide-react';
-import { IUser, IAdmin } from '@/types/user.types';
+import { IUser, IAdmin, FinalApprovalStatus } from '@/types/user.types';
 
 interface PendingApprovalsTabProps {
   pendingUsers: (IUser | IAdmin)[];
-  onViewDetails: (item: IUser | IAdmin) => void;
-  onUserApproval: (userId: string, isApproved: boolean) => void;
+  onViewDetails: (user: IUser | IAdmin) => void;
+  onUserApproval: (userId: string, isApproved: FinalApprovalStatus) => void;
   onAdminApproval: (adminId: string, action: "approve" | "reject") => void;
 }
 
@@ -77,13 +77,13 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
                       </Button>
                       {item.role === 'admin' ? (
                         <Switch
-                          checked={!!item.isApproved}
+                          checked={item.isApproved === FinalApprovalStatus.APPROVED}
                           onCheckedChange={checked => onAdminApproval(item._id, checked ? "approve" : "reject")}
                         />
                       ) : (
                         <Switch
-                          checked={!!item.isApproved}
-                          onCheckedChange={checked => onUserApproval(item._id, checked)}
+                          checked={item.isApproved === FinalApprovalStatus.APPROVED}
+                          onCheckedChange={checked => onUserApproval(item._id, checked ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.REJECTED)}
                           disabled={(item as IUser).adminApprovalStatus === 'rejected'}
                         />
                       )}
