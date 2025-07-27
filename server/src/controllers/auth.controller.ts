@@ -552,6 +552,32 @@ export const getPendingUsersForDH = async (req: AuthRequest, res: Response) => {
     }
 };
 
+// Get all users in department (for DH dashboard)
+export const getDepartmentUsers = async (req: AuthRequest, res: Response) => {
+    try {
+        const departmentHead = req.user as IUser;
+
+        const departmentUsers = await User.find({
+            department: departmentHead.department,
+            _id: { $ne: departmentHead._id } // Exclude the department head themselves
+        }).select('-password').sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            users: departmentUsers,
+            count: departmentUsers.length
+        });
+
+    } catch (error: Error | any) {
+        console.error('Get department users error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch department users',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        });
+    }
+};
+
 // Get Pending Users (for Admin)
 export const getPendingUsersForAdmin = async (req: AuthRequest, res: Response) => {
     try {

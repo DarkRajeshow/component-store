@@ -1,36 +1,45 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, Mail, Phone, Building, Shield, Clock, Check, X } from 'lucide-react';
-import { ApprovalStatus, IUser, FinalApprovalStatus } from '@/types/user.types';
+import { IUser, ApprovalStatus, FinalApprovalStatus } from '@/types/user.types';
+import { ApprovalRole } from '../types';
 
 interface UserDetailsModalProps {
   user: IUser;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onToggleUserDisabled: (userId: string) => void;
   approvalRemarks: string;
+  // onToggleUserDisabled: (userId: string) => void;
   setApprovalRemarks: (remarks: string) => void;
-  handleAdminFinalApproval: (userId: string, action: "approve" | "reject", remarks?: string) => void;
+  handleUserApproval: (userId: string, action: 'approve' | 'reject', remarks?: string) => void;
   getStatusBadge: (status: string) => React.ReactNode;
+  role: ApprovalRole;
 }
 
-const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
+export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   user,
   open,
   onOpenChange,
   approvalRemarks,
+  // onToggleUserDisabled,
   setApprovalRemarks,
-  handleAdminFinalApproval,
+  handleUserApproval,
   getStatusBadge,
-  onToggleUserDisabled
+  role
 }) => {
-  console.log('UserDetailsModal rendered', { open, user });
+  const isAdmin = role === 'admin';
+  
+  // Fix approval logic: Show approve/reject buttons when user is pending
+  const canApprove = isAdmin 
+    ? (user.dhApprovalStatus === ApprovalStatus.APPROVED || user.dhApprovalStatus === ApprovalStatus.NOT_REQUIRED) && user.adminApprovalStatus === ApprovalStatus.PENDING
+    : user.dhApprovalStatus === ApprovalStatus.PENDING;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-scroll">
@@ -40,11 +49,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <User className="w-5 h-5" />
               User Details - {user.name}
             </DialogTitle>
-            <DialogClose >
+            <DialogClose>
               <X />
             </DialogClose>
           </div>
         </DialogHeader>
+        
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>
@@ -87,6 +97,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </div>
             </CardContent>
           </Card>
+
           {/* Department & Role Information */}
           <Card>
             <CardHeader>
@@ -109,45 +120,13 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 <Badge variant="outline" className="mt-1">{user.role}</Badge>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Reporting Manager</Label>
-                <p className="font-medium">
-                  {user.reportingTo && typeof user.reportingTo === 'object' ? (
-                    <div className="flex flex-col gap-1">
-                      <span className="font-semibold">{(user.reportingTo as IUser).name}</span>
-                      <span className="text-xs text-gray-500">
-                        {(user.reportingTo as IUser).designation} &mdash; {(user.reportingTo as IUser).department}
-                      </span>
-                      <span className="text-xs flex items-center gap-1 text-gray-500">
-                        <Phone className="w-3 h-3" /> {(user.reportingTo as IUser).mobileNo}
-                      </span>
-                    </div>
-                  ) : user.reportingTo ? (
-                    <span>{user.reportingTo}</span>
-                  ) : (
-                    <span className="text-gray-400">Not Assigned</span>
-                  )}
-                </p>
+                <Label className="text-sm font-medium text-gray-500">Account Status</Label>
+                <Badge className={`${user.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                  {user.isDisabled ? 'Disabled' : 'Enabled'}
+                </Badge>
               </div>
             </CardContent>
           </Card>
-
-
-          {/* Toggle Disabled */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Toggle Disabled</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 mb-4">
-                <Label className="text-lg font-semibold text-gray-500">Account Status</Label>
-                <Badge className={`${user.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{user.isDisabled ? 'Disabled' : 'Enabled'}</Badge>
-              </div>
-                              <Button onClick={() => onToggleUserDisabled(user._id)}>
-                  {user.isDisabled ? 'Enable' : 'Disable'}
-                </Button>
-            </CardContent>
-          </Card>
-
 
           {/* Approval Status */}
           <Card>
@@ -162,10 +141,12 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 <Label className="text-sm font-medium text-gray-500">DH Approval</Label>
                 <div className="mt-1">{getStatusBadge(user.dhApprovalStatus)}</div>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Admin Approval</Label>
-                <div className="mt-1">{getStatusBadge(user.adminApprovalStatus)}</div>
-              </div>
+              {isAdmin && (
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Admin Approval</Label>
+                  <div className="mt-1">{getStatusBadge(user.adminApprovalStatus)}</div>
+                </div>
+              )}
               <div>
                 <Label className="text-sm font-medium text-gray-500">Overall Status</Label>
                 <div className="mt-1">
@@ -178,6 +159,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </div>
             </CardContent>
           </Card>
+
           {/* Status Logs */}
           <Card>
             <CardHeader>
@@ -210,39 +192,39 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </CardContent>
           </Card>
         </div>
+
         {/* Approval Actions */}
-        {(user.dhApprovalStatus?.toLowerCase() === ApprovalStatus.APPROVED || user.dhApprovalStatus?.toLowerCase() === ApprovalStatus.NOT_REQUIRED) &&
-          user.adminApprovalStatus?.toLowerCase() === "pending" && (
-            <div className="space-y-4 pt-4 border-t">
-              <div>
-                <Label htmlFor="remarks">Approval Remarks (Optional)</Label>
-                <Textarea
-                  id="remarks"
-                  placeholder="Add any remarks for approval/rejection..."
-                  value={approvalRemarks}
-                  onChange={(e) => setApprovalRemarks(e.target.value)}
-                />
-              </div>
-              <DialogFooter className="gap-2">
-                <Button
-                  variant="destructive"
-                  onClick={() => handleAdminFinalApproval(user._id, "reject", approvalRemarks)}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Reject
-                </Button>
-                <Button
-                  onClick={() => handleAdminFinalApproval(user._id, "approve", approvalRemarks)}
-                >
-                  <Check className="w-4 h-4 mr-2" />
-                  Approve
-                </Button>
-              </DialogFooter>
+        {canApprove && (
+          <div className="space-y-4 pt-4 border-t">
+            <div>
+              <Label htmlFor="remarks" className="text-sm font-medium">
+                Approval Remarks (Optional)
+              </Label>
+              <Textarea
+                id="remarks"
+                placeholder="Add any remarks for approval/rejection..."
+                value={approvalRemarks}
+                onChange={(e) => setApprovalRemarks(e.target.value)}
+              />
             </div>
-          )}
+            <DialogFooter className="gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => handleUserApproval(user._id, "reject", approvalRemarks)}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Reject
+              </Button>
+              <Button
+                onClick={() => handleUserApproval(user._id, "approve", approvalRemarks)}
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Approve
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
-};
-
-export default UserDetailsModal;
+}; 

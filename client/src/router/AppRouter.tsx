@@ -9,6 +9,7 @@ import PageNotFound from '@/pages/special/PageNotFound';
 import UnauthorizedPage from '@/pages/special/UnauthorizedPage';
 import { useAuth } from '@/hooks';
 import AdminSetupPage from '@/pages/AdminSetupPage';
+import DhDashboard from '@/features/dh-dashboard/components/DhDashboard';
 
 const AppRouter = () => {
   const { isAuthenticated } = useAuth();
@@ -33,7 +34,7 @@ const AppRouter = () => {
           path="/dh-dashboard"
           element={
             <ProtectedRoute requiredRoles={[Role.ADMIN]}>
-              <AdminDashboardPage />
+              <DhDashboard />
             </ProtectedRoute>
           }
         />

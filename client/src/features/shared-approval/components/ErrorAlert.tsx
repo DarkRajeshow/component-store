@@ -15,4 +15,4 @@ export const ErrorAlert: React.FC<ErrorAlertProps> = ({ error }) => {
       <AlertDescription className="text-red-800">{error}</AlertDescription>
     </Alert>
   );
-};
+}; 

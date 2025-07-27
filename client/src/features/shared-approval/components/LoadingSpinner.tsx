@@ -6,4 +6,4 @@ export const LoadingSpinner: React.FC = () => {
       <div className="animate-pulse text-lg">Loading dashboard...</div>
     </div>
   );
-};
+}; 

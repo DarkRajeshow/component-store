@@ -1,31 +1,40 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
+// import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Eye } from 'lucide-react';
-import { IUser, IAdmin, FinalApprovalStatus } from '@/types/user.types';
+import { IUser, IAdmin } from '@/types/user.types';
+import { ApprovalRole } from '../types';
 
 interface PendingApprovalsTabProps {
   pendingUsers: (IUser | IAdmin)[];
   onViewDetails: (user: IUser | IAdmin) => void;
-  onUserApproval: (userId: string, isApproved: FinalApprovalStatus) => void;
-  onAdminApproval: (adminId: string, action: "approve" | "reject") => void;
+  onUserApproval: (userId: string) => void;
+  onAdminApproval?: (adminId: string, action: "approve" | "reject") => void;
+  role: ApprovalRole;
 }
 
 export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
   pendingUsers,
   onViewDetails,
-  onUserApproval,
-  onAdminApproval
+  // onUserApproval,
+  // onAdminApproval,
+  role
 }) => {
+  const isAdmin = role === 'admin';
+  const title = isAdmin ? 'Users & Admins Pending Approval' : 'Users Pending DH Approval';
+  const emptyMessage = isAdmin 
+    ? 'All users and admins have been processed'
+    : 'All users in your department have been processed';
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="w-5 h-5" />
-          Users & Admins Pending Approval
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -33,7 +42,7 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
           <div className="text-center py-8 text-gray-500">
             <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <p className="text-lg font-medium">No pending approvals</p>
-            <p>All users and admins have been processed</p>
+            <p>{emptyMessage}</p>
           </div>
         ) : (
           <Table>
@@ -43,7 +52,7 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
                 <TableHead>Type</TableHead>
                 <TableHead>Department / Role</TableHead>
                 <TableHead>Registration Date</TableHead>
-                <TableHead>Approve User</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -59,7 +68,9 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
                     <Badge variant="outline">{item.role === 'admin' ? 'Admin' : 'User'}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{item.role === 'admin' ? item.role : (item as IUser).department}</Badge>
+                    <Badge variant="outline">
+                      {item.role === 'admin' ? item.role : (item as IUser).department}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}
@@ -75,18 +86,6 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
                         <Eye className="w-4 h-4 mr-1" />
                         View Details
                       </Button>
-                      {item.role === 'admin' ? (
-                        <Switch
-                          checked={item.isApproved === FinalApprovalStatus.APPROVED}
-                          onCheckedChange={checked => onAdminApproval(item._id, checked ? "approve" : "reject")}
-                        />
-                      ) : (
-                        <Switch
-                          checked={item.isApproved === FinalApprovalStatus.APPROVED}
-                          onCheckedChange={checked => onUserApproval(item._id, checked ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.REJECTED)}
-                          disabled={(item as IUser).adminApprovalStatus === 'rejected'}
-                        />
-                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -97,4 +96,4 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
       </CardContent>
     </Card>
   );
-};
+}; 
