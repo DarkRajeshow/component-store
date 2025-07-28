@@ -1,6 +1,6 @@
 // src/services/authService.ts
 import axios from 'axios';
-import { authAPI } from '@/features/auth/lib/authAPI';
+import { authAPI } from '@/features/authentication/lib/authAPI';
 import { FinalApprovalStatus } from '@/types/user.types';
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:5000/api/v1';

@@ -1,4 +1,5 @@
-import { AdminSetup } from "@/features/admin-dashboard"
+import { AdminSetup } from "@/features/authentication"
+
 
 function AdminSetupPage() {
     return (
