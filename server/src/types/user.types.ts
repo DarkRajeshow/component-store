@@ -48,6 +48,17 @@ export interface IStatusLog {
     updatedBy?: mongoose.Types.ObjectId | string;
 }
 
+export interface UserPreferences {
+    notifications: {
+        email: boolean;
+        inApp: boolean;
+        sound: boolean;
+        push: boolean;
+    };
+    theme: 'light' | 'dark';
+    layout: 'list' | 'grid';
+}
+
 export interface IUser extends Document {
     _id: mongoose.Types.ObjectId | string;
     name: string;
@@ -60,7 +71,7 @@ export interface IUser extends Document {
     designation: Designation;
     reportingTo?: mongoose.Types.ObjectId | string; // Reference to another IUser
     role: Role;
-    preferences?: Record<string, any>;
+    preferences: UserPreferences;
     approvedBy?: mongoose.Types.ObjectId | string;
     dhApprovalStatus: ApprovalStatus;
     adminApprovalStatus: ApprovalStatus;

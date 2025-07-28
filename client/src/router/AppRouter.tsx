@@ -11,10 +11,10 @@ import UnauthorizedPage from '@/pages/special/UnauthorizedPage';
 // import { useAuth } from '@/hooks';
 import AdminSetupPage from '@/pages/AdminSetupPage';
 import DhDashboard from '@/features/dh-dashboard/components/DhDashboard';
-import TestPage from '@/pages/TestPage';
 import { ComponentDetailsPage, ComponentListPage } from '@/features/component-model/pages';
 import HomePage from '@/pages/HomePage';
 import NotificationsPage from '@/pages/NotificationsPage';
+import { ProfilePage, PreferencesPage } from '@/features/user-profile';
 
 const AppRouter = () => {
   // const { isAuthenticated } = useAuth();
@@ -29,7 +29,7 @@ const AppRouter = () => {
         <Route
           path="/"
           element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER]}>
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
               <HomePage />
             </ProtectedRoute>
           }
@@ -38,7 +38,7 @@ const AppRouter = () => {
         <Route
           path="/notifications"
           element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER]}>
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
               <NotificationsPage />
             </ProtectedRoute>
           }
@@ -56,7 +56,7 @@ const AppRouter = () => {
         <Route
           path="/dh-dashboard"
           element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN]}>
+            <ProtectedRoute requiredRoles={[Role.DEPARTMENT_HEAD]}>
               <DhDashboard />
             </ProtectedRoute>
           }
@@ -65,36 +65,47 @@ const AppRouter = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN]}>
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
               <AdminDashboardPage />
             </ProtectedRoute>
           }
         />
 
         <Route
-          path="/test"
-          element={
-            <TestPage />
-          }
-        />
-        <Route
           path="/components"
           element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN]}>
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
               <ComponentListPage />
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/components/:id"
           element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER]}>
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
               <ComponentDetailsPage />
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/preferences"
+          element={
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
+              <PreferencesPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="*" element={<PageNotFound />} />
+        <Route path="*" element={<PageNotFound />} /> 
       </Route>
 
     </Routes>

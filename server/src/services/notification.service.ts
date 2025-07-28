@@ -412,6 +412,11 @@ export class NotificationService {
 
     // Send notifications for department head approval
     static async sendDHApprovalNotifications(user: any, approved: boolean, remarks?: string) {
+        let sendEmail = true;
+        if (approved && user.preferences && user.preferences.notifications && user.isApproved === 'approved') {
+            // Only send email if user has enabled it after approval
+            sendEmail = !!user.preferences.notifications.email;
+        }
         if (approved) {
             // Notify user
             await this.sendNotification(
@@ -422,7 +427,7 @@ export class NotificationService {
                     userName: user.name,
                     department: user.department
                 },
-                true
+                sendEmail
             );
 
             // Notify admin
@@ -459,6 +464,11 @@ export class NotificationService {
 
     // Send notifications for admin approval
     static async sendAdminApprovalNotifications(user: any, approved: boolean, remarks?: string) {
+        let sendEmail = true;
+        if (approved && user.preferences && user.preferences.notifications && user.isApproved === 'approved') {
+            // Only send email if user has enabled it after approval
+            sendEmail = !!user.preferences.notifications.email;
+        }
         await this.sendNotification(
             approved ? 'admin_approval' : 'rejection',
             user._id.toString(),
@@ -468,7 +478,7 @@ export class NotificationService {
                 remarks,
                 rejectedBy: approved ? undefined : 'Admin'
             },
-            true
+            sendEmail
         );
     }
 

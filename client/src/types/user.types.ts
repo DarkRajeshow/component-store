@@ -49,6 +49,17 @@ export interface IStatusLog {
     updatedBy?: string;
 }
 
+export interface UserPreferences {
+    notifications: {
+        email: boolean;
+        inApp: boolean;
+        sound: boolean;
+        push: boolean;
+    };
+    theme: 'light' | 'dark';
+    layout: 'list' | 'grid';
+}
+
 export interface IUser {
     _id: string;
     name: string;
@@ -61,7 +72,7 @@ export interface IUser {
     designation: Designation;
     reportingTo?: string | IUser; // Reference to another IUser
     role: Role;
-    preferences?: Record<string, string | number>; //temp key value types may change in future
+    preferences: UserPreferences; //temp key value types may change in future
     approvedBy?: string;
     isDisabled: boolean,
     dhApprovalStatus: ApprovalStatus;

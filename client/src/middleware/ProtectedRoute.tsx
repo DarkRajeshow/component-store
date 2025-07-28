@@ -11,12 +11,20 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
-
+  
   if (!isAuthenticated) {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  if (requiredRoles && user && (!requiredRoles.includes(user.designation as Role) && !requiredRoles.includes(user.role as Role))) {
+  if (
+    requiredRoles &&
+    user &&
+    !requiredRoles.some(
+      (role) =>
+        (user.designation && user.designation === role) ||
+        (user.role && user.role === role)
+    )
+  ) {
     return <Navigate to="/unauthorized" replace />;
   }
 

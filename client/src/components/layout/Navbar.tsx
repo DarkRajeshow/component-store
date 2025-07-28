@@ -78,10 +78,10 @@ const Navbar = () => {
         { label: 'Home', to: '/', show: true },
         { label: 'Components', to: '/components', show: isAuthenticated },
         { label: 'Admin Dashboard', to: '/admin-dashboard', show: isAuthenticated && user?.role === Role.ADMIN },
-        { label: 'DH Dashboard', to: '/dh-dashboard', show: isAuthenticated && user?.designation === Role.DEPARTMENT_HEAD },
+        { label: 'DH Dashboard', to: '/dh-dashboard', show: isAuthenticated && user?.designation === 'Department Head' },
 
         // Approvals with dynamic sublinks
-        ...(isAuthenticated && (user?.role === Role.ADMIN || user?.designation === Role.DEPARTMENT_HEAD)
+        ...(isAuthenticated && (user?.role === Role.ADMIN || user?.designation === 'Department Head')
             ? [
                 user?.role === Role.ADMIN
                     ? {
@@ -241,7 +241,7 @@ const Navbar = () => {
                     {/* Left: Logo & Desktop Nav */}
                     <div className="flex items-center gap-4">
                         <Link to="/" className="flex items-center gap-2 text-2xl font-extrabold  tracking-tight select-none focus:outline-none" aria-label="Home">
-                            <span className="rounded-lg bg-zinc-200 to-blue-300 px-2 py-1">CS</span>
+                            <span className="rounded-lg bg-zinc-50 to-blue-300 px-2 py-1 text-red-600">CS</span>
                         </Link>
                         {/* Desktop Nav Links */}
                         <div className="hidden md:flex gap-1 ml-4">
@@ -249,7 +249,7 @@ const Navbar = () => {
                                 'sublinks' in link && link.sublinks ? (
                                     <DropdownMenu key={link.label}>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="font-medium px-4 rounded-lg flex items-center gap-1">
+                                            <Button variant="ghost" className="font-medium px-4 rounded-full flex items-center gap-1">
                                                 {link.label} <ChevronDown className="w-4 h-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -268,7 +268,7 @@ const Navbar = () => {
                                         key={link.to}
                                         variant={location.pathname === link.to ? 'secondary' : 'ghost'}
                                         asChild
-                                        className="font-medium px-4 rounded-lg transition-all duration-150 focus-visible:ring-2 focus-visible:ring-purple-400"
+                                        className="font-medium px-4 rounded-full transition-all duration-150 focus-visible:ring-2 focus-visible:ring-purple-400"
                                     >
                                         <Link to={link.to!} tabIndex={0}>{link.label}</Link>
                                     </Button>
@@ -279,7 +279,7 @@ const Navbar = () => {
 
                     {/* Center: Search Bar (Desktop) */}
                     <div className="hidden md:flex flex-1 justify-end">
-                        <Button variant="ghost" className="px-3 w-1/3 flex justify-between bg-zinc-100" onClick={() => setSearchOpen(true)} aria-label="Open search (Ctrl+K)">
+                        <Button variant="ghost" className="px-3 w-1/3 flex justify-between bg-zinc-50" onClick={() => setSearchOpen(true)} aria-label="Open search (Ctrl+K)">
                             <div className='flex items-center gap-2'>
                                 <Search className="w-5 h-5" />
                                 <span className="hidden sm:inline">Search</span>
@@ -328,19 +328,22 @@ const Navbar = () => {
                                         <User className="h-6 w-6" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuContent align="end" className="w-52">
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem disabled className="flex justify-between">
-                                        <User className="mr-2 h-4 w-4" />
-                                        <span>{user.name}</span>
+                                    <DropdownMenuItem className="flex justify-start gap-2">
+                                        <User className="size-5" />
+                                        <div className='flex flex-col'>
+                                            <p className='text-sm font-medium'>{user.name}</p>
+                                            <p className='text-xs text-muted-foreground'>{user.email}</p>
+                                        </div>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
                                         <Link to="/profile">Profile</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link to="/settings">Settings</Link>
+                                        <Link to="/preferences">Preferences</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={logout} className="text-red-600">
@@ -387,7 +390,6 @@ const Navbar = () => {
                     <div className="flex flex-col gap-2 p-6 pt-8">
                         <Link to="/" className="flex items-center gap-2 text-2xl font-extrabold text-purple-700 mb-6" onClick={() => setMobileMenuOpen(false)}>
                             <span className="rounded-lg bg-gradient-to-br from-purple-400 to-blue-300 px-2 py-1 shadow-md">CS</span>
-                            <span>ComponentStore</span>
                         </Link>
                         {navLinks.filter(link => link.show).map(link => (
                             'sublinks' in link && link.sublinks ? (

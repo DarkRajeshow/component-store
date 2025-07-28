@@ -1,33 +1,7 @@
 // src/stores/authStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { FinalApprovalStatus } from '@/types/user.types';
-
-export interface User {
-    _id: string;
-    name: string;
-    email: string;
-    mobileNo?: string;
-    employeeId?: string;
-    department?: string;
-    designation?: string;
-    role: 'admin' | 'designer' | 'other';
-    isApproved?: FinalApprovalStatus;
-    reportingManager?: {
-        name: string;
-        designation: string;
-        email: string;
-    };
-    approver?: {
-        name: string;
-        email: string;
-    };
-    dhApprovalStatus?: 'pending' | 'approved' | 'rejected';
-    adminApprovalStatus?: 'pending' | 'approved' | 'rejected';
-    statusLogs?: StatusLog[];
-    createdAt: string;
-    updatedAt: string;
-}
+import { FinalApprovalStatus, IUser } from '@/types/user.types';
 
 export interface StatusLog {
     status: string;
@@ -45,20 +19,20 @@ export interface ApprovalStatus {
 }
 
 interface AuthState {
-    user: User | null;
+    user: IUser | null;
     userType: 'user' | 'admin' | null;
     isAuthenticated: boolean;
     isLoading: boolean;
     approvalStatus: ApprovalStatus | null;
-    pendingUsers: User[];
+    pendingUsers:  IUser[];
 
     // Actions
-    setUser: (user: User | null) => void;
+    setUser: (user: IUser | null) => void;
     setUserType: (userType: 'user' | 'admin' | null) => void;
     setAuthenticated: (status: boolean) => void;
     setLoading: (status: boolean) => void;
     setApprovalStatus: (status: ApprovalStatus | null) => void;
-    setPendingUsers: (users: User[]) => void;
+    setPendingUsers: (users: IUser[]) => void;
     logout: () => void;
     updateUserStatus: (userId: string, status: Partial<ApprovalStatus>) => void;
 }

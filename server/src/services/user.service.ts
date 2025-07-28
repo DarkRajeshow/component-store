@@ -208,18 +208,32 @@ class UserService {
      */
     async updateUserPreferences(
         userId: string,
-        theme?: "light" | "dark",
-        language?: string
+        preferences: {
+            notifications?: {
+                email?: boolean;
+                inApp?: boolean;
+                sound?: boolean;
+                push?: boolean;
+            };
+            theme?: 'light' | 'dark';
+            layout?: 'list' | 'grid';
+        }
     ): Promise<AuthResponse> {
         try {
             const updateData: any = {};
 
-            if (theme) {
-                updateData['preferences.theme'] = theme;
+            if (preferences.theme) {
+                updateData['preferences.theme'] = preferences.theme;
             }
-
-            if (language) {
-                updateData['preferences.language'] = language;
+            if (preferences.layout) {
+                updateData['preferences.layout'] = preferences.layout;
+            }
+            if (preferences.notifications) {
+                type NotificationKey = keyof typeof preferences.notifications;
+                const notificationKeys: NotificationKey[] = Object.keys(preferences.notifications) as NotificationKey[];
+                for (const key of notificationKeys) {
+                    updateData[`preferences.notifications.${key}`] = preferences.notifications[key];
+                }
             }
 
             const user = await User.findByIdAndUpdate(

@@ -2,7 +2,7 @@
 // src/routes/index.ts
 import express from 'express';
 import authRoutes from './auth.routes';
-import userRoutes from './auth.routes';
+import userRoutes from './user.routes';
 import componentController from '../controllers/component.controller';
 // Import other route modules as you build them
 // import componentRoutes from './components';
@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Mount route modules
 router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
+router.use('/api/users', userRoutes);
 // router.use('/components', componentRoutes);
 
 // Component management routes

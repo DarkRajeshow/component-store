@@ -74,7 +74,16 @@ const UserSchema = new Schema<IUser>({
     },
     preferences: {
         type: Schema.Types.Mixed,
-        default: {}
+        default: {
+            notifications: {
+                email: false,
+                inApp: true,
+                sound: true,
+                push: false
+            },
+            theme: 'light',
+            layout: 'list',
+        }
     },
     approvedBy: {
         type: Schema.Types.ObjectId,

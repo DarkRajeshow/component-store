@@ -172,7 +172,7 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Issue Number</label>
+                  <label className="text-sm font-medium text-gray-500">Latest Issue</label>
                   <Badge variant="secondary" className="text-base font-medium block">
                     {component.issueNumber || 'Not set'}
                   </Badge>

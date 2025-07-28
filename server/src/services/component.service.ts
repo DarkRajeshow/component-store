@@ -263,6 +263,7 @@ class ComponentService {
 
     // Update component
     component.latestRevisionNumber = revisionNumber;
+    component.issueNumber = revisionNumber;
     component.lastUpdatedBy = userId;
     component.lastUpdatedAt = new Date();
     component.notifyTo = notifyToArray.map((id: string) => new mongoose.Types.ObjectId(id));
