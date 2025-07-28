@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+// import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '@/middleware/ProtectedRoute';
 import SignUpPage from '@/pages/SignUpPage';
 import LoginPage from '@/pages/SignInPage';
@@ -7,14 +8,16 @@ import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import Layout from '@/components/layout/Layout';
 import PageNotFound from '@/pages/special/PageNotFound';
 import UnauthorizedPage from '@/pages/special/UnauthorizedPage';
-import { useAuth } from '@/hooks';
+// import { useAuth } from '@/hooks';
 import AdminSetupPage from '@/pages/AdminSetupPage';
 import DhDashboard from '@/features/dh-dashboard/components/DhDashboard';
 import TestPage from '@/pages/TestPage';
-import { ComponentListPage, ComponentDetailsPage } from '@/features/component-model/pages';
+import { ComponentDetailsPage, ComponentListPage } from '@/features/component-model/pages';
+import HomePage from '@/pages/HomePage';
+import NotificationsPage from '@/pages/NotificationsPage';
 
 const AppRouter = () => {
-  const { isAuthenticated } = useAuth();
+  // const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
@@ -23,6 +26,24 @@ const AppRouter = () => {
       <Route path="/admin-setup" element={<AdminSetupPage />} />
 
       <Route element={<Layout />}>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER]}>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER]}>
+              <NotificationsPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin-dashboard"
           element={

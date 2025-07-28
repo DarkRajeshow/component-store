@@ -4,8 +4,8 @@ import Navbar from './Navbar';
 const Layout = () => {
     return (
         <div className="min-h-screen">
-            <main className="p-4">
-                <Navbar />
+            <Navbar />
+            <main className="max-w-7xl mx-auto p-4 pt-8">
                 <Outlet />
             </main>
         </div>

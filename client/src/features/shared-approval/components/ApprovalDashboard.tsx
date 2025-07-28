@@ -6,13 +6,13 @@ import { StatsCards } from './StatsCards';
 import { PendingApprovalsTab } from './PendingApprovalsTab';
 import { AllUsersTab } from './AllUsersTab';
 import { SystemAdminsTab } from './SystemAdminsTab';
-import { QuickActionsFooter } from './QuickActionsFooter';
 import { DashboardHeader } from './DashboardHeader';
 import { ErrorAlert } from './ErrorAlert';
 import { LoadingSpinner } from './LoadingSpinner';
 import { UserDetailsModal } from './UserDetailsModal';
 import { AdminDetailsModal } from './AdminDetailsModal';
 import { IAdmin, IUser } from '@/types/user.types';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface ApprovalDashboardProps {
   role: ApprovalRole;
@@ -37,17 +37,17 @@ export const ApprovalDashboard: React.FC<ApprovalDashboardProps> = ({
     selectedAdmin,
     approvalRemarks,
     filters,
-    
+
     // Constants
     departments,
     designations,
     roles,
     approvalStatuses,
-    
+
     // Computed values
     filteredUsers,
     pendingUsers,
-    
+
     // Actions
     setSelectedUser,
     setSelectedAdmin,
@@ -62,6 +62,9 @@ export const ApprovalDashboard: React.FC<ApprovalDashboardProps> = ({
     deleteUser,
   } = context;
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const getStatusBadge = (status: string) => {
     return <StatusBadge status={status} />;
   };
@@ -74,40 +77,59 @@ export const ApprovalDashboard: React.FC<ApprovalDashboardProps> = ({
     }
   };
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
 
   const isAdmin = role === 'admin';
   const pendingUsersCount = pendingUsers.length;
   const totalUsersCount = users.length;
   const totalAdminsCount = admins?.length || 0;
 
+  // Tabs logic: controlled by ?tab= param
+  const validTabs = isAdmin ? ['pending', 'users', 'admins'] : ['pending', 'users'];
+  const params = new URLSearchParams(location.search);
+  let tabParam = params.get('tab');
+  if (!tabParam || !validTabs.includes(tabParam)) tabParam = 'pending';
+  const [tab, setTab] = React.useState(tabParam);
+  React.useEffect(() => {
+    if (tab !== tabParam) setTab(tabParam);
+    // eslint-disable-next-line
+  }, [tabParam]);
+
+  // When user changes tab, update URL
+  const handleTabChange = (value: string) => {
+    setTab(value);
+    params.set('tab', value);
+    navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="p-6 mx-auto space-y-6">
-      <DashboardHeader 
+      <DashboardHeader
         title={title}
         subtitle={subtitle}
-        onRefresh={fetchData} 
+        onRefresh={fetchData}
       />
 
       <ErrorAlert error={error} />
 
       {/* Stats Cards */}
-      <StatsCards 
-        users={users} 
-        admins={admins} 
+      <StatsCards
+        users={users}
+        admins={admins}
         pendingUsersCount={pendingUsersCount}
         role={role}
       />
 
-      <Tabs defaultValue="pending" className="w-full">
+      <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
         <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          <TabsTrigger value="pending">
-            Pending Approvals ({pendingUsersCount})
-          </TabsTrigger>
           <TabsTrigger value="users">
             All Users ({totalUsersCount})
+          </TabsTrigger>
+          <TabsTrigger value="pending">
+            Pending Approvals ({pendingUsersCount})
           </TabsTrigger>
           {isAdmin && (
             <TabsTrigger value="admins">
@@ -158,13 +180,13 @@ export const ApprovalDashboard: React.FC<ApprovalDashboardProps> = ({
         )}
       </Tabs>
 
-      {/* Quick Actions Footer */}
+      {/* Quick Actions Footer
       <QuickActionsFooter
         users={users}
         admins={admins}
         pendingUsersCount={pendingUsersCount}
         role={role}
-      />
+      /> */}
 
       {selectedUser && (
         <UserDetailsModal

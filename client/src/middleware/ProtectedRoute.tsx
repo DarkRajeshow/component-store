@@ -16,9 +16,9 @@ const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  // if (requiredRoles && user && (!requiredRoles.includes(user.designation as Role) || !requiredRoles.includes(user.role as Role))) {
-  //   return <Navigate to="/unauthorized" replace />;
-  // }
+  if (requiredRoles && user && (!requiredRoles.includes(user.designation as Role) && !requiredRoles.includes(user.role as Role))) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   return <>{children}</>;
 };

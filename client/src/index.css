@@ -32,38 +32,15 @@
 /* @custom-variant dark (&:is(.dark *)); */
 
 body {
-  @apply overflow-x-hidden w-screen min-h-screen font-medium bg-theme m-0 transition-all
+  @apply overflow-x-hidden w-screen min-h-screen font-medium m-0 p-0 transition-all
 }
 
 body {
   font-family: "Elegant", sans-serif;
 }
-/* * {
-  font-family: "MyCustomFont", sans-serif;
-} */
-
-.svg-transform {
-  transform-origin: center;
-}
-
-.loginInput {
-  @apply w-full px-4 py-3 rounded-lg border-gray-300/60 border bg-transparent outline-none font-medium
-}
-
-option {
-  @apply text-sm
-}
 
 button {
   @apply cursor-pointer
-}
-
-.components>img {
-  @apply w-full h-full absolute
-}
-
-.logo {
-  font-family: "Playwrite GB S", cursive;
 }
 
 :root {

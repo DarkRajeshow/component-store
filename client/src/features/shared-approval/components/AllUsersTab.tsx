@@ -88,6 +88,7 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
             <TableHeader>
               <TableRow className='bg-zinc-50'>
                 <TableHead>User Details</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Designation</TableHead>
                 <TableHead>Registration Date</TableHead>
@@ -97,13 +98,16 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
             </TableHeader>
             <TableBody>
               {filteredUsers.map(user => (
-                <TableRow key={user._id}>
+                <TableRow key={user._id} className='capitalize'>
                   <TableCell>
                     <div>
                       <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
+                      <p className="text-sm text-gray-500 lowercase">{user.email}</p>
                       <p className="text-sm text-gray-500">{user.employeeId || '-'}</p>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{user.role || '-'}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{user.department || '-'}</Badge>

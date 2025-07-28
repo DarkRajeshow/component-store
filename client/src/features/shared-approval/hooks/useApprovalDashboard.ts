@@ -49,17 +49,14 @@ export const useApprovalDashboard = ({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const promises = [service.getAllUsers()];
-      
-      if (includeAdmins && service.getAllAdmins) {
-        promises.push(service.getAllAdmins());
-      }
+      // Always fetch users
+      const userResult = await service.getAllUsers();
+      setUsers(userResult.users || []);
 
-      const results = await Promise.all(promises);
-      setUsers(results[0].users || []);
-      
-      if (includeAdmins && results[1]) {
-        setAdmins(results[1].admins || []);
+      // Optionally fetch admins
+      if (includeAdmins && service.getAllAdmins) {
+        const adminResult = await service.getAllAdmins();
+        setAdmins(adminResult.admins || []);
       }
     } catch (err) {
       setError('Failed to fetch data');
@@ -175,7 +172,7 @@ export const useApprovalDashboard = ({
           employeeId: '-',
           mobileNo: '-',
           department: Department.OTHER,
-          designation: Designation.DEPARTMENT_HEAD,
+          designation: Designation.SUPREME,
           role: Role.ADMIN,
           dhApprovalStatus: ApprovalStatus.NOT_REQUIRED,
           adminApprovalStatus: ApprovalStatus.NOT_REQUIRED,
@@ -308,7 +305,7 @@ export const useApprovalDashboard = ({
     setSelectedUser,
     setSelectedAdmin: includeAdmins ? setSelectedAdmin : undefined,
     setApprovalRemarks,
-    setFilters,
+    setFilters: (filters: Partial<ApprovalFilters>) => setFilters(filters as ApprovalFilters),
     fetchData,
     handleToggleUserDisabled,
     handleToggleAdminDisabled: includeAdmins ? handleToggleAdminDisabled : undefined,

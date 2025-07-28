@@ -142,7 +142,7 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             </Button>
           )}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{component.name}</h1>
+            <h1 className="text-3xl font-medium text-gray-900">{component.name}</h1>
             <p className="text-gray-600 mt-1">Component Details</p>
           </div>
         </div>
@@ -167,21 +167,27 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Component Code</label>
-                  <p className="text-lg font-semibold">{component.componentCode}</p>
+                  <Badge variant="secondary" className="text-base font-medium block">
+                    {component.componentCode}
+                  </Badge>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Issue Number</label>
-                  <p className="text-lg font-semibold">{component.issueNumber || 'Not set'}</p>
+                  <Badge variant="secondary" className="text-base font-medium block">
+                    {component.issueNumber || 'Not set'}
+                  </Badge>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Latest Revision</label>
-                  <Badge variant="secondary" className="text-base px-3 py-1">
+                  <Badge variant="secondary" className="text-base font-medium block">
                     {component.latestRevisionNumber}
                   </Badge>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Total Revisions</label>
-                  <p className="text-lg font-semibold">{component.revisions.length}</p>
+                  <Badge variant="secondary" className="text-base font-medium block">
+                    {component.revisions.length}
+                  </Badge>
                 </div>
               </div>
 
@@ -245,18 +251,18 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="gap-2"
                           onClick={() => handleViewPdf(revision)}
                         >
                           <Eye size={14} />
                           View PDF
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="gap-2"
                           onClick={() => handleDownloadPdf(revision)}
                           disabled={downloadingFileId === revision.fileId}
