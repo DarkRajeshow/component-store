@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { updateCurrentUserProfile, updateUserPreferences, changePassword } from '../services/api';
-import { UserProfile, AdminProfile, UserPreferences, PasswordChangeRequest } from '../types';
+import { UserPreferences, PasswordChangeRequest } from '../types';
 import { authService } from '@/services/authService';
+import { IAdmin, IUser } from '@/types/user.types';
 
 export function useUserProfile() {
-  const [profile, setProfile] = useState<UserProfile | AdminProfile | null>(null);
+  const [profile, setProfile] = useState<IUser | IAdmin | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,6 +14,8 @@ export function useUserProfile() {
     setError(null);
     try {
       const data = await authService.getCurrentUser();
+      console.log(data.user);
+      
       setProfile(data.user);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch profile');
@@ -21,7 +24,7 @@ export function useUserProfile() {
     }
   }, []);
 
-  const updateProfile = useCallback(async (updates: Partial<UserProfile | AdminProfile>) => {
+  const updateProfile = useCallback(async (updates: Partial<IUser | IAdmin>) => {
     setLoading(true);
     setError(null);
     try {

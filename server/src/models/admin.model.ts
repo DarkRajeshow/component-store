@@ -53,4 +53,13 @@ const AdminSchema = new Schema<IAdmin>({
     timestamps: true
 });
 
+// Virtual population for approver
+AdminSchema.virtual('approver', {
+    ref: 'Admin',
+    localField: 'approvedBy',
+    foreignField: '_id',
+    justOne: true
+});
+
+
 export const Admin = mongoose.model<IAdmin>('Admin', AdminSchema);

@@ -8,10 +8,14 @@ import { ApprovalStatus, Designation } from '../types/user.types';
 // Get all users
 export const getAllUsers = async (req: AuthRequest, res: Response) => {
   try {
-    const users = await User.find().populate({
-      path: 'reportingTo',
-      select: 'name department designation mobileNo'
-    });
+    const users = await User.find()
+      .populate({
+        path: 'reportingTo',
+        select: 'name designation email mobileNo'
+      }).populate({
+        path: 'approvedBy',
+        select: 'name email'
+      });
     res.json({ users });
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -22,7 +26,11 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
 // Get all admins
 export const getAllAdmins = async (req: AuthRequest, res: Response) => {
   try {
-    const admins = await Admin.find();
+    const admins = await Admin.find()
+      .populate({
+        path: 'approvedBy',
+        select: 'name email'
+      });
     res.json({ admins });
   } catch (error) {
     console.error('Error fetching admins:', error);

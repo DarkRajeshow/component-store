@@ -80,7 +80,7 @@ export const authenticateToken = async (
 ) => {
     try {
         const authHeader = req.headers.authorization;
-        
+
         const token = authHeader?.startsWith('Bearer ')
             ? authHeader.substring(7)
             : req.cookies.accessToken;
@@ -104,7 +104,13 @@ export const authenticateToken = async (
         if (decoded.userType === 'admin') {
             user = await Admin.findById(decoded.id);
         } else {
-            user = await User.findById(decoded.id).populate('reportingManager approver');
+            user = await User.findById(decoded.id).populate({
+                path: 'reportingTo',
+                select: 'name designation email mobileNo'
+            }).populate({
+                path: 'approvedBy',
+                select: 'name email'
+            });
         }
 
         if (!user) {
@@ -122,7 +128,7 @@ export const authenticateToken = async (
         next();
     } catch (error) {
         console.log(error);
-        
+
         if (error instanceof jwt.TokenExpiredError) {
             return res.status(401).json({
                 success: false,

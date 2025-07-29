@@ -6,8 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, Mail, Phone, Building, Shield, Clock, Check, X } from 'lucide-react';
-import { IUser, ApprovalStatus, FinalApprovalStatus } from '@/types/user.types';
+import { User, Mail, Phone, Building, Shield, Clock, Check, X, UserCheck } from 'lucide-react';
+import { IUser, ApprovalStatus, FinalApprovalStatus, IAdmin } from '@/types/user.types';
 import { ApprovalRole } from '../types';
 
 interface UserDetailsModalProps {
@@ -34,9 +34,9 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   role
 }) => {
   const isAdmin = role === 'admin';
-  
+
   // Fix approval logic: Show approve/reject buttons when user is pending
-  const canApprove = isAdmin 
+  const canApprove = isAdmin
     ? (user.dhApprovalStatus === ApprovalStatus.APPROVED || user.dhApprovalStatus === ApprovalStatus.NOT_REQUIRED) && user.adminApprovalStatus === ApprovalStatus.PENDING
     : user.dhApprovalStatus === ApprovalStatus.PENDING;
 
@@ -54,7 +54,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </DialogClose>
           </div>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>
@@ -127,6 +127,70 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </div>
             </CardContent>
           </Card>
+
+          {/* Reporting Manager */}
+          {user.reportingTo && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <UserCheck className="w-4 h-4" />
+                  Reporting Manager
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <p className="font-medium">{(user.reportingTo as IUser)?.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Designation</Label>
+                  <p className="font-medium flex items-center gap-1">
+                    <Badge variant="outline" className="mt-1">{(user.reportingTo as IUser)?.designation}</Badge>
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <p className="font-medium flex items-center gap-1">
+                    <Mail className="w-4 h-4" />
+                    {(user.reportingTo as IUser)?.email}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Mobile Number</Label>
+                  <p className="font-medium flex items-center gap-1">
+                    <Phone className="w-4 h-4" />
+                    {(user.reportingTo as IUser)?.mobileNo}
+                  </p>
+                </div>
+
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Approver */}
+          {user.approvedBy && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <UserCheck className="w-4 h-4" />
+                  Approver
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <p className="font-medium">{(user.approvedBy as IAdmin)?.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <p className="font-medium flex items-center gap-1">
+                    <Mail className="w-4 h-4" />
+                    {(user.approvedBy as IAdmin)?.email}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Approval Status */}
           <Card>

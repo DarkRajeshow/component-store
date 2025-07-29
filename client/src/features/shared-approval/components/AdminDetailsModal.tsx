@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, Mail, Shield, Clock, Check, X } from 'lucide-react';
+import { User, Mail, Shield, Clock, Check, X, UserCheck } from 'lucide-react';
 import { IAdmin, FinalApprovalStatus } from '@/types/user.types';
 
 interface AdminDetailsModalProps {
@@ -24,7 +24,6 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
   open,
   onOpenChange,
   handleAdminApproval,
-  onToggleAdminDisabled,
   approvalRemarks,
   setApprovalRemarks
 }) => {
@@ -44,7 +43,7 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
             </DialogClose>
           </div>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>
@@ -93,6 +92,31 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
             </CardContent>
           </Card>
 
+          {/* Approver */}
+          {admin.approvedBy && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <UserCheck className="w-4 h-4" />
+                  Approver
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <p className="font-medium">{(admin.approvedBy as IAdmin)?.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <p className="font-medium flex items-center gap-1">
+                    <Mail className="w-4 h-4" />
+                    {(admin.approvedBy as IAdmin)?.email}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Approval Status */}
           <Card>
             <CardHeader>
@@ -104,7 +128,7 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
             <CardContent>
               <div className="flex items-center gap-4">
                 <Label className="text-sm font-medium text-gray-500">Status</Label>
-                <Badge 
+                <Badge
                   className={
                     admin.isApproved === FinalApprovalStatus.PENDING
                       ? "bg-yellow-100 text-yellow-800 border-yellow-300"

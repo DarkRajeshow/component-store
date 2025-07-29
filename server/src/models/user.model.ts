@@ -115,22 +115,6 @@ const UserSchema = new Schema<IUser>({
     toObject: { virtuals: true }
 });
 
-// Virtual population for reporting manager
-UserSchema.virtual('reportingManager', {
-    ref: 'User',
-    localField: 'reportingTo',
-    foreignField: '_id',
-    justOne: true
-});
-
-// Virtual population for approver
-UserSchema.virtual('approver', {
-    ref: 'User',
-    localField: 'approvedBy',
-    foreignField: '_id',
-    justOne: true
-});
-
 // Pre-save middleware for validation and status logs
 UserSchema.pre('save', async function (next) {
     const user = this as IUser & { isNew: boolean };

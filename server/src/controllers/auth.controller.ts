@@ -149,7 +149,13 @@ export const loginUser = async (req: Request, res: Response) => {
             user = await User.findOne({
                 email: email.toLowerCase(),
                 role: role // 'designer' or 'other'
-            }).populate('reportingManager approver');
+            }).populate({
+                path: 'reportingTo',
+                select: 'name designation email'
+            }).populate({
+                path: 'approvedBy',
+                select: 'name email'
+            });
             userType = 'user';
         }
 
@@ -319,7 +325,7 @@ export const adminApprovalForUser = async (req: AuthRequest, res: Response) => {
     try {
         const { action, remarks } = req.body;
         const { id: userId } = req.params;
-        const adminId = req.userId;
+        const adminId = req.user._id;
 
         const userToApprove = await User.findById(userId);
         if (!userToApprove) {
@@ -404,7 +410,7 @@ export const adminApprovalForAdmin = async (req: AuthRequest, res: Response) => 
         const { action, remarks } = req.body;
         const { id: adminIdToApprove } = req.params;
         console.log(adminIdToApprove);
-        
+
         const adminId = req.userId;
 
         const adminToApprove = await Admin.findById(adminIdToApprove);
@@ -475,8 +481,8 @@ export const getUserStatus = async (req: AuthRequest, res: Response) => {
         const user = req.user as IUser;
 
         const userWithDetails = await User.findById(user._id)
-            .populate('reportingManager', 'name designation')
-            .populate('approver', 'name')
+            .populate('reportingTo', 'name designation')
+            .populate('approvedBy', 'name')
             .select('-password');
 
         if (!userWithDetails) {
@@ -585,7 +591,7 @@ export const getPendingUsersForAdmin = async (req: AuthRequest, res: Response) =
             dhApprovalStatus: ApprovalStatus.APPROVED,
             adminApprovalStatus: ApprovalStatus.PENDING
         })
-            .populate('reportingManager', 'name designation')
+            .populate('reportingTo', 'name designation')
             .select('-password')
             .sort({ createdAt: -1 });
 
@@ -671,8 +677,8 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
             user = await Admin.findById(req.user!._id).select('-password');
         } else {
             user = await User.findById(req.user!._id)
-                .populate('reportingManager', 'name designation email')
-                .populate('approver', 'name email')
+                .populate('reportingTo', 'name designation email')
+                .populate('approvedBy', 'name email')
                 .select('-password');
         }
 

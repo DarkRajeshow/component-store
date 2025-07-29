@@ -73,14 +73,13 @@ export interface IUser {
     reportingTo?: string | IUser; // Reference to another IUser
     role: Role;
     preferences: UserPreferences; //temp key value types may change in future
-    approvedBy?: string;
+    approvedBy?: string | IAdmin;
     isDisabled: boolean,
     dhApprovalStatus: ApprovalStatus;
     adminApprovalStatus: ApprovalStatus;
     statusLogs: IStatusLog[];
     createdAt: Date;
     updatedAt: Date;
-    approver?: IUser;
 }
 
 
@@ -89,8 +88,10 @@ export interface IAdmin {
     name: string;
     email: string;
     password?: string;
+    approvedBy?: string | IAdmin;
     isApproved: FinalApprovalStatus;
     role: 'admin';
+    statusLogs: IStatusLog[];
     isSystemAdmin: boolean;
     isDisabled: boolean,
     createdAt: Date;

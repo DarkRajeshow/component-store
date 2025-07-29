@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { UserProfile, AdminProfile } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -20,10 +19,11 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import { IAdmin, IUser } from '@/types/user.types';
 
 interface ProfileInfoSectionProps {
-  profile: UserProfile | AdminProfile;
-  onUpdate: (updates: Partial<UserProfile | AdminProfile>) => void;
+  profile: IUser | IAdmin;
+  onUpdate: (updates: Partial<IUser | IAdmin>) => void;
   loading: boolean;
 }
 
@@ -187,15 +187,15 @@ export function ProfileInfoSection({ profile, onUpdate, loading }: ProfileInfoSe
                     <p className="text-lg font-medium capitalize">{profile.role}</p>
                   </div>
 
-                  {profile.reportingManager && (
+                  {profile.reportingTo && (
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2 text-sm font-medium">
+                      <Label className="flex items-center gap-2 text-sm fopnt-medium">
                         <UserCheck className="w-4 h-4" />
                         Reporting Manager
                       </Label>
                       <div>
-                        <p className="text-lg font-medium">{profile.reportingManager.name}</p>
-                        <p className="text-sm text-muted-foreground">{profile.reportingManager.email}</p>
+                        <p className="text-lg font-medium">{(profile.reportingTo as IUser).name}</p>
+                        <p className="text-sm text-muted-foreground">{(profile.reportingTo as IUser).email}</p>
                       </div>
                     </div>
                   )}

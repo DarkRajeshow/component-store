@@ -79,9 +79,7 @@ export interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
     isDisabled: boolean,
-    approver?: IUser;
-    reportingManager?: IUser;
-    // Virtual fields
+
 }
 
 

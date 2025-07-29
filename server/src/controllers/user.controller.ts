@@ -31,7 +31,7 @@ class UserController {
     async searchUsers(req: Request, res: Response) {
         try {
             const { search, limit = 10 } = req.query;
-            
+
             let query = {};
             if (search && typeof search === 'string') {
                 query = {
@@ -94,7 +94,7 @@ class UserController {
             // @ts-ignore
             const userId = req.user?._id || req.user?.userId;
             const userType = req.userType; // 'user' or 'admin'
-            
+
             if (!userId) {
                 return res.status(401).json({ message: 'Unauthorized' });
             }
@@ -104,7 +104,7 @@ class UserController {
             if (userType === 'admin') {
                 user = await Admin.findById(userId);
             } else {
-                user = await User.findById(userId).populate('reportingManager approver');
+                user = await User.findById(userId).populate('reportingTo approvedBy');
             }
 
             if (!user) {
@@ -121,7 +121,7 @@ class UserController {
             // @ts-ignore
             const userId = req.user?._id || req.user?.userId;
             const userType = req.userType; // 'user' or 'admin'
-            
+
             if (!userId) {
                 return res.status(401).json({ message: 'Unauthorized' });
             }
@@ -137,7 +137,13 @@ class UserController {
             if (userType === 'admin') {
                 user = await Admin.findByIdAndUpdate(userId, updateData, { new: true });
             } else {
-                user = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate('reportingManager approver');
+                user = await User.findByIdAndUpdate(userId, updateData, { new: true }).populate({
+                    path: 'reportingTo',
+                    select: 'name designation email mobileNo'
+                }).populate({
+                    path: 'approvedBy',
+                    select: 'name email'
+                });;
             }
 
             if (!user) {
@@ -154,11 +160,11 @@ class UserController {
             // @ts-ignore
             const userId = req.user?._id || req.user?.userId;
             const userType = req.userType; // 'user' or 'admin'
-            
+
             if (!userId) {
-                return res.status(401).json({ 
+                return res.status(401).json({
                     success: false,
-                    message: 'Unauthorized - User ID not found' 
+                    message: 'Unauthorized - User ID not found'
                 });
             }
 
@@ -166,30 +172,30 @@ class UserController {
 
             // Validation
             if (!currentPassword || !newPassword || !confirmPassword) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     success: false,
-                    message: 'All password fields are required' 
+                    message: 'All password fields are required'
                 });
             }
 
             if (newPassword !== confirmPassword) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     success: false,
-                    message: 'New password and confirmation do not match' 
+                    message: 'New password and confirmation do not match'
                 });
             }
 
             if (newPassword.length < 8) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     success: false,
-                    message: 'New password must be at least 8 characters long' 
+                    message: 'New password must be at least 8 characters long'
                 });
             }
 
             if (currentPassword === newPassword) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     success: false,
-                    message: 'New password must be different from current password' 
+                    message: 'New password must be different from current password'
                 });
             }
 
@@ -202,40 +208,40 @@ class UserController {
             }
 
             if (!user) {
-                return res.status(404).json({ 
+                return res.status(404).json({
                     success: false,
-                    message: 'User not found' 
+                    message: 'User not found'
                 });
             }
 
             // Verify current password
             const isCurrentPasswordValid = await comparePasswords(currentPassword, user.password);
-            
+
             if (!isCurrentPasswordValid) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     success: false,
-                    message: 'Current password is incorrect' 
+                    message: 'Current password is incorrect'
                 });
             }
 
             // Hash new password
             const hashedNewPassword = await hashPassword(newPassword);
-            
+
             // Update password
             user.password = hashedNewPassword;
             await user.save();
 
             console.log(`Password changed successfully for ${userType} with ID: ${userId}`);
 
-            res.status(200).json({ 
+            res.status(200).json({
                 success: true,
-                message: 'Password changed successfully' 
+                message: 'Password changed successfully'
             });
         } catch (error) {
             console.error('Password change error:', error);
-            res.status(500).json({ 
+            res.status(500).json({
                 success: false,
-                message: 'Internal server error during password change' 
+                message: 'Internal server error during password change'
             });
         }
     }
