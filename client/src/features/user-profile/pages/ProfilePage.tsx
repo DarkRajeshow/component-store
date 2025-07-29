@@ -129,10 +129,10 @@ export default function ProfilePage() {
                   <span className="text-sm text-muted-foreground">Status</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     profile.isApproved === 'approved' 
-                      ? 'bg-green-50 text-green-700 border border-green-200' 
+                      ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800 border border-green-200' 
                       : profile.isApproved === 'rejected'
-                      ? 'bg-red-50 text-red-700 border border-red-200'
-                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 border border-red-200'
+                      : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 border border-amber-200'
                   }`}>
                     {profile.isApproved === 'approved' ? 'Active' : 
                      profile.isApproved === 'rejected' ? 'Rejected' : 'Pending'}

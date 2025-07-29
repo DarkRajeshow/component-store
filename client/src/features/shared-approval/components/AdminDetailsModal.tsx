@@ -31,7 +31,7 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-scroll">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-scroll bg-white dark:bg-dark">
         <DialogHeader>
           <div className='flex items-center justify-between'>
             <DialogTitle className="flex items-center gap-2">
@@ -55,36 +55,36 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Full Name</Label>
                 <p className="font-medium">{admin.name}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Email</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Email</Label>
                 <p className="font-medium flex items-center gap-1">
                   <Mail className="w-4 h-4" />
                   {admin.email}
                 </p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Admin Type</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Admin Type</Label>
                 <Badge variant="outline" className="mt-1">
                   {admin.isSystemAdmin ? 'System Admin' : 'Admin'}
                 </Badge>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Account Status</Label>
-                <Badge className={`${admin.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                <Label className="text-sm font-medium text-muted-foreground">Account Status</Label>
+                <Badge className={`${admin.isDisabled ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'}`}>
                   {admin.isDisabled ? 'Disabled' : 'Enabled'}
                 </Badge>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Created Date</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Created Date</Label>
                 <p className="font-medium">
                   {admin.createdAt ? new Date(admin.createdAt).toLocaleString() : '-'}
                 </p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Updated Date</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Updated Date</Label>
                 <p className="font-medium">
                   {admin.updatedAt ? new Date(admin.updatedAt).toLocaleString() : '-'}
                 </p>
@@ -103,11 +103,11 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Full Name</Label>
                   <p className="font-medium">{(admin.approvedBy as IAdmin)?.name}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Email</Label>
                   <p className="font-medium flex items-center gap-1">
                     <Mail className="w-4 h-4" />
                     {(admin.approvedBy as IAdmin)?.email}
@@ -127,14 +127,14 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
-                <Label className="text-sm font-medium text-gray-500">Status</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Status</Label>
                 <Badge
                   className={
                     admin.isApproved === FinalApprovalStatus.PENDING
-                      ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                      ? "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
                       : admin.isApproved === FinalApprovalStatus.APPROVED
-                        ? "bg-green-100 text-green-800 border-green-300"
-                        : "bg-red-100 text-red-800 border-red-300"
+                        ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                        : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
                   }
                   variant="outline"
                 >
@@ -161,10 +161,10 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
                 {admin.statusLogs && admin.statusLogs.length > 0 ? (
                   <div className="space-y-2">
                     {admin.statusLogs.map((log: any, index: number) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
                         <Badge variant="outline" className="text-xs">{log.status}</Badge>
                         <span className="text-sm">{log.message}</span>
-                        <span className="text-xs text-gray-500 ml-auto">
+                        <span className="text-xs text-muted-foreground ml-auto">
                           {new Date(log.timestamp).toLocaleString()}
                         </span>
                         {log.updatedBy && (
@@ -184,12 +184,13 @@ export const AdminDetailsModal: React.FC<AdminDetailsModalProps> = ({
         {/* Approval Actions */}
         {canApprove && (
           <div className="space-y-4 pt-4 border-t">
-            <div>
+            <div className='space-y-2'>
               <Label htmlFor="remarks" className="text-sm font-medium">
                 Approval Remarks (Optional)
               </Label>
               <Textarea
                 id="remarks"
+                className='focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0'
                 placeholder="Add any remarks for approval/rejection..."
                 value={approvalRemarks}
                 onChange={(e) => setApprovalRemarks(e.target.value)}

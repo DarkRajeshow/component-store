@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '@/hooks';
 
 interface ComponentDetailsPageProps {
   // componentId: string;
@@ -38,6 +39,8 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
   const [selectedRevision, setSelectedRevision] = useState<Revision | null>(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const isDesigner = user?.role === 'designer' || user?.role === 'admin';
 
   const fetchDetails = async () => {
     try {
@@ -146,10 +149,12 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             <p className="text-muted-foreground mt-1">Component Details</p>
           </div>
         </div>
-        <Button onClick={() => setShowUpload(true)} className="gap-2">
-          <FileUp size={16} />
-          Upload Revision
-        </Button>
+        {isDesigner && (
+          <Button onClick={() => setShowUpload(true)} className="gap-2">
+            <FileUp size={16} />
+            Upload Revision
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -221,7 +226,70 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {sortedRevisions.map((revision, index) => (
+                  {isDesigner ? sortedRevisions.map((revision, index) => (
+                    <div key={revision._id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <Badge variant={index === 0 ? "default" : "outline"} className="text-sm">
+                            Rev {revision.revisionNumber}
+                          </Badge>
+                          {index === 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              Latest
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-right text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar size={14} />
+                            {new Date(revision.date).toLocaleDateString()}
+                          </div>
+                          <div className="flex items-center gap-1 mt-1">
+                            <User size={14} />
+                            {revision.createdBy?.name}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <p className="text-foreground">{revision.remark}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleViewPdf(revision)}
+                        >
+                          <Eye size={14} />
+                          View PDF
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleDownloadPdf(revision)}
+                          disabled={downloadingFileId === revision.fileId}
+                        >
+                          {downloadingFileId === revision.fileId ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" />
+                              Downloading...
+                            </>
+                          ) : (
+                            <>
+                              <Download size={14} />
+                              Download
+                            </>
+                          )}
+                        </Button>
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          {revision.originalFileName}
+                        </span>
+                      </div>
+                    </div>
+                  )) : sortedRevisions.slice(0, 1).map((revision, index) => (
                     <div key={revision._id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">

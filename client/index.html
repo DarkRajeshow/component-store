@@ -11,18 +11,14 @@
 <body>
   <div id="root"></div>
   <script>
-    // Early theme script: set dark class before React loads
+    // Early theme script: always start with light theme
+    // React app will handle theme application based on authentication status
     (function() {
       try {
-        let theme = localStorage.getItem('theme');
-        if (!theme) {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        // Always remove dark class to ensure light theme on page load
+        document.documentElement.classList.remove('dark');
+        // Clear any stored theme to prevent conflicts
+        localStorage.removeItem('theme');
       } catch (e) {}
     })();
   </script>

@@ -227,7 +227,7 @@ const Navbar = () => {
                     {/* Left: Logo & Desktop Nav */}
                     <div className="flex items-center gap-4">
                         <Link to="/" className="flex items-center gap-2 text-2xl font-extrabold  tracking-tight select-none focus:outline-none" aria-label="Home">
-                            <span className="rounded-lg bg-zinc-50 to-blue-300 px-2 py-1 text-red-600">CS</span>
+                            <span className="rounded-lg bg-accent px-2 py-1 text-red-600">CS</span>
                         </Link>
                         {/* Desktop Nav Links */}
                         <div className="hidden md:flex gap-1 ml-4">
@@ -265,7 +265,7 @@ const Navbar = () => {
 
                     {/* Center: Search Bar (Desktop) */}
                     <div className="hidden md:flex flex-1 justify-end">
-                        <Button variant="ghost" className="px-3 w-1/3 flex justify-between bg-light dark:bg-dark " onClick={() => setSearchOpen(true)} aria-label="Open search (Ctrl+K)">
+                        <Button variant="ghost" className="px-3 w-1/3 flex justify-between bg-accent " onClick={() => setSearchOpen(true)} aria-label="Open search (Ctrl+K)">
                             <div className='flex items-center gap-2'>
                                 <Search className="w-5 h-5" />
                                 <span className="hidden sm:inline">Search</span>
@@ -300,10 +300,10 @@ const Navbar = () => {
                             <Sun className={cn('w-5 h-5 transition-colors', !isDark ? 'text-yellow-400' : 'text-muted-foreground')} />
                             <Switch
                                 checked={isDark}
-                                onCheckedChange={() => !isLoading && toggleTheme()}
+                                onCheckedChange={() => !isLoading && isAuthenticated && toggleTheme()}
                                 aria-label="Toggle dark mode"
                                 className="mx-1"
-                                disabled={isLoading}
+                                disabled={isLoading || !isAuthenticated}
                             />
                             <Moon className={cn('w-5 h-5 transition-colors', isDark ? 'text-blue-400' : 'text-muted-foreground')} />
                         </div>
@@ -376,7 +376,7 @@ const Navbar = () => {
                 >
                     <div className="flex flex-col gap-2 p-6 pt-8">
                         <Link to="/" className="flex items-center gap-2 text-2xl font-extrabold text-purple-700 mb-6" onClick={() => setMobileMenuOpen(false)}>
-                            <span className="rounded-lg bg-gradient-to-br from-purple-400 to-blue-300 px-2 py-1 shadow-md">CS</span>
+                            <span className="rounded-lg bg-accent px-2 py-1 shadow-md">CS</span>
                         </Link>
                         {navLinks.filter(link => link.show).map(link => (
                             'sublinks' in link && link.sublinks ? (
@@ -445,10 +445,10 @@ const Navbar = () => {
                             <Sun className={cn('w-5 h-5 transition-colors', !isDark ? 'text-yellow-400' : 'text-muted-foreground')} />
                             <Switch
                                 checked={isDark}
-                                onCheckedChange={() => !isLoading && toggleTheme()}
+                                onCheckedChange={() => !isLoading && isAuthenticated && toggleTheme()}
                                 aria-label="Toggle dark mode"
                                 className="mx-1"
-                                disabled={isLoading}
+                                disabled={isLoading || !isAuthenticated}
                             />
                             <Moon className={cn('w-5 h-5 transition-colors', isDark ? 'text-blue-400' : 'text-muted-foreground')} />
                         </div>

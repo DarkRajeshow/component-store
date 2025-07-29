@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks';
 
 export function ComponentTable({ onCreate }: { onCreate: () => void }) {
   const store = useComponentStore();
@@ -33,7 +34,9 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
   const [searchFocused, setSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-
+  const { user } = useAuth();
+  const isDesigner = user?.role === 'designer' || user?.role === 'admin';
+  
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -128,10 +131,14 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
           <h2 className="text-2xl font-bold text-foreground">Component Models</h2>
           <p className="text-sm text-muted-foreground mt-1">Manage and search component designs</p>
         </div>
-        <Button onClick={onCreate} className="gap-2">
-          <Plus size={18} />
-          Create Component
-        </Button>
+        {
+          isDesigner && (
+            <Button onClick={onCreate} className="gap-2">
+              <Plus size={18} />
+              Create Component
+            </Button>
+          )
+        }
       </div>
 
       {/* Search Bar */}

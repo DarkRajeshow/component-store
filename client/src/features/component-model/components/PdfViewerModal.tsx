@@ -200,7 +200,7 @@ export function PdfViewerModal({ revision, open, onClose }: PdfViewerModalProps)
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className={`${isFullscreen ? 'max-w-none w-screen h-screen' : 'max-w-6xl max-h-[90vh]'} overflow-hidden`}>
+      <DialogContent className={`${isFullscreen ? 'max-w-none w-screen h-screen' : 'max-w-6xl max-h-[90vh]'} overflow-hidden dark:bg-dark`}>
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -209,7 +209,7 @@ export function PdfViewerModal({ revision, open, onClose }: PdfViewerModalProps)
                 <DialogTitle className="text-xl font-bold">
                   {revision.originalFileName}
                 </DialogTitle>
-                <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar size={14} />
                     {new Date(revision.date).toLocaleDateString()}
@@ -226,7 +226,7 @@ export function PdfViewerModal({ revision, open, onClose }: PdfViewerModalProps)
             </div>
             <div className="flex items-center gap-2">
               {/* Zoom Controls */}
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-accent rounded-lg p-1">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -316,7 +316,7 @@ export function PdfViewerModal({ revision, open, onClose }: PdfViewerModalProps)
 
           {/* Zoom Slider */}
           <div className="flex items-center gap-3 mt-3">
-            <span className="text-sm text-gray-600">Zoom:</span>
+            <span className="text-sm text-muted-foreground">Zoom:</span>
             <Slider
               value={[zoom]}
               onValueChange={(value) => setZoom(value[0])}

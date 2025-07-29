@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CheckIcon, ChevronDownIcon, Loader2 } from 'lucide-react';
+import { CheckIcon, ChevronDownIcon, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Option {
@@ -74,7 +74,7 @@ export const MultiSelectCombobox: React.FC<MultiSelectComboboxProps> = ({
       {label && <label className="block text-sm font-medium mb-1">{label}</label>}
       <div
         className={cn(
-          'relative border rounded-md px-2 py-1 min-h-[42px] flex flex-wrap items-center gap-1 bg-background cursor-pointer',
+          'relative border rounded-md px-2 py-1 min-h-[42px] flex flex-wrap items-center gap-1 cursor-pointer',
           error ? 'border-red-500' : 'border-input',
           disabled && 'opacity-50 pointer-events-none'
         )}
@@ -95,7 +95,7 @@ export const MultiSelectCombobox: React.FC<MultiSelectComboboxProps> = ({
             return (
               <span
                 key={val}
-                className="flex items-center bg-green-100/70 text-accent-foreground rounded px-2 py-0.5 mr-1 mb-1"
+                className="flex items-center bg-accent text-accent-foreground rounded px-2 py-0.5 mr-1 mb-1"
               >
                 {opt?.label || val}
                 <button
@@ -107,7 +107,7 @@ export const MultiSelectCombobox: React.FC<MultiSelectComboboxProps> = ({
                   }}
                   aria-label={`Remove ${opt?.label || val}`}
                 >
-                  ×
+                  <X className="size-4" />
                 </button>
               </span>
             );

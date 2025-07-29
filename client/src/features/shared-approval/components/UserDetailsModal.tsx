@@ -42,7 +42,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-scroll">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-scroll bg-white dark:bg-dark">
         <DialogHeader>
           <div className='flex items-center justify-between'>
             <DialogTitle className="flex items-center gap-2">
@@ -66,33 +66,33 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Full Name</Label>
                 <p className="font-medium">{user.name}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Employee ID</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Employee ID</Label>
                 <p className="font-medium">{user.employeeId}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Email</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Email</Label>
                 <p className="font-medium flex items-center gap-1">
                   <Mail className="w-4 h-4" />
                   {user.email}
                 </p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Mobile Number</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Mobile Number</Label>
                 <p className="font-medium flex items-center gap-1">
                   <Phone className="w-4 h-4" />
                   {user.mobileNo}
                 </p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Created At</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Created At</Label>
                 <p className="font-medium">{new Date(user.createdAt).toLocaleString()}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Updated At</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Updated At</Label>
                 <p className="font-medium">{new Date(user.updatedAt).toLocaleString()}</p>
               </div>
             </CardContent>
@@ -108,20 +108,20 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium text-gray-500">Department</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Department</Label>
                 <Badge variant="outline" className="mt-1">{user.department}</Badge>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Designation</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Designation</Label>
                 <Badge variant="outline" className="mt-1">{user.designation}</Badge>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Role</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Role</Label>
                 <Badge variant="outline" className="mt-1">{user.role}</Badge>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Account Status</Label>
-                <Badge className={`${user.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                <Label className="text-sm font-medium text-muted-foreground">Account Status</Label>
+                <Badge className={`${user.isDisabled ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'}`}>
                   {user.isDisabled ? 'Disabled' : 'Enabled'}
                 </Badge>
               </div>
@@ -139,24 +139,24 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Full Name</Label>
                   <p className="font-medium">{(user.reportingTo as IUser)?.name}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Designation</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Designation</Label>
                   <p className="font-medium flex items-center gap-1">
                     <Badge variant="outline" className="mt-1">{(user.reportingTo as IUser)?.designation}</Badge>
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Email</Label>
                   <p className="font-medium flex items-center gap-1">
                     <Mail className="w-4 h-4" />
                     {(user.reportingTo as IUser)?.email}
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Mobile Number</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Mobile Number</Label>
                   <p className="font-medium flex items-center gap-1">
                     <Phone className="w-4 h-4" />
                     {(user.reportingTo as IUser)?.mobileNo}
@@ -178,11 +178,11 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Full Name</Label>
                   <p className="font-medium">{(user.approvedBy as IAdmin)?.name}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Email</Label>
                   <p className="font-medium flex items-center gap-1">
                     <Mail className="w-4 h-4" />
                     {(user.approvedBy as IAdmin)?.email}
@@ -202,22 +202,22 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             </CardHeader>
             <CardContent className="grid grid-cols-3 gap-4">
               <div>
-                <Label className="text-sm font-medium text-gray-500">DH Approval</Label>
+                <Label className="text-sm font-medium text-muted-foreground">DH Approval</Label>
                 <div className="mt-1">{getStatusBadge(user.dhApprovalStatus)}</div>
               </div>
               {isAdmin && (
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Admin Approval</Label>
+                  <Label className="text-sm font-medium text-muted-foreground">Admin Approval</Label>
                   <div className="mt-1">{getStatusBadge(user.adminApprovalStatus)}</div>
                 </div>
               )}
               <div>
-                <Label className="text-sm font-medium text-gray-500">Overall Status</Label>
+                <Label className="text-sm font-medium text-muted-foreground">Overall Status</Label>
                 <div className="mt-1">
                   {user.isApproved === FinalApprovalStatus.PENDING ?
-                    <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge> :
-                    user.isApproved === FinalApprovalStatus.APPROVED ? <Badge className="bg-green-100 text-green-800">Approved</Badge> :
-                      <Badge className="bg-red-100 text-red-800">Not Approved</Badge>
+                    <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">Pending</Badge> :
+                    user.isApproved === FinalApprovalStatus.APPROVED ? <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">Approved</Badge> :
+                      <Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">Not Approved</Badge>
                   }
                 </div>
               </div>
@@ -237,20 +237,20 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 {user.statusLogs && user.statusLogs.length > 0 ? (
                   <div className="space-y-2">
                     {user.statusLogs.map((log: any, index: number) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                      <div key={index} className="flex items-center gap-2 p-2 bg-accent rounded">
                         <Badge variant="outline" className="text-xs">{log.status}</Badge>
                         <span className="text-sm">{log.message}</span>
-                        <span className="text-xs text-gray-500 ml-auto">
+                        <span className="text-xs text-muted-foreground ml-auto">
                           {new Date(log.timestamp).toLocaleString()}
                         </span>
                         {log.updatedBy && (
-                          <span className="text-xs text-gray-400 ml-2">By: {log.updatedBy}</span>
+                          <span className="text-xs text-muted-foreground ml-2">By: {log.updatedBy}</span>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm">No status logs available</p>
+                  <p className="text-muted-foreground text-sm">No status logs available</p>
                 )}
               </ScrollArea>
             </CardContent>

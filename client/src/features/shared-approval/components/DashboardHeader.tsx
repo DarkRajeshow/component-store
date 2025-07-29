@@ -17,7 +17,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-3xl font-bold">{title}</h1>
-        {subtitle && <p className="text-gray-600">{subtitle}</p>}
+        {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
       </div>
       <Button onClick={onRefresh} variant="outline">
         <RefreshCw className="w-4 h-4 mr-2" />

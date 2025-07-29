@@ -68,15 +68,8 @@ export function useUserProfile() {
     fetchProfile();
   }, [fetchProfile]);
 
-  useEffect(() => {
-    if (profile && 'preferences' in profile && profile.preferences?.theme) {
-      if (profile.preferences.theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  }, [profile]);
+  // Theme application is now handled centrally in useDarkMode hook
+  // Removed the conflicting theme logic from here
 
   return { 
     profile, 

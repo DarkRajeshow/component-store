@@ -601,33 +601,33 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
               {/* Next Steps */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-blue-900">Next Steps</CardTitle>
+                  <CardTitle className="text-lg">Next Steps</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-xs font-bold">1</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <span className=" text-xs font-bold">1</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-blue-900">Create Component</p>
-                      <p className="text-xs text-blue-700">Save the component metadata</p>
+                      <p className="text-sm font-medium">Create Component</p>
+                      <p className="text-xs text-muted-foreground">Save the component metadata</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-xs font-bold">2</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <span className=" text-xs font-bold">2</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-blue-900">Upload Initial Revision</p>
-                      <p className="text-xs text-blue-700">Add the first drawing file</p>
+                      <p className="text-sm font-medium">Upload Initial Revision</p>
+                      <p className="text-xs text-muted-foreground">Add the first drawing file</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                      <span className="text-gray-500 text-xs font-bold">3</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold">3</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Manage Revisions</p>
+                      <p className="text-sm font-medium">Manage Revisions</p>
                       <p className="text-xs text-muted-foreground">Track version history</p>
                     </div>
                   </div>

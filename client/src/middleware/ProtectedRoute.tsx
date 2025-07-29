@@ -20,8 +20,8 @@ const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
     requiredRoles &&
     user &&
     !requiredRoles.some(
-      (role) =>
-        (user.designation && user.designation === role) ||
+      (role : Role) =>
+        (user.designation && (user?.designation as unknown as Role) === role) ||
         (user.role && user.role === role)
     )
   ) {

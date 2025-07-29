@@ -183,11 +183,11 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-white dark:bg-zinc-900;
+  @apply bg-white dark:bg-dark;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 dark:bg-zinc-700;
+  @apply bg-gray-400 dark:bg-dark;
   border-radius: 5px;
 }
 
@@ -196,7 +196,13 @@ button {
 }
 
 /* Firefox */
+/* Default (light mode) */
 * {
   scrollbar-width: thin;
   scrollbar-color: gray white;
+}
+
+/* Dark mode: use .dark class on <html> or <body> */
+.dark * {
+  scrollbar-color: #444 #18181b; /* thumb color, track color */
 }

@@ -63,15 +63,6 @@ const AppRouter = () => {
         />
 
         <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
           path="/components"
           element={
             <ProtectedRoute requiredRoles={[Role.ADMIN, Role.DESIGNER, Role.OTHER, Role.DEPARTMENT_HEAD]}>

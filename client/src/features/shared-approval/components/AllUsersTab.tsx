@@ -86,7 +86,7 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className='bg-zinc-50'>
+              <TableRow className='bg-accent'>
                 <TableHead>User Details</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Department</TableHead>
@@ -122,10 +122,10 @@ export const AllUsersTab: React.FC<AllUsersTabProps> = ({
                     <Badge
                       className={
                         user.isApproved === FinalApprovalStatus.PENDING
-                          ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-950/60 dark:text-yellow-200 dark:border-none"
                           : user.isApproved === FinalApprovalStatus.APPROVED
-                            ? "bg-green-100 text-green-800 border-green-300"
-                            : "bg-red-100 text-red-800 border-red-300"
+                            ? "bg-green-100 text-green-800 border-green-300 dark:bg-green-950/60 dark:text-green-200 dark:border-none"
+                            : "bg-red-100 text-red-800 border-red-300 dark:bg-red-950/60 dark:text-red-200 dark:border-none" 
                       }
                       variant="outline"
                     >

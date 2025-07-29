@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Component } from '../types';
 import { ComponentTable } from '../components/ComponentTable';
-import { ComponentDetailsPage } from './ComponentDetailsPage';
 import { ComponentCreateModal } from '../components/ComponentCreateModal';
 import { useComponentNotifications } from '../hooks/useComponentNotifications';
 

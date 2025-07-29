@@ -26,10 +26,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
-            <Users className="w-8 h-8 text-blue-600" />
+            <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             <div>
-              <p className="text-2xl font-bold">{departmentUsersCount}</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-2xl font-bold text-foreground">{departmentUsersCount}</p>
+              <p className="text-sm text-muted-foreground">
                 {isAdmin ? 'Total Users' : 'Department Users'}
               </p>
             </div>
@@ -40,10 +40,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
-            <Clock className="w-8 h-8 text-yellow-600" />
+            <Clock className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             <div>
-              <p className="text-2xl font-bold">{pendingUsersCount}</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-2xl font-bold text-foreground">{pendingUsersCount}</p>
+              <p className="text-sm text-muted-foreground">
                 {isAdmin ? 'Pending Approval' : 'Pending DH Approval'}
               </p>
             </div>
@@ -54,10 +54,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
             <div>
-              <p className="text-2xl font-bold">{approvedUsersCount}</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-2xl font-bold text-foreground">{approvedUsersCount}</p>
+              <p className="text-sm text-muted-foreground">
                 {isAdmin ? 'Approved Users' : 'Approved by DH'}
               </p>
             </div>
@@ -69,10 +69,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Shield className="w-8 h-8 text-purple-600" />
+              <Shield className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               <div>
-                <p className="text-2xl font-bold">{admins?.length || 0}</p>
-                <p className="text-sm text-gray-600">Admins</p>
+                <p className="text-2xl font-bold text-foreground">{admins?.length || 0}</p>
+                <p className="text-sm text-muted-foreground">Admins</p>
               </div>
             </div>
           </CardContent>
@@ -81,10 +81,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Building className="w-8 h-8 text-indigo-600" />
+              <Building className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
               <div>
-                <p className="text-2xl font-bold">{users[0]?.department || 'N/A'}</p>
-                <p className="text-sm text-gray-600">Department</p>
+                <p className="text-2xl font-bold text-foreground">{users[0]?.department || 'N/A'}</p>
+                <p className="text-sm text-muted-foreground">Department</p>
               </div>
             </div>
           </CardContent>

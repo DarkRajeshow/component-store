@@ -539,33 +539,33 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
               {/* Next Steps */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-blue-900">Next Steps</CardTitle>
+                    <CardTitle className="text-lg">Next Steps</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-xs font-bold">1</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold">1</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-blue-900">Upload File</p>
-                      <p className="text-xs text-blue-700">Drag & drop or select PDF file</p>
+                      <p className="text-sm font-medium">Upload File</p>
+                      <p className="text-xs text-muted-foreground">Drag & drop or select PDF file</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-xs font-bold">2</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold">2</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-blue-900">Update Metadata</p>
-                      <p className="text-xs text-blue-700">Set revision details & notifications</p>
+                      <p className="text-sm font-medium">Update Metadata</p>
+                      <p className="text-xs text-muted-foreground">Set revision details & notifications</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                      <span className="text-gray-500 text-xs font-bold">3</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold">3</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Track History</p>
+                      <p className="text-sm font-medium">Track History</p>
                       <p className="text-xs text-muted-foreground">Monitor version changes</p>
                     </div>
                   </div>

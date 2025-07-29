@@ -91,7 +91,7 @@ const SignIn = () => {
                     navigate('/dh-dashboard')
                 }
                 else {
-                    navigate('/dashboard')
+                    navigate('/')
                 }
             }
         } catch (error) {
