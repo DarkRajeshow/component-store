@@ -48,8 +48,9 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
       setError(null);
       const data = await getComponentDetails(componentId || '');
       setComponent(data);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load component details');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load component details';
+      setError(errorMessage);
       toast.error('Failed to load component details');
     } finally {
       setLoading(false);

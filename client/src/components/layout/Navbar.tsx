@@ -29,14 +29,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { LogOut, User, Menu, Sun, Moon, Plus, Upload, Search, ChevronDown } from 'lucide-react';
+import { LogOut, User, Menu, Sun, Moon, Search, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth.js';
 import { NotificationBell } from '@/features/notification/components/NotificationBell';
 import { NotificationList } from '@/features/notification/components/NotificationList';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Role } from '@/types/user.types';
 import { Switch } from '@/components/ui/switch';
-import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup, CommandSeparator, CommandShortcut } from '@/components/ui/command';
+import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup, CommandSeparator } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 

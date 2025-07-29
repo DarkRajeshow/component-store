@@ -19,7 +19,7 @@ const HomePage = () => {
       try {
         const res = await getComponents({ page: 1, limit: 5, sortBy: 'createdAt', sortOrder: 'desc' });
         setRecentComponents(res.components || []);
-      } catch (e) {
+      } catch {
         setRecentComponents([]);
       } finally {
         setLoading(false);

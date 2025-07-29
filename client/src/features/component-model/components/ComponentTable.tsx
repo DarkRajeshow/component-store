@@ -43,7 +43,7 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
       console.log('Store state:', store);
       
       // Construct parameters for API call
-      const params: any = {
+      const params: Record<string, any> = {
         page: store.page,
         limit: store.limit,
         sortBy: store.sortBy,

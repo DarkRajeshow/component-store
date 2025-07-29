@@ -27,7 +27,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Count active filters
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => 
+  const activeFiltersCount = Object.entries(filters).filter(([, value]) => 
     value && value !== 'all' && value !== ''
   ).length;
 

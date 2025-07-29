@@ -1,4 +1,4 @@
-import { IUser, IAdmin, ApprovalStatus, FinalApprovalStatus } from '@/types/user.types';
+import { IUser, IAdmin } from '@/types/user.types';
 
 export interface ApprovalFilters {
   search: string;

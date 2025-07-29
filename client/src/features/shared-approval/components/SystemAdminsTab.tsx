@@ -16,9 +16,7 @@ interface SystemAdminsTabProps {
 
 export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
   admins,
-  onViewDetails,
-  onToggleAdminDisabled,
-  onAdminApproval
+  onViewDetails
 }) => {
   return (
     <Card>

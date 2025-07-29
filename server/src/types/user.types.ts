@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 // Enums for better type safety
 export enum Department {
@@ -69,10 +69,10 @@ export interface IUser extends Document {
     employeeId: string;
     department: Department;
     designation: Designation;
-    reportingTo?: mongoose.Types.ObjectId | string; // Reference to another IUser
+    reportingTo?: mongoose.Types.ObjectId | string | undefined; // Reference to another IUser
     role: Role;
     preferences: UserPreferences;
-    approvedBy?: mongoose.Types.ObjectId | string;
+    approvedBy?: mongoose.Types.ObjectId | string | undefined;
     dhApprovalStatus: ApprovalStatus;
     adminApprovalStatus: ApprovalStatus;
     statusLogs: IStatusLog[];

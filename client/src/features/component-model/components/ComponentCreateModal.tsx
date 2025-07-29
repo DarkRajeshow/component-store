@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { createComponent, updateComponent } from '../services/api';
-import { User, Component } from '../types';
+import { Component } from '../types';
 import { toast } from 'sonner';
 import { 
   Loader2, 
@@ -19,8 +19,6 @@ import {
   Users, 
   CheckCircle, 
   AlertCircle,
-  ArrowRight,
-  ArrowLeft,
   Plus,
   Edit,
   Upload,
@@ -194,8 +192,9 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
       reset();
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} component`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : `Failed to ${isEditMode ? 'update' : 'create'} component`;
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,8 +42,9 @@ export function ComponentForm({ users, onSuccess }: ComponentFormProps) {
       await createComponent(data);
       toast.success('Component created!');
       onSuccess?.();
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to create component');
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to create component';
+      toast.error(errorMessage);
     }
   };
 

@@ -70,10 +70,10 @@ export interface IUser {
     employeeId: string;
     department: Department;
     designation: Designation;
-    reportingTo?: string | IUser; // Reference to another IUser
+    reportingTo?: string | IUser | undefined; // Reference to another IUser
     role: Role;
     preferences: UserPreferences; //temp key value types may change in future
-    approvedBy?: string | IAdmin;
+    approvedBy?: string | IAdmin | undefined;
     isDisabled: boolean,
     dhApprovalStatus: ApprovalStatus;
     adminApprovalStatus: ApprovalStatus;

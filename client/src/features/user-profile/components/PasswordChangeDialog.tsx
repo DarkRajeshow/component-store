@@ -77,8 +77,9 @@ export function PasswordChangeDialog({ onChangePassword, loading, trigger }: Pas
       } else {
         setMessage({ type: 'error', text: result.message });
       }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to change password' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to change password';
+      setMessage({ type: 'error', text: errorMessage });
     }
   };
 

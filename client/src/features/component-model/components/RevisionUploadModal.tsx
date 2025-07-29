@@ -19,15 +19,10 @@ import {
   Users, 
   CheckCircle, 
   AlertCircle,
-  ArrowRight,
-  ArrowLeft,
   File,
   X,
   Loader2,
-  UploadCloud,
-  Calendar,
-  User,
-  RefreshCw
+  UploadCloud
 } from 'lucide-react';
 import { MultiSelectCombobox } from '@/components/ui/combobox';
 import { useUserSearch } from '../hooks/useUserSearch';
@@ -174,8 +169,9 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
       toast.success('Revision uploaded successfully!');
       onSuccess?.();
       onClose();
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to upload revision');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload revision';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

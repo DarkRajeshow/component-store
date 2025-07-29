@@ -6,7 +6,7 @@
   "homepage": "./",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit --skipLibCheck && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

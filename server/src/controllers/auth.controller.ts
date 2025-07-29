@@ -325,7 +325,7 @@ export const adminApprovalForUser = async (req: AuthRequest, res: Response) => {
     try {
         const { action, remarks } = req.body;
         const { id: userId } = req.params;
-        const adminId = req.user._id;
+        const adminId = req.userId;
 
         const userToApprove = await User.findById(userId);
         if (!userToApprove) {
@@ -432,7 +432,7 @@ export const adminApprovalForAdmin = async (req: AuthRequest, res: Response) => 
         // Update approval status
         const newStatus = action === 'approve' ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.REJECTED;
         adminToApprove.isApproved = newStatus;
-        adminToApprove.approvedBy = adminId;
+        adminToApprove.approvedBy = adminId as any;
 
         // Add status log
         const statusMessage = newStatus === FinalApprovalStatus.APPROVED

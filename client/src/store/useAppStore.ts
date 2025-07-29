@@ -11,7 +11,7 @@ const useAppStore = create<StoreState>()(
     }),
       {
         name: "app-storage",
-        partialize: (state: StoreState) => ({
+        partialize: () => ({
           // user: state.user,
           // design: state.design,
           // undoStack: state.undoStack,
