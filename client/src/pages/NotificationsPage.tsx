@@ -15,7 +15,7 @@ const NotificationsPage = () => {
                     </Button>
                 </div>
                 <Card>
-                    <NotificationList />
+                    <NotificationList previewMode={false} />
                 </Card>
             </div>
         </div>

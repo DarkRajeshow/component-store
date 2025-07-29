@@ -38,21 +38,7 @@ import { Role } from '@/types/user.types';
 import { Switch } from '@/components/ui/switch';
 import { CommandDialog, CommandInput, CommandList, CommandItem, CommandEmpty, CommandGroup, CommandSeparator, CommandShortcut } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-
-// Theme toggle logic (Tailwind dark mode)
-function useTheme() {
-    const [isDark, setIsDark] = useState(() =>
-        typeof window !== 'undefined' ? document.documentElement.classList.contains('dark') : false
-    );
-    useEffect(() => {
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, [isDark]);
-    return { isDark, setIsDark };
-}
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuth();
@@ -60,7 +46,7 @@ const Navbar = () => {
     const [notificationOpen, setNotificationOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const { isDark, setIsDark } = useTheme();
+    const { isDark, toggleTheme, isLoading } = useDarkMode();
     const location = useLocation();
     const navigate = useNavigate();
     const navRef = useRef<HTMLDivElement>(null);
@@ -193,7 +179,7 @@ const Navbar = () => {
             </Dialog>
 
             {/* Command Palette (Global Search) */}
-            <CommandDialog className='w-3xl' open={searchOpen} onOpenChange={setSearchOpen} title="Quick Search" description="Search components, users, pages...">
+            <CommandDialog className='w-3xl bg-transparent' open={searchOpen} onOpenChange={setSearchOpen} title="Quick Search" description="Search components, users, pages...">
                 <div className="w-full mx-auto">
                     <CommandInput placeholder="Type a command or search..." className="w-full min-w-[400px] md:min-w-[600px] lg:min-w-[800px] xl:min-w-[1000px]" />
                 </div>
@@ -279,7 +265,7 @@ const Navbar = () => {
 
                     {/* Center: Search Bar (Desktop) */}
                     <div className="hidden md:flex flex-1 justify-end">
-                        <Button variant="ghost" className="px-3 w-1/3 flex justify-between bg-zinc-50" onClick={() => setSearchOpen(true)} aria-label="Open search (Ctrl+K)">
+                        <Button variant="ghost" className="px-3 w-1/3 flex justify-between bg-light dark:bg-dark " onClick={() => setSearchOpen(true)} aria-label="Open search (Ctrl+K)">
                             <div className='flex items-center gap-2'>
                                 <Search className="w-5 h-5" />
                                 <span className="hidden sm:inline">Search</span>
@@ -309,17 +295,18 @@ const Navbar = () => {
                                 </PopoverContent>
                             </Popover>
                         )}
-                        {/* Theme Toggle */}
-                        {/* <div className="flex items-center gap-1 px-2">
-              <Sun className={cn('w-5 h-5', !isDark ? 'text-yellow-400' : 'text-muted-foreground')} />
-              <Switch
-                checked={isDark}
-                onCheckedChange={setIsDark}
-                aria-label="Toggle dark mode"
-                className="mx-1"
-              />
-              <Moon className={cn('w-5 h-5', isDark ? 'text-blue-400' : 'text-muted-foreground')} />
-            </div> */}
+                        {/* Theme Toggle (Desktop) */}
+                        <div className="hidden md:flex items-center gap-1 px-2">
+                            <Sun className={cn('w-5 h-5 transition-colors', !isDark ? 'text-yellow-400' : 'text-muted-foreground')} />
+                            <Switch
+                                checked={isDark}
+                                onCheckedChange={() => !isLoading && toggleTheme()}
+                                aria-label="Toggle dark mode"
+                                className="mx-1"
+                                disabled={isLoading}
+                            />
+                            <Moon className={cn('w-5 h-5 transition-colors', isDark ? 'text-blue-400' : 'text-muted-foreground')} />
+                        </div>
                         {/* Profile Dropdown */}
                         {isAuthenticated && user ? (
                             <DropdownMenu>
@@ -455,9 +442,15 @@ const Navbar = () => {
                         </div>
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-sm">Theme</span>
-                            <Sun className={cn('w-5 h-5', !isDark ? 'text-yellow-400' : 'text-muted-foreground')} />
-                            <Switch checked={isDark} onCheckedChange={setIsDark} aria-label="Toggle dark mode" className="mx-1" />
-                            <Moon className={cn('w-5 h-5', isDark ? 'text-blue-400' : 'text-muted-foreground')} />
+                            <Sun className={cn('w-5 h-5 transition-colors', !isDark ? 'text-yellow-400' : 'text-muted-foreground')} />
+                            <Switch
+                                checked={isDark}
+                                onCheckedChange={() => !isLoading && toggleTheme()}
+                                aria-label="Toggle dark mode"
+                                className="mx-1"
+                                disabled={isLoading}
+                            />
+                            <Moon className={cn('w-5 h-5 transition-colors', isDark ? 'text-blue-400' : 'text-muted-foreground')} />
                         </div>
                         {isAuthenticated && user && (
                             <div className="flex flex-col gap-2 mt-4">

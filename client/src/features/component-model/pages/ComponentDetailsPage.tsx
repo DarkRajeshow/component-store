@@ -77,8 +77,8 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load component</h3>
-            <p className="text-gray-600 mb-4">{error || 'Component not found'}</p>
+            <h3 className="text-lg font-medium text-foreground mb-2">Failed to load component</h3>
+            <p className="text-muted-foreground mb-4">{error || 'Component not found'}</p>
             <div className="flex gap-2 justify-center">
               {onBack && (
                 <Button variant="outline" onClick={onBack}>
@@ -142,8 +142,8 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             </Button>
           )}
           <div>
-            <h1 className="text-3xl font-medium text-gray-900">{component.name}</h1>
-            <p className="text-gray-600 mt-1">Component Details</p>
+            <h1 className="text-3xl font-medium text-foreground">{component.name}</h1>
+            <p className="text-muted-foreground mt-1">Component Details</p>
           </div>
         </div>
         <Button onClick={() => setShowUpload(true)} className="gap-2">
@@ -166,25 +166,25 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Component Code</label>
+                  <label className="text-sm font-medium text-muted-foreground">Component Code</label>
                   <Badge variant="secondary" className="text-base font-medium block">
                     {component.componentCode}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Latest Issue</label>
+                  <label className="text-sm font-medium text-muted-foreground">Latest Issue</label>
                   <Badge variant="secondary" className="text-base font-medium block">
                     {component.issueNumber || 'Not set'}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Latest Revision</label>
+                  <label className="text-sm font-medium text-muted-foreground">Latest Revision</label>
                   <Badge variant="secondary" className="text-base font-medium block">
                     {component.latestRevisionNumber}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Total Revisions</label>
+                  <label className="text-sm font-medium text-muted-foreground">Total Revisions</label>
                   <Badge variant="secondary" className="text-base font-medium block">
                     {component.revisions.length}
                   </Badge>
@@ -194,8 +194,8 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
               <Separator />
 
               <div>
-                <label className="text-sm font-medium text-gray-500">Description</label>
-                <p className="text-gray-900 mt-1">{component.description}</p>
+                <label className="text-sm font-medium text-muted-foreground">Description</label>
+                <p className="text-foreground mt-1">{component.description}</p>
               </div>
             </CardContent>
           </Card>
@@ -212,9 +212,9 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             <CardContent>
               {component.revisions.length === 0 ? (
                 <div className="text-center py-8">
-                  <FileUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No revisions yet</h3>
-                  <p className="text-gray-600 mb-4">Upload the first revision to get started</p>
+                  <FileUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No revisions yet</h3>
+                  <p className="text-muted-foreground mb-4">Upload the first revision to get started</p>
                   <Button onClick={() => setShowUpload(true)}>
                     Upload First Revision
                   </Button>
@@ -222,7 +222,7 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
               ) : (
                 <div className="space-y-4">
                   {sortedRevisions.map((revision, index) => (
-                    <div key={revision._id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div key={revision._id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <Badge variant={index === 0 ? "default" : "outline"} className="text-sm">
@@ -234,7 +234,7 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
                             </Badge>
                           )}
                         </div>
-                        <div className="text-right text-sm text-gray-500">
+                        <div className="text-right text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Calendar size={14} />
                             {new Date(revision.date).toLocaleDateString()}
@@ -247,7 +247,7 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
                       </div>
 
                       <div className="mb-3">
-                        <p className="text-gray-900">{revision.remark}</p>
+                        <p className="text-foreground">{revision.remark}</p>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -279,7 +279,7 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
                             </>
                           )}
                         </Button>
-                        <span className="text-xs text-gray-500 ml-auto">
+                        <span className="text-xs text-muted-foreground ml-auto">
                           {revision.originalFileName}
                         </span>
                       </div>
@@ -300,45 +300,45 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Created By</label>
+                <label className="text-sm font-medium text-muted-foreground">Created By</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <User size={16} className="text-gray-400" />
+                  <User size={16} className="text-muted-foreground" />
                   <div>
-                    <p className="font-medium">{component.createdBy?.name}</p>
-                    <p className="text-sm text-gray-500">{component.createdBy?.email}</p>
+                    <p className="font-medium text-foreground">{component.createdBy?.name}</p>
+                    <p className="text-sm text-muted-foreground">{component.createdBy?.email}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">Created At</label>
+                <label className="text-sm font-medium text-muted-foreground">Created At</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock size={16} className="text-gray-400" />
+                  <Clock size={16} className="text-muted-foreground" />
                   <div>
-                    <p className="font-medium">{new Date(component.createdAt).toLocaleDateString()}</p>
-                    <p className="text-sm text-gray-500">{new Date(component.createdAt).toLocaleTimeString()}</p>
+                    <p className="font-medium text-foreground">{new Date(component.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm text-muted-foreground">{new Date(component.createdAt).toLocaleTimeString()}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">Last Updated By</label>
+                <label className="text-sm font-medium text-muted-foreground">Last Updated By</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <User size={16} className="text-gray-400" />
+                  <User size={16} className="text-muted-foreground" />
                   <div>
-                    <p className="font-medium">{component.lastUpdatedBy?.name}</p>
-                    <p className="text-sm text-gray-500">{component.lastUpdatedBy?.email}</p>
+                    <p className="font-medium text-foreground">{component.lastUpdatedBy?.name}</p>
+                    <p className="text-sm text-muted-foreground">{component.lastUpdatedBy?.email}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500">Last Updated</label>
+                <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock size={16} className="text-gray-400" />
+                  <Clock size={16} className="text-muted-foreground" />
                   <div>
-                    <p className="font-medium">{new Date(component.lastUpdatedAt).toLocaleDateString()}</p>
-                    <p className="text-sm text-gray-500">{new Date(component.lastUpdatedAt).toLocaleTimeString()}</p>
+                    <p className="font-medium text-foreground">{new Date(component.lastUpdatedAt).toLocaleDateString()}</p>
+                    <p className="text-sm text-muted-foreground">{new Date(component.lastUpdatedAt).toLocaleTimeString()}</p>
                   </div>
                 </div>
               </div>
@@ -355,15 +355,15 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             </CardHeader>
             <CardContent>
               {component.notifyTo.length === 0 ? (
-                <p className="text-gray-500 text-sm">No users to notify</p>
+                <p className="text-muted-foreground text-sm">No users to notify</p>
               ) : (
                 <div className="space-y-2">
                   {component.notifyTo.map(user => (
-                    <div key={user._id} className="flex items-center gap-2 p-2 rounded bg-gray-50">
-                      <User size={16} className="text-gray-400" />
+                    <div key={user._id} className="flex items-center gap-2 p-2 rounded bg-muted/50">
+                      <User size={16} className="text-muted-foreground" />
                       <div>
-                        <p className="font-medium text-sm">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="font-medium text-sm text-foreground">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
                   ))}

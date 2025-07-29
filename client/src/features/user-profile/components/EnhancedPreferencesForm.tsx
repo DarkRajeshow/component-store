@@ -10,7 +10,6 @@ import {
   Settings, 
   Bell, 
   Palette, 
-  Layout, 
   Mail, 
   Smartphone, 
   Volume2, 
@@ -29,6 +28,9 @@ interface EnhancedPreferencesFormProps {
 }
 
 export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: EnhancedPreferencesFormProps) {
+
+  console.log(preferences);
+
   const [localPrefs, setLocalPrefs] = useState(preferences);
   const [saved, setSaved] = useState(false);
 
@@ -60,6 +62,8 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
   };
 
   const hasChanges = JSON.stringify(localPrefs) !== JSON.stringify(preferences);
+
+  if(!preferences) return null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

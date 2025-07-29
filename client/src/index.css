@@ -172,7 +172,7 @@ button {
   }
 
   body {
-    @apply bg-white text-foreground;
+    @apply bg-white text-foreground dark:bg-zinc-900 dark:text-white;
   }
 }
 
@@ -183,11 +183,11 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: white;
+  @apply bg-white dark:bg-zinc-900;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: gray;
+  @apply bg-gray-400 dark:bg-zinc-700;
   border-radius: 5px;
 }
 

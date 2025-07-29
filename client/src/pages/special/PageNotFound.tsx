@@ -11,14 +11,14 @@ const PageNotFound: React.FC<PageNotFoundProps> = ({
   onGoHome = () => window.location.href = '/'
 }) => {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 pt-20">
+    <div className="min-h-screen bg-white dark:bg-zinc-900 flex items-center justify-center px-4 pt-20">
       <div className="max-w-md w-full text-center">
         {/* Icon */}
         <div className="mb-8 flex justify-center">
           <div className="relative">
-            <Search className="w-24 h-24 text-black" strokeWidth={1} />
+            <Search className="w-24 h-24 text-black dark:text-white" strokeWidth={1} />
             <div className="absolute -top-2 -right-2">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-black dark:bg-white/10 rounded-full flex items-center justify-center">
                 <span className="text-white text-lg font-bold">?</span>
               </div>
             </div>
@@ -27,16 +27,16 @@ const PageNotFound: React.FC<PageNotFoundProps> = ({
 
         {/* Error Code */}
         <div className="mb-4">
-          <h1 className="text-6xl font-light text-black mb-2">404</h1>
-          <div className="w-16 h-px bg-black mx-auto"></div>
+          <h1 className="text-6xl font-light text-black dark:text-white mb-2">404</h1>
+          <div className="w-16 h-px bg-black dark:bg-white/30 mx-auto"></div>
         </div>
 
         {/* Main Message */}
-        <h2 className="text-2xl font-semibold text-black mb-4">
+        <h2 className="text-2xl font-semibold text-black dark:text-white mb-4">
           Page Not Found
         </h2>
         
-        <p className="text-gray-600 mb-8 leading-relaxed">
+        <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
           The page you're looking for doesn't exist or has been moved. 
           Please check the URL or navigate back to continue browsing.
         </p>

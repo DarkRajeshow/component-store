@@ -361,7 +361,7 @@ export function PdfViewerModal({ revision, open, onClose }: PdfViewerModalProps)
           ) : (
             <div 
               ref={containerRef}
-              className="w-full h-full border rounded-lg overflow-hidden bg-gray-50"
+              className="w-full h-full border rounded-lg overflow-hidden bg-gray-50 dark:bg-zinc-900"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -393,14 +393,14 @@ export function PdfViewerModal({ revision, open, onClose }: PdfViewerModalProps)
 
         {/* Drag Instructions */}
         {zoom > 100 && !isDragging && (
-          <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2">
+          <div className="absolute bottom-4 left-4 bg-black/70 dark:bg-zinc-800 text-white dark:text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2">
             <Move size={14} />
             Drag to pan
           </div>
         )}
 
         {/* Zoom Instructions */}
-        <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2">
+        <div className="absolute bottom-4 right-4 bg-black/70 dark:bg-zinc-800 text-white dark:text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2">
           <Search size={14} />
           Ctrl + Scroll to zoom
         </div>

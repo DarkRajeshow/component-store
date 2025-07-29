@@ -193,13 +193,13 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
 
   return (
     <Dialog open={true} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-white dark:bg-dark">
         <DialogHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Upload className="h-6 w-6 text-primary" />
             <DialogTitle className="text-2xl font-bold">Upload New Revision</DialogTitle>
           </div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Upload a new revision for "{component.name}" and update component metadata
           </p>
         </DialogHeader>
@@ -215,7 +215,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                     <FileText className="h-5 w-5 text-primary" />
                     Revision Information
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Define the revision details and specifications
                   </p>
                 </CardHeader>
@@ -304,7 +304,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                     <Upload className="h-5 w-5 text-primary" />
                     Revision File Upload
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Upload the PDF file for this revision
                   </p>
                 </CardHeader>
@@ -312,11 +312,11 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                   {/* Drag & Drop Zone */}
                   <div
                     className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                      dragActive 
-                        ? 'border-primary bg-primary/5' 
-                        : uploadedFile 
-                          ? 'border-green-500 bg-green-50' 
-                          : 'border-gray-300 hover:border-gray-400'
+                      dragActive
+                        ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                        : uploadedFile
+                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                          : 'border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-500'
                     }`}
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
@@ -351,10 +351,10 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                       <div className="space-y-4">
                         <UploadCloud className="h-12 w-12 text-gray-400 mx-auto" />
                         <div>
-                          <p className="text-lg font-medium text-gray-900">
+                          <p className="text-lg font-medium text-foreground">
                             Drag and drop your PDF file here
                           </p>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-muted-foreground mt-1">
                             or click to browse files
                           </p>
                         </div>
@@ -388,9 +388,9 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
 
                   {/* Expected Filename */}
                   {watchedValues.componentCode && watchedValues.issueNumber && watchedValues.revisionNumber && (
-                    <div className="text-xs text-gray-600 p-3 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-muted-foreground p-3 bg-muted/50 rounded-lg">
                       <p className="font-medium mb-1">Expected filename:</p>
-                      <code className="bg-white px-2 py-1 rounded border text-sm">
+                      <code className="bg-background px-2 py-1 rounded border text-sm">
                         {watchedValues.componentCode}_{watchedValues.issueNumber}_{watchedValues.revisionNumber}.pdf
                       </code>
                     </div>
@@ -405,7 +405,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                     <Users className="h-5 w-5 text-primary" />
                     Notification Settings
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Select users who will be notified about this revision
                   </p>
                 </CardHeader>
@@ -442,7 +442,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span>Selected users will receive real-time notifications for this revision</span>
                   </div>
@@ -511,7 +511,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-500">Remark</label>
-                    <p className="text-sm text-gray-600 line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {watchedValues.remark || 'No remark provided'}
                     </p>
                   </div>
@@ -565,8 +565,8 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                       <span className="text-gray-500 text-xs font-bold">3</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Track History</p>
-                      <p className="text-xs text-gray-600">Monitor version changes</p>
+                      <p className="text-sm font-medium text-muted-foreground">Track History</p>
+                      <p className="text-xs text-muted-foreground">Monitor version changes</p>
                     </div>
                   </div>
                 </CardContent>

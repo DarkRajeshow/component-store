@@ -125,8 +125,8 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Component Models</h2>
-          <p className="text-sm text-gray-600 mt-1">Manage and search component designs</p>
+          <h2 className="text-2xl font-bold text-foreground">Component Models</h2>
+          <p className="text-sm text-muted-foreground mt-1">Manage and search component designs</p>
         </div>
         <Button onClick={onCreate} className="gap-2">
           <Plus size={18} />
@@ -135,10 +135,10 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
       </div>
 
       {/* Search Bar */}
-      <Card className="p-4">
+      <Card className="p-4 bg-card dark:bg-zinc-900">
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" size={16} />
             <Input
               ref={searchInputRef}
               placeholder="Search by component code, name, or description..."
@@ -149,11 +149,11 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
               }}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="pl-10"
+              className="pl-10 bg-background dark:bg-zinc-900 text-foreground dark:text-white"
               disabled={loading}
             />
             {loading && (
-              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-spin text-gray-400" size={16} />
+              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-spin text-gray-400 dark:text-gray-500" size={16} />
             )}
             {store.search && !loading && (
               <Button
@@ -293,11 +293,11 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
 
       {/* Results Summary */}
       <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           {loading ? 'Loading...' : `${data.length} component${data.length !== 1 ? 's' : ''} found`}
         </p>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Show:</span>
+          <span className="text-sm text-muted-foreground">Show:</span>
           <Select
             value={(store.limit || 10).toString()}
             onValueChange={(value) => store.setFilter({ limit: parseInt(value), page: 1 })}
@@ -385,9 +385,9 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
                     <div className="text-center">
-                      <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No components found</h3>
-                      <p className="text-gray-600 mb-4">
+                      <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-foreground mb-2">No components found</h3>
+                      <p className="text-muted-foreground mb-4">
                         {store.componentCode || store.description || store.createdBy || store.issueNumber || store.latestRevisionNumber || store.startDate || store.endDate
                           ? 'Try adjusting your search criteria'
                           : 'Get started by creating your first component'
@@ -418,14 +418,14 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium">{component.createdBy?.name}</span>
-                        <span className="text-xs text-gray-500">{component.createdBy?.email}</span>
+                        <span className="font-medium text-foreground">{component.createdBy?.name}</span>
+                        <span className="text-xs text-muted-foreground">{component.createdBy?.email}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="text-sm">{new Date(component.createdAt).toLocaleDateString()}</span>
-                        <span className="text-xs text-gray-500">{new Date(component.createdAt).toLocaleTimeString()}</span>
+                        <span className="text-sm text-foreground">{new Date(component.createdAt).toLocaleDateString()}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(component.createdAt).toLocaleTimeString()}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -452,7 +452,7 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             Page {store.page || 1} of {totalPages} • {data.length} of {totalPages * (store.limit || 10)} results
           </div>
           <div className="flex items-center gap-2">

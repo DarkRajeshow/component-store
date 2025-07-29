@@ -213,7 +213,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-white dark:bg-dark">
         <DialogHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             {isEditMode ? (
@@ -228,7 +228,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
               </>
             )}
           </div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {isEditMode 
               ? 'Update component information and notification settings'
               : 'Define component metadata, upload initial revision, and set up notifications'
@@ -247,7 +247,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                     <FileText className="h-5 w-5 text-primary" />
                     Component Information
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Define the core component details and specifications
                   </p>
                 </CardHeader>
@@ -378,7 +378,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                       <Upload className="h-5 w-5 text-primary" />
                       Initial Revision File
                     </CardTitle>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Upload the first revision file for this component
                     </p>
                   </CardHeader>
@@ -392,10 +392,10 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                       <div
                         className={`relative border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
                           dragActive
-                            ? 'border-primary bg-primary/5'
+                            ? 'border-primary bg-primary/5 dark:bg-primary/10'
                             : uploadedFile
-                            ? 'border-green-500 bg-green-50'
-                            : 'border-gray-300 hover:border-gray-400'
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                            : 'border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-500'
                         }`}
                         onDragEnter={handleDrag}
                         onDragLeave={handleDrag}
@@ -433,10 +433,10 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                                 <Upload className="h-6 w-6 text-gray-400" />
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-foreground">
                                   Drag and drop your PDF file here
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                   or click to browse files
                                 </p>
                               </div>  
@@ -472,9 +472,9 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
 
                       {/* Expected Filename Preview */}
                       {watchedValues.componentCode && watchedValues.issueNumber && watchedValues.latestRevisionNumber && (
-                        <div className="text-xs text-gray-600 p-3 bg-gray-50 rounded border">
+                        <div className="text-xs text-muted-foreground p-3 bg-muted/50 rounded border">
                           <p className="font-medium mb-1">Expected filename:</p>
-                          <code className="bg-white px-2 py-1 rounded border text-xs">
+                          <code className="bg-background px-2 py-1 rounded border text-xs">
                             {watchedValues.componentCode}_{watchedValues.issueNumber}_{watchedValues.latestRevisionNumber}.pdf
                           </code>
                         </div>
@@ -491,7 +491,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                     <Users className="h-5 w-5 text-primary" />
                     Notification Settings
                   </CardTitle>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Select users who will be notified when revisions are uploaded
                   </p>
                 </CardHeader>
@@ -528,7 +528,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span>Selected users will receive real-time notifications for component updates</span>
                   </div>
@@ -545,37 +545,37 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <label className="text-xs font-medium text-gray-500">Component Name</label>
+                    <label className="text-xs font-medium text-muted-foreground">Component Name</label>
                     <p className="text-sm font-medium">
                       {watchedValues.name || 'Not specified'}
                     </p>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-500">Component Code</label>
+                    <label className="text-xs font-medium text-muted-foreground">Component Code</label>
                     <p className="text-sm font-medium">
                       {watchedValues.componentCode || 'Not specified'}
                     </p>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-500">Issue Number</label>
+                    <label className="text-xs font-medium text-muted-foreground">Issue Number</label>
                     <p className="text-sm font-medium">
                       {watchedValues.issueNumber || 'Not specified'}
                     </p>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-500">Revision Number</label>
+                    <label className="text-xs font-medium text-muted-foreground">Revision Number</label>
                     <p className="text-sm font-medium">
                       {watchedValues.latestRevisionNumber || 'Not specified'}
                     </p>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-500">Description</label>
-                    <p className="text-sm text-gray-600 line-clamp-3">
+                    <label className="text-xs font-medium text-muted-foreground">Description</label>
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {watchedValues.description || 'No description provided'}
                     </p>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-500">Notify Users</label>
+                    <label className="text-xs font-medium text-muted-foreground">Notify Users</label>
                     <p className="text-sm">
                       {notifyTo.length > 0 
                         ? `${notifyTo.length} user${notifyTo.length !== 1 ? 's' : ''} selected`
@@ -585,7 +585,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                   </div>
                   {!isEditMode && uploadedFile && (
                     <div>
-                      <label className="text-xs font-medium text-gray-500">File</label>
+                      <label className="text-xs font-medium text-muted-foreground">File</label>
                       <div className="flex items-center gap-2 text-sm">
                         <File className="h-4 w-4" />
                         <span>{uploadedFile.name}</span>
@@ -627,8 +627,8 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                       <span className="text-gray-500 text-xs font-bold">3</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Manage Revisions</p>
-                      <p className="text-xs text-gray-600">Track version history</p>
+                      <p className="text-sm font-medium text-muted-foreground">Manage Revisions</p>
+                      <p className="text-xs text-muted-foreground">Track version history</p>
                     </div>
                   </div>
                 </CardContent>
