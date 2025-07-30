@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, Shield } from 'lucide-react';
 import { IAdmin } from '@/types/user.types';
 import { StatusBadge } from './StatusBadge';
+import { useAuth } from '@/hooks';
 
 interface SystemAdminsTabProps {
   admins: IAdmin[];
@@ -18,6 +19,8 @@ export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
   admins,
   onViewDetails
 }) => {
+
+  const { user } = useAuth();
   return (
     <Card>
       <CardHeader>
@@ -49,7 +52,7 @@ export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
                 <TableRow key={admin._id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{admin.name}</p>
+                      <p className="font-medium">{admin.name + `${user?._id === admin._id && ' (You)'}`}</p>
                       <p className="text-sm text-gray-500">{admin.email}</p>
                     </div>
                   </TableCell>
@@ -66,9 +69,9 @@ export const SystemAdminsTab: React.FC<SystemAdminsTabProps> = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => onViewDetails(admin)}
                       >
                         <Eye className="w-4 h-4 mr-1" />

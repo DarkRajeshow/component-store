@@ -28,7 +28,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           <div className="flex items-center gap-2">
             <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             <div>
-              <p className="text-2xl font-bold text-foreground">{departmentUsersCount}</p>
+              <p className="text-2xl font-bold text-foreground">{departmentUsersCount + approvedUsersCount + 1}</p>
               <p className="text-sm text-muted-foreground">
                 {isAdmin ? 'Total Users' : 'Department Users'}
               </p>

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { MultiSelectCombobox } from '@/components/ui/combobox';
 import { useUserSearch } from '../hooks/useUserSearch';
+import { DatePicker } from '@/components/ui/date-picker';
 
 // Dynamic schema based on edit mode
 const createSchema = z.object({
@@ -37,6 +38,7 @@ const createSchema = z.object({
   issueNumber: z.string().min(1, 'Issue number is required'),
   latestRevisionNumber: z.string().min(1, 'Revision number is required'),
   remark: z.string().min(2, 'Remark must be at least 2 characters'),
+  revisionDate: z.date().optional().refine((date) => date instanceof Date, 'Revision date is required'),
   notifyTo: z.array(z.string()).min(1, 'Select at least one user to notify'),
   file: z.any().refine((files) => files?.length > 0, 'File is required'),
 });
@@ -48,6 +50,7 @@ const editSchema = z.object({
   issueNumber: z.string().min(1, 'Issue number is required'),
   latestRevisionNumber: z.string().min(1, 'Revision number is required'),
   remark: z.string().min(2, 'Remark must be at least 2 characters'),
+  revisionDate: z.date().optional().refine((date) => date instanceof Date, 'Revision date is required'),
   notifyTo: z.array(z.string()).min(1, 'Select at least one user to notify'),
   file: z.any().optional(),
 });
@@ -90,6 +93,7 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
       issueNumber: component?.issueNumber || '',
       latestRevisionNumber: component?.latestRevisionNumber || '',
       remark: '',
+      revisionDate: new Date(),
       notifyTo: component?.notifyTo?.map(u => u._id) || [],
     }
   });
@@ -179,12 +183,15 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
         formData.append('issueNumber', data.issueNumber);
         formData.append('revisionNumber', data.latestRevisionNumber);
         formData.append('remark', data.remark);
-        formData.append('date', new Date().toISOString().split('T')[0]);
+        if (data.revisionDate instanceof Date) {
+          formData.append('date', data.revisionDate.toISOString().split('T')[0]);
+        }
         // Append each user ID individually to FormData
         data.notifyTo.forEach((userId: string) => {
           formData.append('notifyTo', userId);
         });
         formData.append('file', uploadedFile!);
+        console.log(formData.getAll('notifyTo'));
         
         await createComponent(formData);
         toast.success('Component created successfully!');
@@ -193,6 +200,8 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
       onSuccess?.();
       onOpenChange(false);
     } catch (error: unknown) {
+      console.log(error);
+      
       const errorMessage = error instanceof Error ? error.message : `Failed to ${isEditMode ? 'update' : 'create'} component`;
       toast.error(errorMessage);
     } finally {
@@ -347,24 +356,37 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                   </div>
 
                   {!isEditMode && (
-                    <div className="space-y-2">
-                      <Label htmlFor="remark" className="text-sm font-medium">
-                        Initial Revision Remark *
-                      </Label>
-                      <Textarea 
-                        id="remark"
-                        {...register('remark')} 
-                        placeholder="Describe the initial revision and any important notes..."
-                        rows={3}
-                        className={errors.remark ? 'border-red-500 focus:border-red-500' : ''}
-                      />
-                      {errors.remark && (
-                        <div className="flex items-center gap-1 text-red-500 text-sm">
-                          <AlertCircle className="h-4 w-4" />
-                          {errors.remark.message}
-                        </div>
-                      )}
-                    </div>
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="remark" className="text-sm font-medium">
+                          Initial Revision Remark *
+                        </Label>
+                        <Textarea 
+                          id="remark"
+                          {...register('remark')} 
+                          placeholder="Describe the initial revision and any important notes..."
+                          rows={3}
+                          className={errors.remark ? 'border-red-500 focus:border-red-500' : ''}
+                        />
+                        {errors.remark && (
+                          <div className="flex items-center gap-1 text-red-500 text-sm">
+                            <AlertCircle className="h-4 w-4" />
+                            {errors.remark.message}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <DatePicker
+                          date={watch('revisionDate') || undefined}
+                          onDateChange={(date) => setValue('revisionDate', date, { shouldValidate: true })}
+                          label="Initial Revision Date *"
+                          placeholder="Select revision date"
+                          error={errors.revisionDate?.message}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
@@ -567,6 +589,14 @@ export function ComponentCreateModal({ open, onOpenChange, onSuccess, component 
                       {watchedValues.latestRevisionNumber || 'Not specified'}
                     </p>
                   </div>
+                  {!isEditMode && (
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Revision Date</label>
+                      <p className="text-sm font-medium">
+                        {watchedValues.revisionDate ? watchedValues.revisionDate.toLocaleDateString() : 'Not specified'}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Description</label>
                     <p className="text-sm text-muted-foreground line-clamp-3">

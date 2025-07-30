@@ -13,11 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { uploadRevision } from '../services/api';
 import { Component } from '../types';
 import { toast } from 'sonner';
-import { 
-  Upload, 
-  FileText, 
-  Users, 
-  CheckCircle, 
+import {
+  Upload,
+  FileText,
+  Users,
+  CheckCircle,
   AlertCircle,
   File,
   X,
@@ -26,12 +26,13 @@ import {
 } from 'lucide-react';
 import { MultiSelectCombobox } from '@/components/ui/combobox';
 import { useUserSearch } from '../hooks/useUserSearch';
+import { DatePicker } from '@/components/ui/date-picker';
 
 const schema = z.object({
   issueNumber: z.string().min(1, 'Issue number is required'),
   revisionNumber: z.string().min(1, 'Revision number is required'),
   remark: z.string().min(2, 'Remark must be at least 2 characters'),
-  date: z.string().min(1, 'Date is required'),
+  date: z.date().optional().refine((date) => date instanceof Date, 'Date is required'),
   componentCode: z.string().min(1, 'Component code is required'),
   file: z.any().refine((files) => files?.length > 0, 'File is required'),
   notifyTo: z.array(z.string()).min(1, 'Select at least one user to notify'),
@@ -51,10 +52,10 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
   const [fileError, setFileError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  
+
   // Use the user search hook for dynamic user fetching
   const { users, loading: usersLoading, error: usersError, searchUsers } = useUserSearch();
-  
+
   const {
     register,
     handleSubmit,
@@ -62,14 +63,14 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
     watch,
     reset,
     formState: { errors, isValid },
-  } = useForm<FormValues>({ 
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
       issueNumber: component.issueNumber || '',
       revisionNumber: '',
       remark: '',
-      date: new Date().toISOString().split('T')[0],
+      date: new Date(),
       componentCode: component.componentCode,
       notifyTo: component.notifyTo?.map(u => u._id) || [],
     }
@@ -112,7 +113,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       if (file.type === 'application/pdf') {
@@ -156,15 +157,17 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
       formData.append('issueNumber', data.issueNumber);
       formData.append('revisionNumber', data.revisionNumber);
       formData.append('remark', data.remark);
-      formData.append('date', data.date);
+      if (data.date instanceof Date) {
+        formData.append('date', data.date.toISOString().split('T')[0]);
+      }
       formData.append('componentCode', data.componentCode);
       formData.append('file', uploadedFile!);
-      
+
       // Append each user ID individually to FormData
       data.notifyTo.forEach((userId: string) => {
         formData.append('notifyTo', userId);
       });
-      
+
       await uploadRevision(componentId, formData);
       toast.success('Revision uploaded successfully!');
       onSuccess?.();
@@ -189,7 +192,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
 
   return (
     <Dialog open={true} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-white dark:bg-dark">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-white dark:bg-dark z-50">
         <DialogHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Upload className="h-6 w-6 text-primary" />
@@ -199,7 +202,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
             Upload a new revision for "{component.name}" and update component metadata
           </p>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Form Section */}
@@ -221,9 +224,9 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                       <Label htmlFor="issueNumber" className="text-sm font-medium">
                         Issue Number *
                       </Label>
-                      <Input 
+                      <Input
                         id="issueNumber"
-                        {...register('issueNumber')} 
+                        {...register('issueNumber')}
                         placeholder="e.g., 01"
                         className={errors.issueNumber ? 'border-red-500 focus:border-red-500' : ''}
                       />
@@ -234,14 +237,14 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="revisionNumber" className="text-sm font-medium">
                         Revision Number *
                       </Label>
-                      <Input 
+                      <Input
                         id="revisionNumber"
-                        {...register('revisionNumber')} 
+                        {...register('revisionNumber')}
                         placeholder="e.g., 01"
                         className={errors.revisionNumber ? 'border-red-500 focus:border-red-500' : ''}
                       />
@@ -258,9 +261,9 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                     <Label htmlFor="remark" className="text-sm font-medium">
                       Revision Remark *
                     </Label>
-                    <Textarea 
+                    <Textarea
                       id="remark"
-                      {...register('remark')} 
+                      {...register('remark')}
                       placeholder="Describe the changes in this revision..."
                       rows={4}
                       className={errors.remark ? 'border-red-500 focus:border-red-500' : ''}
@@ -274,21 +277,14 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="date" className="text-sm font-medium">
-                      Revision Date *
-                    </Label>
-                    <Input 
-                      id="date"
-                      type="date" 
-                      {...register('date')} 
-                      className={errors.date ? 'border-red-500 focus:border-red-500' : ''}
-                    />
-                    {errors.date && (
-                      <div className="flex items-center gap-1 text-red-500 text-sm">
-                        <AlertCircle className="h-4 w-4" />
-                        {errors.date.message}
-                      </div>
-                    )}
+                                         <DatePicker
+                       date={watch('date')}
+                       onDateChange={(date) => setValue('date', date, { shouldValidate: true })}
+                       label="Revision Date *"
+                       placeholder="Select revision date"
+                       error={errors.date?.message}
+                       disabled={isSubmitting}
+                     />
                   </div>
                 </CardContent>
               </Card>
@@ -307,13 +303,12 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                 <CardContent className="space-y-4">
                   {/* Drag & Drop Zone */}
                   <div
-                    className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                      dragActive
+                    className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
                         ? 'border-primary bg-primary/5 dark:bg-primary/10'
                         : uploadedFile
                           ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                           : 'border-gray-300 dark:border-zinc-700 hover:border-gray-400 dark:hover:border-zinc-500'
-                    }`}
+                      }`}
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
@@ -411,9 +406,9 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                       Notify Users *
                     </Label>
                     <MultiSelectCombobox
-                      options={users.map((user) => ({ 
-                        label: `${user.name} (${user.email})`, 
-                        value: user._id 
+                      options={users.map((user) => ({
+                        label: `${user.name} (${user.email})`,
+                        value: user._id
                       }))}
                       value={notifyTo}
                       onChange={(vals) => setValue('notifyTo', vals, { shouldValidate: true })}
@@ -437,7 +432,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span>Selected users will receive real-time notifications for this revision</span>
@@ -502,7 +497,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                   <div>
                     <label className="text-xs font-medium text-gray-500">Revision Date</label>
                     <p className="text-sm font-medium">
-                      {watchedValues.date || 'Not specified'}
+                      {watchedValues.date ? watchedValues.date.toLocaleDateString() : 'Not specified'}
                     </p>
                   </div>
                   <div>
@@ -514,7 +509,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
                   <div>
                     <label className="text-xs font-medium text-gray-500">Notify Users</label>
                     <p className="text-sm">
-                      {notifyTo.length > 0 
+                      {notifyTo.length > 0
                         ? `${notifyTo.length} user${notifyTo.length !== 1 ? 's' : ''} selected`
                         : 'No users selected'
                       }
@@ -535,7 +530,7 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
               {/* Next Steps */}
               <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg">Next Steps</CardTitle>
+                  <CardTitle className="text-lg">Next Steps</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
@@ -569,20 +564,20 @@ export function RevisionUploadModal({ componentId, component, onSuccess, onClose
               </Card>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => handleOpenChange(false)}
               className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting || !isValid || !uploadedFile}
               className="w-full sm:w-auto gap-2"
             >

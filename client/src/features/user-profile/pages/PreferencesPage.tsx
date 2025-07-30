@@ -13,7 +13,7 @@ export default function PreferencesPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading preferences...</p>
+          <p className="text-muted-foreground">Loading preferences...</p>
         </div>
       </div>
     );
@@ -25,7 +25,7 @@ export default function PreferencesPage() {
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Oops!</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-muted-foreground mb-4">{error}</p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function PreferencesPage() {
         <div className="text-center">
           <div className="text-gray-400 text-6xl mb-4">⚙️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Preferences Not Available</h2>
-          <p className="text-gray-600">Unable to load your preferences.</p>
+          <p className="text-muted-foreground">Unable to load your preferences.</p>
         </div>
       </div>
     );
@@ -52,7 +52,7 @@ export default function PreferencesPage() {
           <Button 
             onClick={() => navigate('/profile')}
             variant="ghost"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 text-muted-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Profile

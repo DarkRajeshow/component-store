@@ -5,8 +5,6 @@
 
 @plugin "tailwindcss-animate";
 
-
-
 @font-face {
   font-family: 'MyCustomFont';
   src: url('/fonts/ITCAvantGardeStd-Md.ttf');
@@ -33,9 +31,6 @@
 
 body {
   @apply overflow-x-hidden w-screen min-h-screen font-medium m-0 p-0 transition-all
-}
-
-body {
   font-family: "Elegant", sans-serif;
 }
 

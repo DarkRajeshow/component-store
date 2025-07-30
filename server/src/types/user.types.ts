@@ -48,7 +48,7 @@ export interface IStatusLog {
     updatedBy?: mongoose.Types.ObjectId | string;
 }
 
-export interface UserPreferences {
+export interface IPreferences {
     notifications: {
         email: boolean;
         inApp: boolean;
@@ -71,7 +71,7 @@ export interface IUser extends Document {
     designation: Designation;
     reportingTo?: mongoose.Types.ObjectId | string | undefined; // Reference to another IUser
     role: Role;
-    preferences: UserPreferences;
+    preferences: IPreferences;
     approvedBy?: mongoose.Types.ObjectId | string | undefined;
     dhApprovalStatus: ApprovalStatus;
     adminApprovalStatus: ApprovalStatus;
@@ -93,6 +93,7 @@ export interface IAdmin extends Document {
     statusLogs: IStatusLog[],
     role: 'admin';
     isSystemAdmin: boolean;
+    preferences: IPreferences;
     isDisabled: boolean,
     createdAt: Date;
     updatedAt: Date;

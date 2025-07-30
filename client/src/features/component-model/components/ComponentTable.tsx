@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useComponentStore } from '../hooks/useComponentStore';
-import { getComponents } from '../services/api';
+import { getComponents, deleteComponent } from '../services/api';
 import { Component } from '../types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,17 @@ import { Card } from '@/components/ui/card';
 import { Table, TableHeader, TableHead, TableRow, TableCell, TableBody } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,11 +30,13 @@ import {
   Filter,
   X,
   Loader2,
-  Calendar
+  Calendar,
+  Trash2
 } from 'lucide-react';
 import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
+import { toast } from 'sonner';
 
 export function ComponentTable({ onCreate }: { onCreate: () => void }) {
   const store = useComponentStore();
@@ -36,6 +49,8 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isDesigner = user?.role === 'designer' || user?.role === 'admin';
+  const [deletingComponentId, setDeletingComponentId] = useState<string | null>(null);
+  const [componentToDelete, setComponentToDelete] = useState<{ id: string; name: string } | null>(null);
   
   const fetchData = async () => {
     setLoading(true);
@@ -121,6 +136,27 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
   const getSortIcon = (field: string) => {
     if (store.sortBy !== field) return null;
     return store.sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />;
+  };
+
+  const handleDeleteComponent = async (componentId: string, componentName: string) => {
+    setComponentToDelete({ id: componentId, name: componentName });
+  };
+
+  const confirmDelete = async () => {
+    if (!componentToDelete) return;
+
+    setDeletingComponentId(componentToDelete.id);
+    try {
+      await deleteComponent(componentToDelete.id);
+      toast.success('Component deleted successfully');
+      fetchData(); // Refresh the list
+    } catch (error) {
+      console.error('Failed to delete component:', error);
+      toast.error('Failed to delete component');
+    } finally {
+      setDeletingComponentId(null);
+      setComponentToDelete(null);
+    }
   };
 
   return (
@@ -242,7 +278,13 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
                   type="date"
                   value={store.startDate}
                   onChange={e => store.setFilter({ startDate: e.target.value, page: 1 })}
-                  className="pl-10"
+                  onClick={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    if (target && target.showPicker) {
+                      target.showPicker();
+                    }
+                  }}
+                  className="pl-10 cursor-pointer"
                 />
               </div>
             </div>
@@ -255,7 +297,13 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
                   type="date"
                   value={store.endDate}
                   onChange={e => store.setFilter({ endDate: e.target.value, page: 1 })}
-                  className="pl-10"
+                  onClick={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    if (target && target.showPicker) {
+                      target.showPicker();
+                    }
+                  }}
+                  className="pl-10 cursor-pointer"
                 />
               </div>
             </div>
@@ -400,7 +448,7 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
                           : 'Get started by creating your first component'
                         }
                       </p>
-                      {!store.componentCode && !store.description && !store.createdBy && !store.issueNumber && !store.latestRevisionNumber && !store.startDate && !store.endDate && (
+                      {!store.componentCode && !store.description && !store.createdBy && !store.issueNumber && !store.latestRevisionNumber && !store.startDate && !store.endDate && isDesigner && (
                         <Button onClick={onCreate} className="gap-2">
                           <Plus size={16} />
                           Create Component
@@ -436,17 +484,38 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/components/${component._id}`);
-                        }}
-                        title="View Details"
-                      >
-                        <Eye size={16} />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/components/${component._id}`);
+                          }}
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </Button>
+                        {isDesigner && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteComponent(component._id, component.name);
+                            }}
+                            title="Delete Component"
+                            disabled={deletingComponentId === component._id}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            {deletingComponentId === component._id ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={16} />
+                            )}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -501,6 +570,36 @@ export function ComponentTable({ onCreate }: { onCreate: () => void }) {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!componentToDelete} onOpenChange={() => setComponentToDelete(null)}>
+        <AlertDialogContent className='bg-background dark:bg-zinc-900'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Component</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete component "{componentToDelete?.name}"? 
+              This action cannot be undone and will delete all associated revisions and files.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90 text-white"
+              disabled={deletingComponentId === componentToDelete?.id}
+            >
+              {deletingComponentId === componentToDelete?.id ? (
+                <>
+                  <Loader2 size={16} className="animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Component'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 

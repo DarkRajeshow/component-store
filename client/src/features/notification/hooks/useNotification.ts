@@ -68,6 +68,7 @@ export function useNotification() {
   const markAsRead = async (notificationId: string) => {
     if (!socketRef.current) return;
     await markNotificationRead(notificationId);
+    setNotifications((prev) => prev.map(n => n._id === notificationId ? { ...n, isRead: true } : n));
     socketRef.current.emit('mark-notification-read', notificationId);
   };
 

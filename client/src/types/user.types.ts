@@ -49,7 +49,7 @@ export interface IStatusLog {
     updatedBy?: string;
 }
 
-export interface UserPreferences {
+export interface IPreferences {
     notifications: {
         email: boolean;
         inApp: boolean;
@@ -72,7 +72,7 @@ export interface IUser {
     designation: Designation;
     reportingTo?: string | IUser | undefined; // Reference to another IUser
     role: Role;
-    preferences: UserPreferences; //temp key value types may change in future
+    preferences: IPreferences; //temp key value types may change in future
     approvedBy?: string | IAdmin | undefined;
     isDisabled: boolean,
     dhApprovalStatus: ApprovalStatus;
@@ -93,6 +93,7 @@ export interface IAdmin {
     role: 'admin';
     statusLogs: IStatusLog[];
     isSystemAdmin: boolean;
+    preferences: IPreferences;
     isDisabled: boolean,
     createdAt: Date;
     updatedAt: Date;

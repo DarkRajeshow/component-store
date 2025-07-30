@@ -43,6 +43,19 @@ const AdminSchema = new Schema<IAdmin>({
         ref: 'Admin',
         default: null
     },
+    preferences: {
+        type: Schema.Types.Mixed,
+        default: {
+            notifications: {
+                email: false,
+                inApp: true,
+                sound: true,
+                push: false
+            },
+            theme: 'light',
+            layout: 'list',
+        }
+    },
     statusLogs: [{
         status: { type: String },
         timestamp: { type: Date },

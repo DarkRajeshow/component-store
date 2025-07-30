@@ -25,7 +25,7 @@ export const getReportingTo = async (designation: string, department: string): P
 export const deleteUser = async (userId: string): Promise<{ success: boolean; message?: string }> => {
     try {
         const url = `/users/${userId}`;
-        const response = await apiRequest('delete', url);
+        const response = await apiRequest<{ success: boolean; message?: string }>('delete', url);
         return response;
     } catch (error) {
         console.error('Failed to delete user:', error);

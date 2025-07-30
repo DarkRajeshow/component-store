@@ -1,10 +1,21 @@
 import { useEffect, useState } from 'react';
-import { getComponentDetails } from '../services/api';
+import { getComponentDetails, deleteComponent } from '../services/api';
 import { Component, Revision } from '../types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { RevisionUploadModal } from '../components/RevisionUploadModal';
 import { PdfViewerModal } from '../components/PdfViewerModal';
 import {
@@ -18,7 +29,8 @@ import {
   FileText,
   Users,
   AlertCircle,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
@@ -39,6 +51,8 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
   const [selectedRevision, setSelectedRevision] = useState<Revision | null>(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { user } = useAuth();
   const isDesigner = user?.role === 'designer' || user?.role === 'admin';
 
@@ -134,6 +148,34 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
     }
   };
 
+  const handleDeleteComponent = async () => {
+    if (!component) return;
+    
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!component) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteComponent(component._id);
+      toast.success('Component deleted successfully');
+      // Navigate back to the components list
+      if (onBack) {
+        onBack();
+      } else {
+        window.history.back();
+      }
+    } catch (error) {
+      console.error('Failed to delete component:', error);
+      toast.error('Failed to delete component');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
+  };
+
   return (
     <div className="mx-auto p-6 space-y-6">
       {/* Header */}
@@ -150,12 +192,25 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
             <p className="text-muted-foreground mt-1">Component Details</p>
           </div>
         </div>
-        {isDesigner && (
-          <Button onClick={() => setShowUpload(true)} className="gap-2">
-            <FileUp size={16} />
-            Upload Revision
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {isDesigner && (
+            <>
+              <Button onClick={() => setShowUpload(true)} className="gap-2">
+                <FileUp size={16} />
+                Upload Revision
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteComponent}
+                disabled={isDeleting}
+                className="gap-2"
+              >
+                <Trash2 size={16} />
+                Delete Component
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -468,6 +523,36 @@ export function ComponentDetailsPage({ onBack }: ComponentDetailsPageProps) {
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className='bg-background dark:bg-zinc-900'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Component</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete component "{component?.name}"? 
+              This action cannot be undone and will delete all associated revisions and files.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90 text-white"
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 size={16} className="animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Component'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 

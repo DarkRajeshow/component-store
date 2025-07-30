@@ -7,11 +7,14 @@ import { Card } from '@/components/ui/card';
 import { getComponents } from '@/features/component-model/services/api';
 import { Component } from '@/features/component-model/types';
 import { Loader2, ArrowRight } from 'lucide-react';
+import { DatePicker } from "@/components/ui/date-picker";
 
 const HomePage = () => {
   const { user, isAuthenticated } = useAuth();
   const [recentComponents, setRecentComponents] = useState<Component[]>([]);
   const [loading, setLoading] = useState(false);
+  const isAdmin = user?.role === 'admin';
+  const isDh = user?.designation === 'Department Head';
 
   useEffect(() => {
     const fetchRecent = async () => {
@@ -104,8 +107,10 @@ const HomePage = () => {
           </Card>
         </div>
 
+        <DatePicker date={new Date()} onDateChange={() => {}} />
+
         {/* App Glimpse Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+        <div className={`grid grid-cols-1 gap-6 mt-2 ${isAdmin || isDh ? 'md:grid-cols-3 ' : 'md:grid-cols-2'}`}>
           <Card className="p-6 flex flex-col gap-2 items-start border border-zinc-200 dark:border-zinc-800">
             <div className="text-lg font-semibold mb-1">Component Management</div>
             <div className="text-muted-foreground text-sm mb-2">Create, view, and manage all your engineering components in one place. Stay organized and up-to-date with the latest changes.</div>
@@ -113,13 +118,24 @@ const HomePage = () => {
               <Link to="/components">Go to Components</Link>
             </Button>
           </Card>
-          <Card className="p-6 flex flex-col gap-2 items-start border border-zinc-200 dark:border-zinc-800">
-            <div className="text-lg font-semibold mb-1">Approvals & Admin</div>
-            <div className="text-muted-foreground text-sm mb-2">Track pending approvals, manage users, and access admin tools for streamlined workflows.</div>
-            <Button asChild size="sm" variant="outline">
-              <Link to={user?.role === 'admin' ? '/admin-dashboard' : '/dh-dashboard'}>Go to Dashboard</Link>
-            </Button>
-          </Card>
+          {isAdmin && (
+            <Card className="p-6 flex flex-col gap-2 items-start border border-zinc-200 dark:border-zinc-800">
+              <div className="text-lg font-semibold mb-1">Approvals & Admin</div>
+              <div className="text-muted-foreground text-sm mb-2">Track pending approvals, manage users, and access admin tools for streamlined workflows.</div>
+              <Button asChild size="sm" variant="outline">
+                <Link to={'/admin-dashboard'}>Go to Dashboard</Link>
+              </Button>
+            </Card>
+          )}
+          {isDh && (
+            <Card className="p-6 flex flex-col gap-2 items-start border border-zinc-200 dark:border-zinc-800">
+              <div className="text-lg font-semibold mb-1">DH Dashboard</div>
+              <div className="text-muted-foreground text-sm mb-2">Track pending approvals, manage users, and access department head tools for streamlined workflows.</div>
+              <Button asChild size="sm" variant="outline">
+                <Link to={'/dh-dashboard'}>Go to Dashboard</Link>
+              </Button>
+            </Card>
+          )}
           <Card className="p-6 flex flex-col gap-2 items-start border border-zinc-200 dark:border-zinc-800">
             <div className="text-lg font-semibold mb-1">Notifications & Updates</div>
             <div className="text-muted-foreground text-sm mb-2">Stay informed with real-time notifications about new components, revisions, and approvals.</div>

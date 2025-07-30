@@ -69,7 +69,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Preferences</h1>
+        <h1 className="text-3xl font-bold text-muted-foreground dark:text-white">Preferences</h1>
         <p className="text-gray-600 dark:text-gray-300">
           Customize your experience and notification settings
         </p>
@@ -90,7 +90,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-medium">Theme</h3>
-                  <p className="text-sm text-gray-500">Choose your preferred color scheme</p>
+                  <p className="text-sm text-muted-foreground">Choose your preferred color scheme</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
             <div className="space-y-3">
               <div>
                 <h3 className="font-medium mb-2">Layout</h3>
-                <p className="text-sm text-gray-500 mb-3">Choose how content is displayed</p>
+                <p className="text-sm text-muted-foreground mb-3">Choose how content is displayed</p>
                 <Select value={localPrefs.layout} onValueChange={handleLayoutChange} disabled={loading}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -162,7 +162,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
                   <Mail className="w-5 h-5 text-blue-500" />
                   <div>
                     <h3 className="font-medium">Email Notifications</h3>
-                    <p className="text-sm text-gray-500">Receive updates via email</p>
+                    <p className="text-sm text-muted-foreground">Receive updates via email</p>
                   </div>
                 </div>
                 <Switch 
@@ -177,7 +177,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
                   <Smartphone className="w-5 h-5 text-green-500" />
                   <div>
                     <h3 className="font-medium">In-App Notifications</h3>
-                    <p className="text-sm text-gray-500">Show notifications in the app</p>
+                    <p className="text-sm text-muted-foreground">Show notifications in the app</p>
                   </div>
                 </div>
                 <Switch 
@@ -192,7 +192,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
                   <Volume2 className="w-5 h-5 text-purple-500" />
                   <div>
                     <h3 className="font-medium">Sound Alerts</h3>
-                    <p className="text-sm text-gray-500">Play sound for notifications</p>
+                    <p className="text-sm text-muted-foreground">Play sound for notifications</p>
                   </div>
                 </div>
                 <Switch 
@@ -207,7 +207,7 @@ export function EnhancedPreferencesForm({ preferences, onUpdate, loading }: Enha
                   <Zap className="w-5 h-5 text-orange-500" />
                   <div>
                     <h3 className="font-medium">Push Notifications</h3>
-                    <p className="text-sm text-gray-500">Browser push notifications</p>
+                    <p className="text-sm text-muted-foreground">Browser push notifications</p>
                   </div>
                 </div>
                 <Switch 

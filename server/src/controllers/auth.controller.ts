@@ -162,7 +162,7 @@ export const loginUser = async (req: Request, res: Response) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: 'Invalid credentials. Please check creadentials and selected user type (admin/user/designer).'
             });
         }
 
@@ -171,13 +171,13 @@ export const loginUser = async (req: Request, res: Response) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: 'Invalid credentials. Please check creadentials and selected user type (admin/user/designer).'
             });
         }
 
         // Restrict login based on isApproved (for users) and isSystemAdmin (for admins)
         if ((userType === 'user' && ((user as IUser).isApproved !== FinalApprovalStatus.APPROVED || (user as IUser).isDisabled)) ||
-            (userType === 'admin' && (!(user as IAdmin).isSystemAdmin || (user as IAdmin).isDisabled))) {
+            (userType === 'admin' && ((user as IAdmin).isDisabled || (user as IAdmin).isApproved !== FinalApprovalStatus.APPROVED))) {
             return res.status(403).json({
                 success: false,
                 message: 'Your account is not approved or is disabled. Please contact the administrator.'
@@ -768,6 +768,7 @@ export const createInitialAdmin = async (req: Request, res: Response) => {
             email: email.toLowerCase(),
             password: hashedPassword,
             isSystemAdmin,
+            isApproved: isSystemAdmin ? FinalApprovalStatus.APPROVED : FinalApprovalStatus.PENDING,
         });
 
         await admin.save();

@@ -126,7 +126,7 @@ export const ApprovalDashboard: React.FC<ApprovalDashboardProps> = ({
       <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
         <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="users">
-            All Users ({totalUsersCount})
+            All Users ({totalUsersCount + totalAdminsCount})
           </TabsTrigger>
           <TabsTrigger value="pending">
             Pending Approvals ({pendingUsersCount})
